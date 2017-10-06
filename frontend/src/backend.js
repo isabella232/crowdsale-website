@@ -15,6 +15,10 @@ class Backend {
     return get(this.url('/block/hash'));
   }
 
+  async chartData () {
+    return get(this.url('/auction/chart'));
+  }
+
   async config () {
     const { gasPrice } = await get(this.url('/config'));
 

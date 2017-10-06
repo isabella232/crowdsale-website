@@ -1,10 +1,11 @@
 import BigNumber from 'bignumber.js';
+import EventEmitter from 'eventemitter3';
 import { action, computed, observable } from 'mobx';
 
 import backend from '../backend';
 import blockStore from './block.store';
 
-class AuctionStore {
+class AuctionStore extends EventEmitter {
   BONUS_DURATION = new BigNumber(0);
   BONUS_SIZE = new BigNumber(0);
   DIVISOR = new BigNumber(1);
@@ -24,6 +25,7 @@ class AuctionStore {
   @observable totalReceived = new BigNumber(0);
 
   constructor () {
+    super();
     this.init();
     blockStore.on('block', this.refresh, this);
   }
@@ -46,7 +48,9 @@ class AuctionStore {
     this.beginTime = new Date(beginTime);
     this.tokenCap = new BigNumber(tokenCap);
 
-    return this.refresh();
+    await this.refresh();
+
+    this.emit('loaded');
   }
 
   bonus (value) {

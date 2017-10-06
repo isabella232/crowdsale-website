@@ -17,6 +17,7 @@ import Start from './steps/Start';
 import Summary from './steps/Summary';
 import Terms from './steps/Terms';
 
+import Chart from './Chart';
 import DotsQuery from './DotsQuery';
 import Messages from './Messages';
 
@@ -30,6 +31,7 @@ export default class App extends Component {
         <div>
           <Route exact path='/' component={MainApp} />
           <Route exact path='/dots' component={DotsQuery} />
+          <Route exact path='/chart' component={Chart} />
           <Messages />
         </div>
       </Router>
