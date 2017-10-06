@@ -13,19 +13,18 @@ const stepNameStyle = {
   position: 'absolute',
   marginLeft: '-75px',
   left: '0.75em',
-  top: '-5.5em',
+  top: '-4.5em',
   width: '150px',
   textAlign: 'center',
   height: '4.5em',
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'flex-end',
-  fontSize: '1.1em'
+  justifyContent: 'center'
 };
 
 export default class Stepper extends Component {
   static propTypes = {
-    steps: PropTypes.object.isRequired,
+    steps: PropTypes.any.isRequired,
     step: PropTypes.number.isRequired
   };
 
@@ -47,13 +46,12 @@ export default class Stepper extends Component {
         justifyContent: 'flex-end'
       }}>
         <div style={{
-          width: '92%',
+          width: '100%',
           height: '1px',
           position: 'relative',
           backgroundColor: 'lightgray',
           fontSize: '0.9em',
-          top: '-1em',
-          margin: '0 auto'
+          top: '-1em'
         }}>
           <div style={containerStyle}>
             {steps.map((title, index) => this.renderStep(title, index, count))}
@@ -67,13 +65,18 @@ export default class Stepper extends Component {
     const { step } = this.props;
     const position = Math.round(100 * index / count);
 
-    const color = index <= step
-      ? '#21ba45'
-      : 'lightgray';
+    let color;
+    let icon;
 
-    const icon = index <= step
-      ? 'check'
-      : undefined;
+    if (index < step) {
+      icon = 'check';
+      color = '#21ba45';
+    } else if (index === step) {
+      icon = 'point';
+      color = '#2185d0';
+    } else {
+      color = 'lightgray';
+    }
 
     return (
       <div

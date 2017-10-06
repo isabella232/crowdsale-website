@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import EthereumTx from 'ethereumjs-tx';
+import { action, observable } from 'mobx';
 
 import backend from '../backend';
 import config from './config.store';
@@ -15,6 +16,9 @@ class FeeStore {
   fee = null;
   feeRegistrar = null;
   totalFee = null;
+
+  // The transaction hash for the Fee Registrar
+  @observable transaction;
 
   constructor () {
     // Load after the config store
@@ -59,10 +63,15 @@ class FeeStore {
       const serializedTx = `0x${tx.serialize().toString('hex')}`;
       const { hash } = await backend.sendFeeTx(serializedTx);
 
-      console.warn('sent FeeRegistrar tx', { transaction: hash, who });
+      console.warn('sent FeeRegistrar tx', hash);
+      this.setTransaction(hash);
     } catch (error) {
       appStore.addError(error);
     }
+  }
+
+  @action setTransaction (transaction) {
+    this.transaction = transaction;
   }
 }
 

@@ -21,11 +21,16 @@ export default class Payment extends Component {
   render () {
     const { address, missingWei } = accountStore;
     const link = `web+ethereum:${address}?value=${missingWei.toNumber()}&gas=21000`;
+    const feeStyle = {
+      padding: '0.1em 0.25em',
+      background: '#fff8dd',
+      borderRadius: '0.25em'
+    };
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Header as='h2'>
-          PLEASE ADD {fromWei(missingWei).toFormat()} ETH TO THE ADDRESS BELOW
+          PLEASE ADD <big style={feeStyle}>{fromWei(missingWei).toFormat()} ETH</big> TO THE ADDRESS BELOW
         </Header>
 
         <div style={{

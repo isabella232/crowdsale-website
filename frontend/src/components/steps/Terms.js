@@ -55,7 +55,9 @@ export default class Terms extends Component {
             onChange={this.handleTermsChecked}
             style={{ marginBottom: '1em' }}
           />
+        </div>
 
+        <div>
           <Checkbox
             disabled={!hitBottom}
             label={`I confirm that I am not a citizen of China or the USA. (and in Mandarin)`}
@@ -63,7 +65,9 @@ export default class Terms extends Component {
             onChange={this.handleCitizenChecked}
             style={{ marginBottom: '1em' }}
           />
+        </div>
 
+        <div>
           <Checkbox
             disabled={!hitBottom}
             label={`I confirm that we may send payment of 0.005 ETH from my wallet for Identity Certification`}

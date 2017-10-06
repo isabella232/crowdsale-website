@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Container, Header, Segment } from 'semantic-ui-react';
 
+import MainLogo from '../images/MainLogo.svg';
+
 import appStore, { STEPS } from '../stores/app.store';
 import BigStepper from './BigStepper.js';
 import Stepper from './Stepper';
@@ -10,6 +12,14 @@ import Stepper from './Stepper';
 const baseContentStyle = {
   backgroundColor: 'white',
   padding: '4em 2.5em'
+};
+
+const headerStyle = {
+  padding: '1.5em 2em'
+};
+
+const mainLogoStyle = {
+  height: '3em'
 };
 
 @observer
@@ -30,7 +40,10 @@ export default class AppContainer extends Component {
   render () {
     return (
       <div style={{ paddingBottom: '4em' }}>
-        <div style={{ paddingTop: '4em' }}>
+        <div style={headerStyle}>
+          <img src={MainLogo} style={mainLogoStyle} />
+        </div>
+        <div style={{ paddingTop: '0em' }}>
           <BigStepper />
         </div>
         {this.renderContent()}

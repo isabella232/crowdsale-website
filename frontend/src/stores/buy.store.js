@@ -17,6 +17,9 @@ class BuyStore {
   @observable accounted;
   @observable success;
 
+  // The transaction hash for the Sale contract
+  @observable transaction;
+
   constructor () {
     // Init once the config is loaded
     config.once('loaded', this.init);
@@ -32,11 +35,11 @@ class BuyStore {
   }
 
   async checkPurchase () {
-    if (!this.txHash) {
+    if (!this.transaction) {
       return;
     }
 
-    const result = await backend.txStatus(this.txHash);
+    const result = await backend.txStatus(this.transaction);
 
     if (result.status === 'unkown') {
       return;
@@ -82,7 +85,7 @@ class BuyStore {
       const { hash } = await backend.sendTx(serializedTx);
 
       console.warn('sent purchase', hash);
-      this.txHash = hash;
+      this.setTransaction(hash);
     } catch (error) {
       appStore.addError(error);
       appStore.goto('contribute');
@@ -92,6 +95,10 @@ class BuyStore {
   @action setInfo ({ accounted, success }) {
     this.accounted = accounted;
     this.success = success;
+  }
+
+  @action setTransaction (transaction) {
+    this.transaction = transaction;
   }
 
   /** Poll on new block `this.address` dot balance, until it changes */

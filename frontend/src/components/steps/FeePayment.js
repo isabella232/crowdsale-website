@@ -1,8 +1,11 @@
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
-import { Header, Loader } from 'semantic-ui-react';
+import { Button, Header, Loader } from 'semantic-ui-react';
 
 import accountStore from '../../stores/account.store';
+import feeStore from '../../stores/fee.store';
 
+@observer
 export default class FeePayment extends Component {
   componentWillMount () {
     accountStore.watchFeePayment();
@@ -13,6 +16,9 @@ export default class FeePayment extends Component {
   }
 
   render () {
+    const { transaction } = feeStore;
+    const etherscanUrl = 'https://etherscan.io/tx/' + transaction;
+
     return (
       <div style={{ textAlign: 'center' }}>
         <Loader active inline='centered' size='huge' />
@@ -20,6 +26,25 @@ export default class FeePayment extends Component {
         <Header as='h2' style={{ textTransform: 'uppercase' }}>
           Processing fee payment
         </Header>
+
+        <p>
+          Please wait until your order has been recorded on the blockchain.
+        </p>
+
+        <p>
+          This can take several minutes or longer depending on the
+          volume of transactions on the Ethereum network.
+        </p>
+
+        {
+          transaction
+            ? (
+              <Button as='a' href={etherscanUrl} target='_blank' basic>
+                View transaction on Etherscan
+              </Button>
+            )
+            : null
+        }
       </div>
     );
   }

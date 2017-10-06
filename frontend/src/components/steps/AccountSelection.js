@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Card, Header, Image } from 'semantic-ui-react';
 
 import EthereumImg from '../../images/ethereum.png';
+import EthereumBlankImg from '../../images/ethereum_blank.png';
 
 import appStore from '../../stores/app.store';
 import accountStore from '../../stores/account.store';
@@ -9,13 +10,20 @@ import AccountCreator from '../AccountCreator';
 import AccountLoader from '../AccountLoader';
 
 const cardStyle = {
-  margin: '0 2em 1em',
-  borderRadius: '1em',
-  flex: '1',
-  maxWidth: '350px'
+  width: '300px',
+  maxWidth: '100%',
+  textAlign: 'center'
 };
 
 const imageStyle = {
+  width: '125px',
+  margin: '0 auto'
+};
+
+const imageContainerStyle = {
+  background: 'rgba(0,0,0,.05)',
+  padding: '2.5em 0',
+  width: '100%'
 };
 
 export default class AccountSelection extends Component {
@@ -57,18 +65,22 @@ export default class AccountSelection extends Component {
 
         <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%', marginTop: '4em' }}>
           <Card fluid link style={cardStyle} onClick={this.handleLoad}>
-            <Image src={EthereumImg} style={imageStyle} />
+            <div style={imageContainerStyle}>
+              <Image src={EthereumImg} style={imageStyle} />
+            </div>
             <Card.Content>
-              <Card.Header textAlign='center' style={{ padding: '1em 0' }}>
+              <Card.Header textAlign='center' style={{ padding: '0.5em 0' }}>
                 Load an Ethereum JSON file
               </Card.Header>
             </Card.Content>
           </Card>
 
           <Card fluid link style={cardStyle} onClick={this.handleCreate}>
-            <Image src={EthereumImg} style={imageStyle} />
+            <div style={imageContainerStyle}>
+              <Image src={EthereumBlankImg} style={imageStyle} />
+            </div>
             <Card.Content>
-              <Card.Header textAlign='center' style={{ padding: '1em 0' }}>
+              <Card.Header textAlign='center' style={{ padding: '0.5em 0' }}>
                 I don't have an Ethereum Wallet
               </Card.Header>
             </Card.Content>
