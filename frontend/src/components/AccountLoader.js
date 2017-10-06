@@ -212,7 +212,8 @@ export default class AccountLoader extends Component {
           privateKey
         });
       } catch (error) {
-        this.errorId = appStore.addError(error);
+        console.error(error);
+        this.errorId = appStore.addError(new Error('Failed to unlock your wallet. The password might be wrong.'));
         this.setState({ unlocking: false });
       }
     });

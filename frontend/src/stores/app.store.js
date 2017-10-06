@@ -36,11 +36,12 @@ class AppStore extends EventEmitter {
   loaders = {};
 
   skipCountrySelection = false;
-  skipStart = false;
-  skipTerms = false;
 
   @observable loading = true;
   @observable messages = {};
+  @observable step;
+  @observable citizenAccepted = false;
+  @observable spendingAccepted = false;
   @observable termsAccepted = false;
   @observable view = null;
 
@@ -59,11 +60,13 @@ class AppStore extends EventEmitter {
       case STEPS['payment']:
       case STEPS['fee-payment']:
       case STEPS['picops']:
+      case STEPS['picops-terms']:
       case STEPS['purchase']:
       case STEPS['summary']:
         return 2;
 
       default:
+        console.warn('UNKOWN STEP FOR STEPPER', this.step);
         return 0;
     }
   }
@@ -83,15 +86,7 @@ class AppStore extends EventEmitter {
 
     this.certifierAddress = await backend.certifierAddress();
 
-    if (store.get(TERMS_LS_KEY) === true) {
-      this.skipTerms = true;
-    }
-
     await this.loadCountries();
-
-    if (this.skipTerms && this.skipCountrySelection) {
-      this.skipStart = true;
-    }
 
     this.goto('important-notice');
   };
@@ -99,17 +94,6 @@ class AppStore extends EventEmitter {
   async goto (name) {
     if (!STEPS[name]) {
       throw new Error(`unknown step ${name}`);
-    }
-
-    if (name === 'start' && this.skipStart) {
-      return this.goto('terms');
-    }
-
-    if (name === 'terms' && this.skipTerms) {
-      return this.goto('country-selection');
-    }
-
-    if (name === 'country-selection' && this.skipCountrySelection) {
     }
 
     this.setLoading(true);
@@ -184,9 +168,6 @@ class AppStore extends EventEmitter {
   }
 
   restart () {
-    this.skipTerms = false;
-    this.skipStart = false;
-
     store.remove(CITIZENSHIP_LS_KEY);
     store.remove(TERMS_LS_KEY);
 
@@ -224,8 +205,16 @@ class AppStore extends EventEmitter {
     }
   }
 
+  @action setCitizenChecked (citizenAccepted) {
+    this.citizenAccepted = citizenAccepted;
+  }
+
   @action setLoading (loading) {
     this.loading = loading;
+  }
+
+  @action setSpendingChecked (spendingAccepted) {
+    this.spendingAccepted = spendingAccepted;
   }
 
   @action setTermsAccepted (termsAccepted) {
@@ -233,12 +222,6 @@ class AppStore extends EventEmitter {
   }
 
   @action setStep (step) {
-    // if (step === STEPS['terms'] || step === STEPS['country-selection']) {
-    //   this.stepper = 0;
-    // } else {
-    //   this.stepper = -1;
-    // }
-
     this.step = step;
   }
 

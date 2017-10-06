@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { Header, Loader } from 'semantic-ui-react';
 
-import accountStore from '../../stores/account.store';
+import buyStore from '../../stores/buy.store';
 
 export default class FeePayment extends Component {
   componentWillMount () {
-    accountStore.watchPurchase();
+    buyStore.watchPurchase();
   }
 
   componentWillUnmount () {
-    accountStore.unwatchPurchase();
+    buyStore.unwatchPurchase();
   }
 
   render () {

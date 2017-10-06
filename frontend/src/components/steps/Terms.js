@@ -13,7 +13,7 @@ export default class Terms extends Component {
   };
 
   render () {
-    const { termsAccepted } = appStore;
+    const { citizenAccepted, spendingAccepted, termsAccepted } = appStore;
     const { hitBottom } = this.state;
 
     return (
@@ -23,6 +23,16 @@ export default class Terms extends Component {
         >
           TERMS & CONDITIONS
         </Header>
+        <div style={{
+          fontSize: '1.3em',
+          color: 'red',
+          fontWeight: 'bold',
+          lineHeight: '1.5em',
+          margin: '1.5em 0'
+        }}>
+          <div>The Polkadot token sale Terms & Conditions are important, detailed, and govern your transaction.</div>
+          <div>Please read and understand them fully before proceeding.</div>
+        </div>
         <div
           style={{
             maxHeight: 350,
@@ -32,23 +42,43 @@ export default class Terms extends Component {
           }}
           ref={this.setTermsRef}
         >
-          <TermsMD />
+          <Segment>
+            <TermsMD />
+          </Segment>
         </div>
-        <Checkbox
-          disabled={!hitBottom}
-          label={`I confirm that I have read and agreed to the Terms & Conditions`}
-          checked={termsAccepted}
-          onChange={this.handleTermsChecked}
-        />
 
-        <br />
+        <div>
+          <Checkbox
+            disabled={!hitBottom}
+            label={`I confirm that I have read and agreed to the Terms & Conditions`}
+            checked={termsAccepted}
+            onChange={this.handleTermsChecked}
+            style={{ marginBottom: '1em' }}
+          />
+
+          <Checkbox
+            disabled={!hitBottom}
+            label={`I confirm that I am not a citizen of China or the USA. (and in Mandarin)`}
+            checked={citizenAccepted}
+            onChange={this.handleCitizenChecked}
+            style={{ marginBottom: '1em' }}
+          />
+
+          <Checkbox
+            disabled={!hitBottom}
+            label={`I confirm that we may send payment of 0.005 ETH from my wallet for Identity Certification`}
+            checked={spendingAccepted}
+            onChange={this.handleSpendingChecked}
+            style={{ marginBottom: '3em' }}
+          />
+        </div>
 
         <Button
-          disabled={!termsAccepted}
+          disabled={!termsAccepted || !spendingAccepted || !citizenAccepted}
           onClick={this.handleContinue}
           primary
           size='big'
-          style={{ marginTop: '2em' }}
+          style={{ marginBottom: '-1em' }}
         >
           Continue
         </Button>
@@ -78,6 +108,14 @@ export default class Terms extends Component {
       this.setState({ hitBottom: true });
       event.target.removeEventListener('scroll', this.handleScroll);
     }
+  };
+
+  handleCitizenChecked = (_, { checked }) => {
+    appStore.setCitizenChecked(checked);
+  };
+
+  handleSpendingChecked = (_, { checked }) => {
+    appStore.setSpendingChecked(checked);
   };
 
   handleTermsChecked = (_, { checked }) => {

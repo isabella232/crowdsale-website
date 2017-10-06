@@ -22,14 +22,6 @@ function get ({ sale, connector, certifier }) {
     ctx.body = { hash: connector.block.hash };
   });
 
-  router.get('/tx/:hash', async (ctx, next) => {
-    const { hash } = ctx.params;
-
-    const transaction = await connector.getTx(hash);
-
-    ctx.body = { transaction };
-  });
-
   router.post('/tx', async (ctx, next) => {
     const { tx } = ctx.request.body;
 

@@ -19,6 +19,7 @@ const containerStyle = {
 export default class BigStepper extends Component {
   render () {
     const current = appStore.stepper;
+
     const steps = [
       { name: 'Confirm Eligibility' },
       { name: 'Load / Generate Wallet' },

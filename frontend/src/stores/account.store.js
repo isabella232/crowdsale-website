@@ -84,15 +84,6 @@ class AccountStore {
     }
   }
 
-  async checkPurchase () {
-    const { accounted } = await backend.getAddressInfo(this.address);
-
-    if (!accounted.eq(this.accounted)) {
-      this.setInfo({ accounted });
-      appStore.goto('summary');
-    }
-  }
-
   async fetchInfo () {
     if (!this.address) {
       throw new Error('no address set in the account store');
@@ -181,12 +172,6 @@ class AccountStore {
     return this.checkPayment();
   }
 
-  /** Poll on new block `this.address` dot balance, until it changes */
-  async watchPurchase () {
-    blockStore.on('block', this.checkPurchase, this);
-    return this.checkPurchase();
-  }
-
   /** Stop polling */
   unwatchCertification () {
     blockStore.removeListener('block', this.checkCertification, this);
@@ -200,11 +185,6 @@ class AccountStore {
   /** Stop polling */
   unwatchPayment () {
     blockStore.removeListener('block', this.checkPayment, this);
-  }
-
-  /** Stop polling */
-  unwatchPurchase () {
-    blockStore.removeListener('block', this.checkPurchase, this);
   }
 }
 

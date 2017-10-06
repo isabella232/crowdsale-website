@@ -1,9 +1,17 @@
+import EventEmitter from 'eventemitter3';
+
 import backend from '../backend';
 
-class Config {
+/**
+ * Configuration stores.
+ * Emits a `loaded` event when loaded
+ */
+class Config extends EventEmitter {
   loaded = false;
 
   constructor () {
+    super();
+
     this.load().catch((error) => {
       console.error(error);
     });
@@ -19,6 +27,7 @@ class Config {
     this.gasPrice = gasPrice;
 
     this.loaded = true;
+    this.emit('loaded');
   }
 
   get (key) {

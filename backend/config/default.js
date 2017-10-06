@@ -14,6 +14,6 @@ module.exports = {
   onfido: {
     maxChecks: 3
   },
-  // Gas Price of 2 Gwei
-  gasPrice: '0x77359400'
+  // Gas Price of 5 Gwei
+  gasPrice: '0x12a05f200'
 };

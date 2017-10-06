@@ -17,7 +17,8 @@ class FeeStore {
   totalFee = null;
 
   constructor () {
-    this.load();
+    // Load after the config store
+    config.once('loaded', this.load);
   }
 
   load = async () => {

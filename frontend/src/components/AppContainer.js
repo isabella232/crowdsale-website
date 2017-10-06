@@ -29,7 +29,7 @@ export default class AppContainer extends Component {
 
   render () {
     return (
-      <div>
+      <div style={{ paddingBottom: '4em' }}>
         <div style={{ paddingTop: '4em' }}>
           <BigStepper />
         </div>
@@ -61,7 +61,7 @@ export default class AppContainer extends Component {
     const contentStyle = Object.assign({}, baseContentStyle, this.props.style);
     const titleNode = view && view.title
       ? <Header as='h4' style={{ marginTop: '2em' }}>{view.title}</Header>
-      : <div style={{ marginTop: '6em' }} />;
+      : <div style={{ marginTop: '4em' }} />;
 
     return (
       <Container style={style}>

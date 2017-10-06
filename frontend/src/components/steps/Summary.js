@@ -3,16 +3,21 @@ import { Button, Header } from 'semantic-ui-react';
 
 import AccountInfo from '../AccountInfo';
 
-// import appStore from '../../stores/app.store';
 import accountStore from '../../stores/account.store';
+import buyStore from '../../stores/buy.store';
 import auctionStore from '../../stores/auction.store';
 
 import { fromWei } from '../../utils';
 
 export default class Summary extends Component {
   render () {
-    const { accounted, address, spending } = accountStore;
+    const { address } = accountStore;
+    const { success, accounted } = buyStore;
     const dots = auctionStore.weiToDot(accounted);
+
+    if (!success) {
+      return this.renderFailure();
+    }
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -32,7 +37,7 @@ export default class Summary extends Component {
           />
 
           <div style={{ marginTop: '1.5em', fontSize: '1.25em' }}>
-            You have successfully contributed {fromWei(spending).toFormat()} ETH and will
+            You have successfully contributed {fromWei(accounted).toFormat()} ETH and will
             receive at least {dots.toFormat()} DOTs
           </div>
 
@@ -43,6 +48,36 @@ export default class Summary extends Component {
           <div style={{ marginTop: '2.5em' }}>
             <Button primary size='big'>
               Return to the main website
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderFailure () {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Header as='h2'>
+          YOU CONTRIBUTION HAS FAILED
+        </Header>
+
+        <div style={{
+          fontSize: '1em',
+          margin: '2em 0 0',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+
+          <div style={{ marginTop: '1em', fontSize: '1.25em' }}>
+            Something went wrong during the contribution.
+            Please try again and contrat us if it fails again.
+          </div>
+
+          <div style={{ marginTop: '2.5em' }}>
+            <Button primary size='big'>
+              Try again
             </Button>
           </div>
         </div>

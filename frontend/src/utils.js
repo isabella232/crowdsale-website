@@ -30,6 +30,10 @@ export function toWei (value) {
   return new BigNumber(value).mul(WEI);
 }
 
+export function hex2bn (hex) {
+  return new BigNumber(`0x${hex.replace('0x', '')}`);
+}
+
 function checkStatus (response) {
   // To many Requests
   if (response.status === 429) {

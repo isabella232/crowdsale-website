@@ -87,6 +87,10 @@ class Backend {
 
     return { hash, requiredEth };
   }
+
+  async txStatus (txHash) {
+    return get(this.url(`/auction/tx/${txHash}`));
+  }
 }
 
 const { protocol, hostname, port } = window.location;

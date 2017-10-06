@@ -125,7 +125,7 @@ class AuctionStore {
     const bonus = this.bonus(value);
     const price = this.currentPrice;
 
-    if (!this.isActive()) {
+    if (!this.isActive() || !value) {
       return {
         accepted,
         bonus,
