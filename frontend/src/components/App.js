@@ -16,6 +16,8 @@ import Purchase from './steps/Purchase';
 import Start from './steps/Start';
 import Summary from './steps/Summary';
 import Terms from './steps/Terms';
+
+import DotsQuery from './DotsQuery';
 import Messages from './Messages';
 
 import appStore, { STEPS } from '../stores/app.store';
@@ -27,6 +29,7 @@ export default class App extends Component {
       <Router>
         <div>
           <Route exact path='/' component={MainApp} />
+          <Route exact path='/dots' component={DotsQuery} />
           <Messages />
         </div>
       </Router>

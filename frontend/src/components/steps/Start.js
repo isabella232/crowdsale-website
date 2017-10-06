@@ -60,9 +60,15 @@ export default class Start extends Component {
           </p>
         </div>
 
-        <Button primary size='big' onClick={this.handleStart}>
-          Start
-        </Button>
+        <div>
+          <Button secondary size='big' as='a' href='/#/dots'>
+            Query
+          </Button>
+
+          <Button primary size='big' onClick={this.handleStart}>
+            Start
+          </Button>
+        </div>
       </div>
     );
   }

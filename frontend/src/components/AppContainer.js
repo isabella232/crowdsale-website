@@ -29,7 +29,8 @@ export default class AppContainer extends Component {
 
     footer: PropTypes.node,
     header: PropTypes.node,
-    style: PropTypes.object
+    style: PropTypes.object,
+    hideStepper: PropTypes.bool
   };
 
   static defaultProps = {
@@ -38,21 +39,29 @@ export default class AppContainer extends Component {
   };
 
   render () {
+    const { hideStepper } = this.props;
+
     return (
       <div style={{ paddingBottom: '4em' }}>
         <div style={headerStyle}>
           <img src={MainLogo} style={mainLogoStyle} />
         </div>
-        <div style={{ paddingTop: '0em' }}>
-          <BigStepper />
-        </div>
+        {
+          hideStepper
+            ? null
+            : (
+              <div style={{ paddingTop: '0em' }}>
+                <BigStepper />
+              </div>
+            )
+        }
         {this.renderContent()}
       </div>
     );
   }
 
   renderContent () {
-    const { children, header, footer } = this.props;
+    const { hideStepper, children, header, footer } = this.props;
 
     if (appStore.step === STEPS['picops']) {
       return (
@@ -74,7 +83,7 @@ export default class AppContainer extends Component {
     const contentStyle = Object.assign({}, baseContentStyle, this.props.style);
     const titleNode = view && view.title
       ? <Header as='h4' style={{ marginTop: '2em' }}>{view.title}</Header>
-      : <div style={{ marginTop: '4em' }} />;
+      : <div style={{ marginTop: hideStepper ? '2em' : '4em' }} />;
 
     return (
       <Container style={style}>
