@@ -32,7 +32,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[hash:10].js',
-    publicPath: '/'
+    publicPath: isProd ? '/sale/' : '/'
   },
 
   module: {

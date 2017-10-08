@@ -2,8 +2,8 @@ import BigNumber from 'bignumber.js';
 
 import { get, post } from './utils';
 
-// export const PICOPS_BASE_URL = 'https://staging-picops.parity.io';
-export const PICOPS_BASE_URL = 'http://localhost:8081';
+export const PICOPS_BASE_URL = 'https://staging-picops.parity.io';
+// export const PICOPS_BASE_URL = 'http://localhost:8081';
 
 class Backend {
   constructor (url, picopsUrl) {
