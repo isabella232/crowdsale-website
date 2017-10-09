@@ -1,6 +1,8 @@
-import PropTypes from 'prop-types';
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
+
+import stepperStore from '../stores/stepper.store';
 
 const containerStyle = {
   position: 'absolute',
@@ -22,14 +24,10 @@ const stepNameStyle = {
   justifyContent: 'center'
 };
 
+@observer
 export default class Stepper extends Component {
-  static propTypes = {
-    steps: PropTypes.any.isRequired,
-    step: PropTypes.number.isRequired
-  };
-
   render () {
-    const { step, steps } = this.props;
+    const { step, steps } = stepperStore;
 
     if (step < 0) {
       return null;
@@ -47,7 +45,7 @@ export default class Stepper extends Component {
       }}>
         <div style={{
           width: '100%',
-          height: '1px',
+          height: '2px',
           position: 'relative',
           backgroundColor: 'lightgray',
           fontSize: '0.9em',
@@ -62,7 +60,7 @@ export default class Stepper extends Component {
   }
 
   renderStep (title, index, count) {
-    const { step } = this.props;
+    const { step } = stepperStore;
     const position = Math.round(100 * index / count);
 
     let color;
@@ -81,7 +79,7 @@ export default class Stepper extends Component {
     return (
       <div
         key={`${title}-${index}`}
-        style={{ position: 'absolute', left: `calc(${position}% - 0.75em)`, top: '0.5em' }}
+        style={{ position: 'absolute', left: `calc(${position}% - 0.75em)`, top: 'calc(0.5em + 1px)' }}
       >
         <Icon
           circular

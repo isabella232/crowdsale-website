@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Button, Header, Input } from 'semantic-ui-react';
 
@@ -11,6 +12,7 @@ import appStore from '../../stores/app.store';
 import AccountInfo from '../AccountInfo';
 import Step from '../Step';
 
+@observer
 export default class AccountLoader extends Component {
   state = {
     dots: new BigNumber(0),
@@ -53,7 +55,7 @@ export default class AccountLoader extends Component {
 
           <div style={{ marginTop: '1.5em' }}>
             <span>
-              How much ETH would you like to spend?
+              How much ETH would you like to contribute?
             </span>
             <Input
               defaultValue={0}
@@ -108,6 +110,11 @@ export default class AccountLoader extends Component {
     const { totalFee } = feeStore;
 
     if (certified || paid) {
+      return;
+    }
+
+    if (!totalFee) {
+      console.warn('no total fee set...');
       return;
     }
 

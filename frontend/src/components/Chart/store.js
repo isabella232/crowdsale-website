@@ -13,7 +13,7 @@ class ChartStore {
   totalAccounted = new BigNumber(0);
 
   constructor () {
-    auctionStore.once('loaded', this.fetch);
+    auctionStore.ready(this.fetch);
     blockStore.on('block', this.fetch);
   }
 

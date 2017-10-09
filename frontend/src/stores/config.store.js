@@ -41,6 +41,14 @@ class Config extends EventEmitter {
 
     return value;
   }
+
+  ready (cb) {
+    if (this.loaded) {
+      return cb();
+    }
+
+    this.once('loaded', () => cb());
+  }
 }
 
 export default new Config();

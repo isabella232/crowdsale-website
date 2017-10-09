@@ -5,7 +5,7 @@ import { get, post } from './utils';
 
 class PicopsBackend {
   constructor () {
-    config.once('loaded', this.init);
+    config.ready(this.init);
   }
 
   init = () => {

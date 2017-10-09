@@ -23,7 +23,7 @@ class FeeStore {
 
   constructor () {
     // Load after the config store
-    config.once('loaded', this.load);
+    config.ready(this.load);
   }
 
   load = async () => {

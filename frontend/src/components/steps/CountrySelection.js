@@ -1,9 +1,26 @@
 import { countries } from 'country-data';
 import Datamap from 'datamaps';
 import React, { Component } from 'react';
-import { Button, Card, Header, Icon, Modal } from 'semantic-ui-react';
+import { Button, Card, Checkbox, Dropdown, Grid, Header, Icon, Image, Modal } from 'semantic-ui-react';
 
 import appStore from '../../stores/app.store';
+import supportedCountries from './../../supported-documents.json';
+
+import DriverLicense from '../../images/DriverLicense.svg';
+import IDCard from '../../images/IDCard.svg';
+import Passport from '../../images/Passport.svg';
+
+// Not supporting the USA
+delete supportedCountries['USA'];
+
+const countryOptions = Object.keys(supportedCountries)
+  .map((key) => supportedCountries[key])
+  .map((country) => ({
+    key: country.iso3,
+    value: country.iso3,
+    flag: country.iso2.toLowerCase(),
+    text: country.name
+  }));
 
 const VALID_COLOR = '#4a90e2';
 const INVALID_COLOR = '#4d4d4d';
@@ -11,25 +28,30 @@ const BACKGROUND_COLOR = '#f2f2f2';
 
 const mapStyle = {
   backgroundColor: BACKGROUND_COLOR,
-  // height: 400,
-  // margin: '0 2em 1em',
   padding: '1.5em 1em',
   borderRadius: '1em'
 };
 
-const panelStyle = {
-  flex: 1,
-  margin: '0 2em'
-};
-
-export default class CountrySelection extends Component {
+export default class CountrySelector extends Component {
   state = {
-    showInvalidModal: false
+    country: null,
+    showInvalidModal: false,
+    showValidModal: false,
+    confirmPossession: false,
+    confirmValidity: false
   };
 
   componentWillMount () {
     this.blacklistedCountriesNames = appStore.blacklistedCountries
-      .map((countryKey) => countries[countryKey].name);
+      .map((countryKey) => {
+        let name = countries[countryKey].name.split(',');
+
+        if (name.length === 2) {
+          return name[1] + ' ' + name[0];
+        }
+
+        return name[0];
+      });
 
     this.mapData = appStore.blacklistedCountries
       .reduce((data, countryKey) => {
@@ -51,49 +73,46 @@ export default class CountrySelection extends Component {
           CHOOSE YOUR CITIZENSHIP
         </Header>
 
-        {this.renderModal()}
+        {this.renderInvalidModal()}
+        {this.renderValidModal()}
 
-        <p style={{ textAlign: 'center', margin: '2em 0 0' }}>
-          Are you a citizen of or otherwise resident or established in
-          one of those countries: {this.renderCountryList()}?
-        </p>
-
-        <div style={{ display: 'flex', width: '100%', marginTop: '4em' }}>
-          <div style={panelStyle}>
-            <Card fluid link style={mapStyle} onClick={this.handleInvalid}>
-              <div ref={this.setInvalidRef} />
-            </Card>
-
-            <div style={{ textAlign: 'center' }}>
-              <b>YES</b>
-            </div>
-          </div>
-
-          <div style={panelStyle}>
-            <Card fluid link style={mapStyle} onClick={this.handleValid}>
-              <div ref={this.setValidRef} />
-            </Card>
-
-            <div style={{ textAlign: 'center' }}>
-              <b>NO</b>
-            </div>
-          </div>
+        <div style={{
+          textAlign: 'center',
+          margin: '1.5em 0 2.5em'
+        }}>
+          Are you a citizen of, resident in, or established in one of these countries: United States or China?
         </div>
+
+        <Grid>
+          <Grid.Column tablet={16} computer={8}>
+            <Card fluid link style={mapStyle} onClick={this.handleInvalid}>
+              <div ref={this.setInvalidRef} style={{ height: '150px' }} />
+            </Card>
+
+            <div style={{ textAlign: 'center' }}>
+              <p style={{
+                fontWeight: 'bold'
+              }}>
+                Yes
+              </p>
+            </div>
+          </Grid.Column>
+
+          <Grid.Column tablet={16} computer={8}>
+            <Card fluid link style={mapStyle} onClick={this.handleValid}>
+              <div ref={this.setValidRef} style={{ height: '150px' }} />
+            </Card>
+
+            <div style={{ textAlign: 'center' }}>
+              <p>No</p>
+            </div>
+          </Grid.Column>
+        </Grid>
       </div>
     );
   }
 
-  renderCountryList () {
-    const list = this.blacklistedCountriesNames;
-
-    if (list.length <= 2) {
-      return list.join(' and ');
-    }
-
-    return `${list.slice(0, -1).join(', ')} and ${list.slice(-1)[0]}`;
-  }
-
-  renderModal () {
+  renderInvalidModal () {
     const { showInvalidModal } = this.state;
 
     return (
@@ -105,7 +124,7 @@ export default class CountrySelection extends Component {
       >
         <Header icon='world' content='EXCLUDED COUNTRIES' />
         <Modal.Content>
-          <p style={{ fontSize: '1.15em' }}>
+          <p>
             We apologize that you are unable to participate in the sale.
           </p>
         </Modal.Content>
@@ -118,14 +137,211 @@ export default class CountrySelection extends Component {
     );
   }
 
+  renderValidModal () {
+    const { confirmPossession, confirmValidity, country, showValidModal } = this.state;
+
+    return (
+      <Modal
+        basic
+        open={showValidModal}
+        onClose={this.handleCloseValid}
+        size='small'
+      >
+        <Header icon='world' content='Select your country of citizenship' />
+        <Modal.Content>
+          <Dropdown
+            placeholder='Select Country'
+            fluid
+            search
+            selection
+            onChange={this.handleCountryChange}
+            options={countryOptions}
+          />
+          {this.renderSelectedCountry()}
+          {this.renderConfirm()}
+        </Modal.Content>
+        <Modal.Actions>
+          <Button inverted onClick={this.handleCloseValid}>
+            <Icon name='close' /> Close
+          </Button>
+          <Button primary inverted
+            disabled={!country || !confirmPossession || !confirmValidity}
+            onClick={this.handleContinue}
+          >
+            <Icon name='check' /> Continue
+          </Button>
+        </Modal.Actions>
+      </Modal>
+    );
+  }
+
+  renderConfirm () {
+    const { country } = this.state;
+
+    if (!country) {
+      return null;
+    }
+
+    const { confirmPossession, confirmValidity } = this.state;
+
+    return (
+      <div style={{ margin: '2em 0 0 1em' }}>
+        <div>
+          <Checkbox
+            label={(
+              <label style={{ color: 'white', fontSize: '1.1em' }}>
+                I confirm that I possess one of these documents
+              </label>
+            )}
+            checked={confirmPossession}
+            onChange={this.handlePossessionChecked}
+            style={{ marginBottom: '1em' }}
+          />
+        </div>
+        <div>
+          <Checkbox
+            label={(
+              <label style={{ color: 'white', fontSize: '1.1em' }}>
+                I confirm that it is not expired
+              </label>
+            )}
+            checked={confirmValidity}
+            onChange={this.handleValidityChecked}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  renderSelectedCountry () {
+    const { country } = this.state;
+
+    if (!country) {
+      return null;
+    }
+
+    const { documents } = country;
+    // Special means back and front required
+    const hasSpecial = documents.findIndex((doc) => doc.special) >= 0;
+
+    return (
+      <div>
+        <Header as='h3' textAlign='center' inverted style={{ margin: '2em 1em' }}>
+          Citizens of this country can certify their identiy with the following document(s)
+        </Header>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {documents.map((doc) => this.renderDocumentIcons(doc))}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {documents.map((doc) => this.renderDocumentLabels(doc))}
+        </div>
+
+        {
+          hasSpecial
+            ? (
+              <p>
+                *The back of document is required for processing
+              </p>
+            )
+            : null
+        }
+      </div>
+    );
+  }
+
+  renderDocumentIcons (doc) {
+    return (
+      <div key={doc.value} style={{ width: '33%', padding: '1em' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          // backgroundColor: 'black',
+          height: '100%',
+          width: '100%',
+          padding: '2em 1em',
+          border: '1px solid white',
+          borderRadius: '5px'
+        }}>
+          {this.renderDocumentIcon(doc.value)}
+        </div>
+      </div>
+    );
+  }
+
+  renderDocumentLabels (doc) {
+    return (
+      <div key={doc.value} style={{ width: '33%', padding: '1em' }}>
+        <div style={{
+          textAlign: 'center',
+          fontSize: '1.2em'
+        }}>
+          {doc.label}
+        </div>
+      </div>
+    );
+  }
+
+  renderDocumentIcon (docType) {
+    if (docType === 'passport') {
+      return (
+        <Image src={Passport} />
+      );
+    }
+
+    if (docType === 'national_identity_card') {
+      return (
+        <Image src={IDCard} />
+      );
+    }
+
+    if (docType === 'driving_licence') {
+      return (
+        <Image src={DriverLicense} />
+      );
+    }
+
+    return null;
+  }
+
   resize = () => {
-    if (!this.invalidMap || !this.validMap) {
+    this.resizeMap(this.invalidMap);
+    this.resizeMap(this.validMap);
+  }
+
+  resizeMap (map) {
+    if (!map) {
       return;
     }
 
-    this.invalidMap.resize();
-    this.validMap.resize();
-  };
+    const container = map.options.element;
+    const svg = container.querySelector('svg');
+    const g = svg.querySelector('g');
+
+    const prevWidth = svg.getAttribute('data-width');
+
+    // Get container new width
+    const nextWidth = container.clientWidth;
+    const nextHeight = 9 / 16 * nextWidth;
+
+    // Update container and map SVG
+    svg.setAttribute('height', nextHeight);
+    svg.setAttribute('width', nextWidth);
+    container.style.height = `${nextHeight}px`;
+
+    const scale = nextWidth / prevWidth;
+
+    g.setAttribute('transform', `scale(${scale})`);
+
+    const gMeasures = g.getBoundingClientRect();
+    const svgMeasures = svg.getBoundingClientRect();
+    const tY = (svgMeasures.top - gMeasures.top) + (svgMeasures.height - gMeasures.height) / 2;
+
+    // Update map width
+    g.setAttribute('transform', `scale(${scale}) translate(0, ${tY / scale})`);
+  }
 
   createMap = (element, invalid = false) => {
     return new Datamap({
@@ -138,22 +354,46 @@ export default class CountrySelection extends Component {
         defaultFill: invalid ? INVALID_COLOR : VALID_COLOR,
         DISABLED: invalid ? VALID_COLOR : INVALID_COLOR
       },
-      responsive: true,
+      // responsive: true,
       data: this.mapData,
       element
     });
+  };
+
+  handlePossessionChecked = (_, { checked }) => {
+    this.setState({ confirmPossession: checked });
+  };
+
+  handleValidityChecked = (_, { checked }) => {
+    this.setState({ confirmValidity: checked });
+  };
+
+  handleCountryChange = (_, { value }) => {
+    const country = supportedCountries[value];
+
+    this.setState({ country });
   };
 
   handleCloseInvalid = () => {
     this.setState({ showInvalidModal: false });
   };
 
+  handleCloseValid = () => {
+    this.setState({ showValidModal: false, country: null, confirmPossession: false, confirmValidity: false });
+  }
+
   handleInvalid = () => {
     this.setState({ showInvalidModal: true });
   };
 
   handleValid = () => {
-    appStore.storeValidCitizenship();
+    // TODO: should show the modal?
+    this.handleContinue();
+    // this.setState({ showValidModal: true });
+  }
+
+  handleContinue = () => {
+    // appStore.storeValidCitizenship(this.state.country.iso3);
     appStore.goto('account-selection');
   };
 
@@ -162,7 +402,9 @@ export default class CountrySelection extends Component {
       return;
     }
 
+    this.invalidMapElement = element;
     this.invalidMap = this.createMap(element, true);
+    this.resize();
   };
 
   setValidRef = (element) => {
@@ -170,6 +412,8 @@ export default class CountrySelection extends Component {
       return;
     }
 
+    this.validMapElement = element;
     this.validMap = this.createMap(element, false);
+    this.resize();
   };
 }

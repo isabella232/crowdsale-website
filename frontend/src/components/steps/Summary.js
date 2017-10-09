@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Button, Header } from 'semantic-ui-react';
 
@@ -9,6 +10,7 @@ import auctionStore from '../../stores/auction.store';
 
 import { fromWei } from '../../utils';
 
+@observer
 export default class Summary extends Component {
   render () {
     const { address } = accountStore;
@@ -46,7 +48,7 @@ export default class Summary extends Component {
           </div>
 
           <div style={{ marginTop: '2.5em' }}>
-            <Button primary size='big'>
+            <Button primary size='big' as='a' href='http://www.tokenpage.io/'>
               Return to the main website
             </Button>
           </div>
