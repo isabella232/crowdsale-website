@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { iframeResizer } from 'iframe-resizer';
 
 import accountStore from '../../stores/account.store';
-import { PICOPS_BASE_URL } from '../../backend';
+import picopsBackend from '../../picops-backend';
 
 export default class Picops extends Component {
   componentWillMount () {
@@ -25,7 +25,7 @@ export default class Picops extends Component {
     return (
       <iframe
         frameBorder={0}
-        src={`${PICOPS_BASE_URL}/?no-padding&no-stepper&terms-accepted&paid-for=${address}`}
+        src={`${picopsBackend.baseUrl}/?no-padding&no-stepper&terms-accepted&paid-for=${address}`}
         style={{
           height: '500px',
           width: '100%',

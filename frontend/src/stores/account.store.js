@@ -3,6 +3,8 @@ import EthJS from 'ethereumjs-util';
 import { action, computed, observable } from 'mobx';
 
 import backend from '../backend';
+import picopsBackend from '../picops-backend';
+
 import appStore, { STEPS as APP_STEPS } from './app.store';
 import auctionStore from './auction.store';
 import blockStore from './block.store';
@@ -49,7 +51,7 @@ class AccountStore {
   }
 
   async checkFeePayment () {
-    const { paid } = await backend.getAccountFeeInfo(this.address);
+    const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
 
     if (paid) {
       this.setInfo({ paid });
@@ -90,7 +92,7 @@ class AccountStore {
     }
 
     const { accounted, eth: balance, certified } = await backend.getAddressInfo(this.address);
-    const { paid } = await backend.getAccountFeeInfo(this.address);
+    const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
 
     this.setInfo({ accounted, balance, certified, paid });
   }

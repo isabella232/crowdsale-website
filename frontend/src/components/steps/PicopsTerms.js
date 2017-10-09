@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { iframeResizer } from 'iframe-resizer';
 
-import { PICOPS_BASE_URL } from '../../backend';
+import picopsBackend from '../../picops-backend';
 import appStore from '../../stores/app.store';
 
 export default class PicopsTerms extends Component {
@@ -21,7 +21,7 @@ export default class PicopsTerms extends Component {
     return (
       <iframe
         frameBorder={0}
-        src={`${PICOPS_BASE_URL}/#/tc`}
+        src={`${picopsBackend.baseUrl}/#/tc`}
         style={{
           height: '500px',
           width: '100%',

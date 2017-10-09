@@ -13,9 +13,11 @@ function get () {
 
   router.get('/config', async (ctx, next) => {
     const gasPrice = config.get('gasPrice');
+    const picopsUrl = config.get('picopsUrl');
 
     ctx.body = {
-      gasPrice
+      gasPrice,
+      picopsUrl
     };
   });
 
