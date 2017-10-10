@@ -79,6 +79,11 @@ export default class Upload extends Component {
 
         const json = JSON.parse(content);
 
+        // My Etherwallet malformatting their json file
+        if (json && json.Crypto) {
+          json.crypto = json.Crypto;
+        }
+
         if (!json || !json.address || !json.crypto || !json.crypto.kdf) {
           throw new Error('wrong json');
         }

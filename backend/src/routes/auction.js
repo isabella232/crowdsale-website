@@ -70,6 +70,7 @@ function get ({ sale, connector }) {
       DIVISOR,
       STATEMENT_HASH,
       beginTime,
+      treasury,
       tokenCap
     } = sale.values;
 
@@ -79,6 +80,7 @@ function get ({ sale, connector }) {
       DIVISOR,
       STATEMENT_HASH,
       beginTime: int2date(beginTime),
+      treasury,
       tokenCap
     };
   });
