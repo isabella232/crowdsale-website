@@ -51,6 +51,15 @@ class AuctionStore extends EventEmitter {
     await this.refresh();
 
     this.emit('loaded');
+    this.loaded = true;
+  }
+
+  ready (cb) {
+    if (this.loaded) {
+      return cb();
+    }
+
+    this.once('loaded', () => cb());
   }
 
   bonus (value) {

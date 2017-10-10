@@ -22,9 +22,11 @@ class Config extends EventEmitter {
       return;
     }
 
-    const { gasPrice } = await backend.config();
+    const conf = await backend.config();
 
-    this.gasPrice = gasPrice;
+    Object.keys(conf).forEach((key) => {
+      this[key] = conf[key];
+    });
 
     this.loaded = true;
     this.emit('loaded');
@@ -38,6 +40,14 @@ class Config extends EventEmitter {
     }
 
     return value;
+  }
+
+  ready (cb) {
+    if (this.loaded) {
+      return cb();
+    }
+
+    this.once('loaded', () => cb());
   }
 }
 

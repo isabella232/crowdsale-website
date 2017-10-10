@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react';
 import React, { Component } from 'react';
-import { Header, Loader } from 'semantic-ui-react';
+import { Button, Header, Loader } from 'semantic-ui-react';
 
 import buyStore from '../../stores/buy.store';
 

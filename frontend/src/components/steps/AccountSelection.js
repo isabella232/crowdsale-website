@@ -4,15 +4,14 @@ import { Card, Header, Image } from 'semantic-ui-react';
 import EthereumImg from '../../images/ethereum.png';
 import EthereumBlankImg from '../../images/ethereum_blank.png';
 
+import accountCreator from './AccountCreator/accountCreator.store';
 import appStore from '../../stores/app.store';
-import accountStore from '../../stores/account.store';
-import AccountCreator from '../AccountCreator';
-import AccountLoader from '../AccountLoader';
 
 const cardStyle = {
   width: '300px',
   maxWidth: '100%',
-  textAlign: 'center'
+  textAlign: 'center',
+  margin: 0
 };
 
 const imageStyle = {
@@ -27,50 +26,27 @@ const imageContainerStyle = {
 };
 
 export default class AccountSelection extends Component {
-  state = {
-    action: null,
-    jsonWallet: null
-  };
-
   render () {
-    const { action } = this.state;
-
-    if (action === 'load') {
-      return (
-        <AccountLoader
-          onCancel={this.handleReset}
-          onDone={this.handleDone}
-        />
-      );
-    }
-
-    if (action === 'create') {
-      return (
-        <AccountCreator
-          onCancel={this.handleReset}
-          onDone={this.handleDone}
-        />
-      );
-    }
-
-    return this.renderChoose();
-  }
-
-  renderChoose () {
     return (
       <div>
         <Header as='h2' textAlign='center'>
           LOAD / GENERATE YOUR WALLET
         </Header>
 
-        <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%', marginTop: '4em' }}>
+        <div style={{ margin: '2em 0 3em', fontSize: '1.1em' }}>
+          In order to be able to claim your DOTs, it is necessary to
+          have access to the private key corresponding to the contribution
+          address. <b>Hardware wallets, exchanges and multisig wallets are not supported in this process.</b>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
           <Card fluid link style={cardStyle} onClick={this.handleLoad}>
             <div style={imageContainerStyle}>
               <Image src={EthereumImg} style={imageStyle} />
             </div>
             <Card.Content>
               <Card.Header textAlign='center' style={{ padding: '0.5em 0' }}>
-                Load an Ethereum JSON file
+                Load an Ethereum JSON Keystore File
               </Card.Header>
             </Card.Content>
           </Card>
@@ -81,7 +57,7 @@ export default class AccountSelection extends Component {
             </div>
             <Card.Content>
               <Card.Header textAlign='center' style={{ padding: '0.5em 0' }}>
-                I don't have an Ethereum Wallet
+                Generate a new Ethereum wallet
               </Card.Header>
             </Card.Content>
           </Card>
@@ -90,24 +66,12 @@ export default class AccountSelection extends Component {
     );
   }
 
-  renderCreate () {
-
-  }
-
-  handleDone = ({ address, privateKey }) => {
-    accountStore.setAccount({ address, privateKey });
-    appStore.gotoContribute(address);
-  };
-
-  handleReset = () => {
-    this.setState({ action: null });
-  };
-
   handleLoad = () => {
-    this.setState({ action: 'load' });
+    appStore.goto('load-account');
   };
 
   handleCreate = () => {
-    this.setState({ action: 'create' });
+    accountCreator.generateWallet();
+    appStore.goto('create-account-password');
   };
 }

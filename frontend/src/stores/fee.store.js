@@ -3,6 +3,7 @@ import EthereumTx from 'ethereumjs-tx';
 import { action, observable } from 'mobx';
 
 import backend from '../backend';
+import picopsBackend from '../picops-backend';
 import config from './config.store';
 import appStore from './app.store';
 import { isValidAddress } from '../utils';
@@ -22,13 +23,13 @@ class FeeStore {
 
   constructor () {
     // Load after the config store
-    config.once('loaded', this.load);
+    config.ready(this.load);
   }
 
   load = async () => {
     try {
       // Retrieve the fee
-      const { fee, feeRegistrar } = await backend.fee();
+      const { fee, feeRegistrar } = await picopsBackend.fee();
 
       this.fee = fee;
       this.feeRegistrar = feeRegistrar;
@@ -61,7 +62,7 @@ class FeeStore {
       tx.sign(privateKeyBuf);
 
       const serializedTx = `0x${tx.serialize().toString('hex')}`;
-      const { hash } = await backend.sendFeeTx(serializedTx);
+      const { hash } = await picopsBackend.sendTx(serializedTx);
 
       console.warn('sent FeeRegistrar tx', hash);
       this.setTransaction(hash);

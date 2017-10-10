@@ -15,5 +15,6 @@ module.exports = {
     maxChecks: 3
   },
   // Gas Price of 5 Gwei
-  gasPrice: '0x12a05f200'
+  gasPrice: '0x12a05f200',
+  picopsUrl: 'https://staging-picops.parity.io'
 };

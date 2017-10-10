@@ -18,7 +18,7 @@ export default class ImportantNotice extends Component {
         }}>
           <p style={{ lineHeight: '1.5em' }}>
             The Polkadot token sale requires experience and knowledge of <b>sending and receiving
-            Ether</b>, and the <b>safe storage of JSON wallet files</b>.
+            Ether</b>, as well as the <b>safe storage of JSON wallet files</b>.
           </p>
 
           <p style={{ lineHeight: '1.5em' }}>

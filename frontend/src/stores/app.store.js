@@ -18,12 +18,20 @@ export const STEPS = {
   'start': Symbol('start'),
   'terms': Symbol('terms'),
   'country-selection': Symbol('country selection'),
+
   'account-selection': Symbol('account selection'),
+  'load-account': Symbol('load account'),
+  'unlock-account': Symbol('unlock account'),
+  'create-account-password': Symbol('create-account-password'),
+  'create-account-recovery': Symbol('create-account-recovery'),
+  'create-account-repeat': Symbol('create-account-repeat'),
+  'create-account-download': Symbol('create-account-download'),
+
+  'picops-terms': Symbol('picops terms and conditions'),
   'contribute': Symbol('contribute'),
   'payment': Symbol('payment'),
-  'fee-payment': Symbol('fee payment'),
-  'picops-terms': Symbol('picops terms and conditions'),
   'picops': Symbol('picops'),
+  'fee-payment': Symbol('fee payment'),
   'purchase': Symbol('purchase'),
   'summary': Symbol('summary')
 };
@@ -43,7 +51,6 @@ class AppStore extends EventEmitter {
   @observable citizenAccepted = false;
   @observable spendingAccepted = false;
   @observable termsAccepted = false;
-  @observable view = null;
 
   @computed get stepper () {
     switch (this.step) {
@@ -54,6 +61,12 @@ class AppStore extends EventEmitter {
         return 0;
 
       case STEPS['account-selection']:
+      case STEPS['load-account']:
+      case STEPS['unlock-account']:
+      case STEPS['create-account-password']:
+      case STEPS['create-account-recovery']:
+      case STEPS['create-account-repeat']:
+      case STEPS['create-account-download']:
         return 1;
 
       case STEPS['contribute']:
@@ -66,7 +79,10 @@ class AppStore extends EventEmitter {
         return 2;
 
       default:
-        console.warn('UNKOWN STEP FOR STEPPER', this.step);
+        if (this.step) {
+          console.warn('UNKOWN STEP FOR STEPPER', this.step);
+        }
+
         return 0;
     }
   }
@@ -76,17 +92,14 @@ class AppStore extends EventEmitter {
     this.load();
   }
 
-  load = () => {
-    this._load()
-      .catch((error) => this.addError(error));
-  }
-
-  _load = async () => {
-    await config.load();
-
-    this.certifierAddress = await backend.certifierAddress();
-
-    await this.loadCountries();
+  load = async () => {
+    try {
+      await config.load();
+      this.certifierAddress = await backend.certifierAddress();
+      await this.loadCountries();
+    } catch (error) {
+      this.addError(error);
+    }
 
     this.goto('important-notice');
   };
@@ -113,22 +126,6 @@ class AppStore extends EventEmitter {
     }
 
     this.setLoading(false);
-  }
-
-  /**
-   * Check that the given address is certified,
-   * if not go to the PICOPS T&Cs
-   */
-  async gotoContribute (address) {
-    this.setLoading(true);
-
-    const { certified } = await backend.getAddressInfo(address);
-
-    if (!certified) {
-      return this.goto('picops-terms');
-    }
-
-    return this.goto('contribute');
   }
 
   async fetchBlacklistedCountries () {
@@ -223,14 +220,6 @@ class AppStore extends EventEmitter {
 
   @action setStep (step) {
     this.step = step;
-  }
-
-  @action setViewInfo (view) {
-    this.view = view;
-  }
-
-  @action setViewStep (step) {
-    this.view = Object.assign({}, this.view, { step });
   }
 
   storeValidCitizenship () {

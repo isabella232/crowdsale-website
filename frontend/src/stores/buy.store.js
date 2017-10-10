@@ -22,7 +22,7 @@ class BuyStore {
 
   constructor () {
     // Init once the config is loaded
-    config.once('loaded', this.init);
+    config.ready(this.init);
   }
 
   init = () => {

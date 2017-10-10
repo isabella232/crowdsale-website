@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Container, Header, Segment } from 'semantic-ui-react';
 
-import MainLogo from '../images/MainLogo.svg';
-
 import appStore, { STEPS } from '../stores/app.store';
+import stepperStore from '../stores/stepper.store';
+
 import BigStepper from './BigStepper.js';
+import MainLogo from '../images/MainLogo.svg';
 import Stepper from './Stepper';
 
 const baseContentStyle = {
@@ -62,54 +63,40 @@ export default class AppContainer extends Component {
 
   renderContent () {
     const { hideStepper, children, header, footer } = this.props;
-
-    if (appStore.step === STEPS['picops']) {
-      return (
-        <div>
-          <Container>
-            <Header as='h4' style={{ marginTop: '2em', marginBottom: '1em' }}>
-              IDENTITY VERIFICATION
-            </Header>
-          </Container>
-          {children}
-        </div>
-      );
-    }
-
+    const noPadding = appStore.step === STEPS['picops'];
     const style = {
       textAlign: 'left'
     };
-    const { view } = appStore;
+
+    const { title } = stepperStore;
     const contentStyle = Object.assign({}, baseContentStyle, this.props.style);
-    const titleNode = view && view.title
-      ? <Header as='h4' style={{ marginTop: '2em' }}>{view.title}</Header>
+    const titleNode = title
+      ? <Header as='h4' style={{ marginTop: '2em' }}>{title}</Header>
       : <div style={{ marginTop: hideStepper ? '2em' : '4em' }} />;
 
     return (
-      <Container style={style}>
-        {titleNode}
-        {header || null}
-        {this.renderStepper()}
-        <Segment basic style={contentStyle}>
-          {children}
-        </Segment>
-        {footer || null}
-      </Container>
-    );
-  }
-
-  renderStepper () {
-    const { view } = appStore;
-
-    if (!view) {
-      return null;
-    }
-
-    return (
-      <Stepper
-        step={view.step}
-        steps={view.steps}
-      />
+      <div>
+        <Container style={style}>
+          {titleNode}
+          {header || null}
+          <Stepper />
+          {
+            noPadding
+              ? null
+              : (
+                <Segment basic style={contentStyle}>
+                  {children}
+                </Segment>
+              )
+          }
+          {footer || null}
+        </Container>
+        {
+          noPadding
+            ? children
+            : null
+        }
+      </div>
     );
   }
 }

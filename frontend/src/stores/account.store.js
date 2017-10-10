@@ -3,6 +3,8 @@ import EthJS from 'ethereumjs-util';
 import { action, computed, observable } from 'mobx';
 
 import backend from '../backend';
+import picopsBackend from '../picops-backend';
+
 import appStore, { STEPS as APP_STEPS } from './app.store';
 import auctionStore from './auction.store';
 import blockStore from './block.store';
@@ -14,6 +16,7 @@ class AccountStore {
   @observable address = '';
   @observable balance = new BigNumber(0);
   @observable certified = null;
+  @observable jsonWallet = null;
   @observable paid = null;
   @observable privateKey = '';
   @observable spending = new BigNumber(0);
@@ -49,7 +52,7 @@ class AccountStore {
   }
 
   async checkFeePayment () {
-    const { paid } = await backend.getAccountFeeInfo(this.address);
+    const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
 
     if (paid) {
       this.setInfo({ paid });
@@ -90,16 +93,35 @@ class AccountStore {
     }
 
     const { accounted, eth: balance, certified } = await backend.getAddressInfo(this.address);
-    const { paid } = await backend.getAccountFeeInfo(this.address);
+    const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
 
     this.setInfo({ accounted, balance, certified, paid });
   }
 
-  @action setAccount ({ address, privateKey }) {
+  /**
+   * Check that the given address is certified,
+   * if not go to the PICOPS T&Cs
+   */
+  async gotoContribute () {
+    const { certified } = await backend.getAddressInfo(this.address);
+
+    if (!certified) {
+      return appStore.goto('picops-terms');
+    }
+
+    return appStore.goto('contribute');
+  }
+
+  async setAccount ({ address, privateKey }) {
+    // Remove JSON wallet if any
+    if (this.jsonWallet) {
+      this.jsonWallet = null;
+    }
+
     this.address = address;
     this.privateKey = privateKey;
 
-    this.fetchInfo();
+    await this.fetchInfo();
   }
 
   @action setInfo ({ accounted, balance, certified, paid }) {
@@ -118,6 +140,10 @@ class AccountStore {
     if (paid !== undefined) {
       this.paid = paid;
     }
+  }
+
+  @action setJSONWallet (jsonWallet) {
+    this.jsonWallet = jsonWallet;
   }
 
   /**

@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Header, Loader } from 'semantic-ui-react';
 import QRCode from 'qrcode.react';
@@ -9,6 +10,7 @@ import accountStore from '../../stores/account.store';
 
 import { fromWei } from '../../utils';
 
+@observer
 export default class Payment extends Component {
   componentWillMount () {
     accountStore.watchPayment();

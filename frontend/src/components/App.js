@@ -4,6 +4,8 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import { Header, Loader } from 'semantic-ui-react';
 
 import AppContainer from './AppContainer';
+import AccountCreator from './steps/AccountCreator';
+import AccountLoader from './steps/AccountLoader';
 import AccountSelection from './steps/AccountSelection';
 import Contribute from './steps/Contribute';
 import CountrySelection from './steps/CountrySelection';
@@ -64,79 +66,64 @@ class MainApp extends Component {
       );
     }
 
-    if (step === STEPS['important-notice']) {
-      return (
-        <ImportantNotice />
-      );
-    }
+    switch (step) {
+      case STEPS['important-notice']:
+        return (<ImportantNotice />);
 
-    if (step === STEPS['start']) {
-      return (
-        <Start />
-      );
-    }
+      case STEPS['start']:
+        return (<Start />);
 
-    if (step === STEPS['terms']) {
-      return (
-        <Terms />
-      );
-    }
+      case STEPS['terms']:
+        return (<Terms />);
 
-    if (step === STEPS['country-selection']) {
-      return (
-        <CountrySelection />
-      );
-    }
+      case STEPS['country-selection']:
+        return (<CountrySelection />);
 
-    if (step === STEPS['account-selection']) {
-      return (
-        <AccountSelection />
-      );
-    }
+      case STEPS['account-selection']:
+        return (<AccountSelection />);
 
-    if (step === STEPS['contribute']) {
-      return (
-        <Contribute />
-      );
-    }
+      case STEPS['load-account']:
+        return (<AccountLoader.Upload />);
 
-    if (step === STEPS['payment']) {
-      return (
-        <Payment />
-      );
-    }
+      case STEPS['unlock-account']:
+        return (<AccountLoader.Unlock />);
 
-    if (step === STEPS['fee-payment']) {
-      return (
-        <FeePayment />
-      );
-    }
+      case STEPS['create-account-password']:
+        return (<AccountCreator.Password />);
 
-    if (step === STEPS['picops-terms']) {
-      return (
-        <PicopsTerms />
-      );
-    }
+      case STEPS['create-account-recovery']:
+        return (<AccountCreator.Recovery />);
 
-    if (step === STEPS['picops']) {
-      return (
-        <Picops />
-      );
-    }
+      case STEPS['create-account-repeat']:
+        return (<AccountCreator.Repeat />);
 
-    if (step === STEPS['purchase']) {
-      return (
-        <Purchase />
-      );
-    }
+      case STEPS['create-account-download']:
+        return (<AccountCreator.Download />);
 
-    if (step === STEPS['summary']) {
-      return (
-        <Summary />
-      );
-    }
+      case STEPS['contribute']:
+        return (<Contribute />);
 
-    return null;
+      case STEPS['payment']:
+        return (<Payment />);
+
+      case STEPS['fee-payment']:
+        return (<FeePayment />);
+
+      case STEPS['picops-terms']:
+        return (<PicopsTerms />);
+
+      case STEPS['picops']:
+        return (<Picops />);
+
+      case STEPS['purchase']:
+        return (<Purchase />);
+
+      case STEPS['summary']:
+        return (<Summary />);
+
+      default:
+        return null;
+    }
   }
 
   handleRestart = () => {

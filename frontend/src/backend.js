@@ -2,13 +2,9 @@ import BigNumber from 'bignumber.js';
 
 import { get, post } from './utils';
 
-export const PICOPS_BASE_URL = 'https://staging-picops.parity.io';
-// export const PICOPS_BASE_URL = 'http://localhost:8081';
-
 class Backend {
-  constructor (url, picopsUrl) {
+  constructor (url) {
     this._url = url;
-    this._picopsUrl = picopsUrl;
   }
 
   blockHash () {
@@ -20,15 +16,12 @@ class Backend {
   }
 
   async config () {
-    const { gasPrice } = await get(this.url('/config'));
+    const { gasPrice, picopsUrl } = await get(this.url('/config'));
 
     return {
-      gasPrice: new BigNumber(gasPrice)
+      gasPrice: new BigNumber(gasPrice),
+      picopsUrl
     };
-  }
-
-  picopsUrl (path) {
-    return `${this._picopsUrl}/api${path}`;
   }
 
   status () {
@@ -43,25 +36,10 @@ class Backend {
     return `${this._url}/api${path}`;
   }
 
-  async getAccountFeeInfo (address) {
-    const { balance, paid } = await get(this.picopsUrl(`/accounts/${address}/fee`));
-
-    return {
-      balance: new BigNumber(balance),
-      paid
-    };
-  }
-
   async certifierAddress () {
     const { certifier } = await get(this.url(`/certifier`));
 
     return certifier;
-  }
-
-  async fee () {
-    const { fee, feeRegistrar } = await get(this.picopsUrl(`/fee`));
-
-    return { fee: new BigNumber(fee), feeRegistrar };
   }
 
   async getAddressInfo (address) {
@@ -80,12 +58,6 @@ class Backend {
     return nonce;
   }
 
-  async sendFeeTx (tx) {
-    const { hash } = await post(this.picopsUrl('/fee-tx'), { tx });
-
-    return { hash };
-  }
-
   async sendTx (tx) {
     const { hash, requiredEth } = await post(this.url('/tx'), { tx });
 
@@ -100,4 +72,4 @@ class Backend {
 const { protocol, hostname, port } = window.location;
 const frontendPort = port ? `:${port}` : '';
 
-export default new Backend(`${protocol}//${hostname}${frontendPort}`, PICOPS_BASE_URL);
+export default new Backend(`${protocol}//${hostname}${frontendPort}`);

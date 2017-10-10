@@ -3,6 +3,9 @@ import React, { Component } from 'react';
 import { Button, Checkbox, Header, Segment } from 'semantic-ui-react';
 
 import appStore from '../../stores/app.store';
+import feeStore from '../../stores/fee.store';
+
+import { fromWei } from '../../utils';
 
 import TermsMD from '../../terms.md';
 
@@ -15,6 +18,7 @@ export default class Terms extends Component {
   render () {
     const { citizenAccepted, spendingAccepted, termsAccepted } = appStore;
     const { hitBottom } = this.state;
+    const { totalFee } = feeStore;
 
     return (
       <Segment basic textAlign='center'>
@@ -60,7 +64,7 @@ export default class Terms extends Component {
         <div>
           <Checkbox
             disabled={!hitBottom}
-            label={`I confirm that I am not a citizen of China or the USA. (and in Mandarin)`}
+            label={`I confirm that I am not a citizen of China or the USA (我确定自己非中国公民，也非美国公民。)`}
             checked={citizenAccepted}
             onChange={this.handleCitizenChecked}
             style={{ marginBottom: '1em' }}
@@ -70,7 +74,10 @@ export default class Terms extends Component {
         <div>
           <Checkbox
             disabled={!hitBottom}
-            label={`I confirm that we may send payment of 0.005 ETH from my wallet for Identity Certification`}
+            label={`
+              I confirm that I agree to pay a fee of ${fromWei(totalFee).toFormat()} Ether for the certification process
+              in the event that my Ethereum wallet has not already been certified through PICOPS.
+            `}
             checked={spendingAccepted}
             onChange={this.handleSpendingChecked}
             style={{ marginBottom: '3em' }}
