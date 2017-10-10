@@ -5,7 +5,7 @@
 
 const Router = require('koa-router');
 
-const { hex2big, int2hex, int2date, sleep } = require('../utils');
+const { int2hex, int2date } = require('../utils');
 
 function get ({ sale, connector }) {
   const router = new Router({
@@ -60,9 +60,7 @@ function get ({ sale, connector }) {
   });
 
   router.get('/chart', async (ctx, next) => {
-    const data = await sale.chartData;
-
-    ctx.body = data;
+    ctx.body = sale.chartData;
   });
 
   router.get('/constants', (ctx) => {

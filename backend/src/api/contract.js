@@ -169,6 +169,10 @@ class Contract {
     this.events = {};
     this.values = {};
 
+    this.filters = [];
+
+    this.connector.on('block', () => this.checkFilters());
+
     abi.forEach((iface) => {
       const { constant, name, type } = iface;
 
@@ -226,6 +230,22 @@ class Contract {
     return this._transport;
   }
 
+  checkFilters () {
+    this.filters.forEach(async ({ id, callback }) => {
+      try {
+        const logs = await this.transport.request('eth_getFilterChanges', id);
+
+        if (logs.length === 0) {
+          return;
+        }
+
+        callback(this.parse(logs));
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+
   /**
    * Parse the given logs for the contract events
    *
@@ -245,6 +265,35 @@ class Contract {
 
       return event.decode([ log ])[0];
     });
+  }
+
+  async subscribe (eventNames, options, callback) {
+    if (typeof options === 'function' && !callback) {
+      return this.subscribe(eventNames, {}, options);
+    }
+
+    const eventsTopics = eventNames.map((eventName) => {
+      if (!this._events.has(eventName)) {
+        throw new Error(`Unknown event ${eventName}`);
+      }
+
+      return this._events.get(eventName).topic;
+    });
+
+    const filterTopics = [ eventsTopics ].concat(options.topics || []);
+    const filterOptions = Object.assign({}, options, {
+      address: this.address,
+      topics: filterTopics
+    });
+
+    const filterId = await this.transport.request('eth_newFilter', filterOptions);
+
+    this.filters.push({ id: filterId, callback });
+    return filterId;
+  }
+
+  unsubscribe (filterId) {
+    this.filters = this.filters.filter((f) => f.id !== filterId);
   }
 
   /**
@@ -316,7 +365,7 @@ class Contract {
    */
   _call (method, data) {
     return this
-      ._transport
+      .transport
       .request('eth_call', {
         to: this._address,
         data,
@@ -329,7 +378,7 @@ class Contract {
 
   _logs (topics, options) {
     return this
-      ._transport
+      .transport
       .request('eth_getLogs', Object.assign({}, {
         fromBlock: '0x0',
         toBlock: 'latest',

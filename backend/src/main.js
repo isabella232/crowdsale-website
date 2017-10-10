@@ -53,7 +53,7 @@ async function main () {
     .use(cors())
     .use(etag());
 
-  Routes(app, { sale, connector, certifier });
+  await Routes(app, { sale, connector, certifier });
 
   app.listen(port, hostname);
 }

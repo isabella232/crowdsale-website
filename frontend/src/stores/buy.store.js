@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import EthereumTx from 'ethereumjs-tx';
 import { ecsign } from 'ethereumjs-util';
 import { action, observable } from 'mobx';
 
@@ -8,7 +7,8 @@ import auctionStore from './auction.store';
 import blockStore from './block.store';
 import backend from '../backend';
 import config from './config.store';
-import { int2hex, hex2buf, hex2bn, buildABIData } from '../utils';
+import Transaction from './transaction';
+import { hex2buf, hex2bn, buildABIData } from '../utils';
 
 const BUYIN_SIG = '0xd0280037';
 const GAS_LIMIT = new BigNumber(200000);
@@ -66,23 +66,16 @@ class BuyStore {
 
     try {
       const privateKeyBuf = Buffer.from(privateKey.slice(2), 'hex');
-      const nonce = await backend.nonce(address);
       const { v, r, s } = ecsign(hex2buf(STATEMENT_HASH), privateKeyBuf);
       const data = buildABIData(BUYIN_SIG, v, r, s);
 
-      const tx = new EthereumTx({
+      const transaction = new Transaction(privateKey);
+      const { hash } = await transaction.send({
+        gasLimit: GAS_LIMIT,
         to: contractAddress,
-        nonce,
-        data,
-        gasLimit: int2hex(GAS_LIMIT),
-        gasPrice: int2hex(config.get('gasPrice')),
-        value: int2hex(spending)
+        value: spending,
+        data
       });
-
-      tx.sign(privateKeyBuf);
-
-      const serializedTx = `0x${tx.serialize().toString('hex')}`;
-      const { hash } = await backend.sendTx(serializedTx);
 
       console.warn('sent purchase', hash);
       this.setTransaction(hash);

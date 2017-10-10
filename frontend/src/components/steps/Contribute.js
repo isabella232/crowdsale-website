@@ -139,7 +139,7 @@ export default class AccountLoader extends Component {
     );
   }
 
-  handleContinue = () => {
+  handleContinue = async () => {
     const { spending } = this.state;
 
     if (!spending || spending.eq(0)) {
@@ -147,7 +147,12 @@ export default class AccountLoader extends Component {
     }
 
     accountStore.setSpending(toWei(spending));
-    appStore.goto('payment');
+
+    try {
+      await accountStore.checkPayment();
+    } catch (error) {
+      appStore.addError(error);
+    }
   };
 
   handleSpendChange = async (_, { value }) => {

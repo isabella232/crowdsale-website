@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js';
-import EthereumTx from 'ethereumjs-tx';
 import { action, observable } from 'mobx';
 
-import backend from '../backend';
 import picopsBackend from '../picops-backend';
 import config from './config.store';
+import Transaction from './transaction';
 import appStore from './app.store';
 import { isValidAddress } from '../utils';
 
@@ -45,24 +44,15 @@ class FeeStore {
         throw new Error('invalid payer address: ' + who);
       }
 
-      const privateKeyBuf = Buffer.from(privateKey.slice(2), 'hex');
+      const transaction = new Transaction(privateKey, { picops: true });
 
-      const nonce = await backend.nonce(who);
       const calldata = FEE_REGISTRAR_PAY_SIGNATURE + who.slice(-40).padStart(64, 0);
-
-      const tx = new EthereumTx({
-        to: this.feeRegistrar,
-        gasLimit: '0x' + FEE_REGISTRAR_GAS_LIMIT.toString(16),
-        gasPrice: '0x' + config.get('gasPrice').toString(16),
+      const { hash } = await transaction.send({
         data: calldata,
-        value: '0x' + this.fee.toString(16),
-        nonce
+        gasLimit: FEE_REGISTRAR_GAS_LIMIT,
+        to: this.feeRegistrar,
+        value: this.fee
       });
-
-      tx.sign(privateKeyBuf);
-
-      const serializedTx = `0x${tx.serialize().toString('hex')}`;
-      const { hash } = await picopsBackend.sendTx(serializedTx);
 
       console.warn('sent FeeRegistrar tx', hash);
       this.setTransaction(hash);

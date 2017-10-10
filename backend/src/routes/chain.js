@@ -9,9 +9,14 @@ const Router = require('koa-router');
 const { buf2hex, buf2big } = require('../utils');
 const { rateLimiter, error } = require('./utils');
 
-function get ({ sale, connector, certifier }) {
+async function get ({ sale, connector, certifier }) {
   const router = new Router({
     prefix: '/api'
+  });
+
+  // Wait for a new block to be fetched
+  await new Promise((resolve) => {
+    connector.once('block', resolve);
   });
 
   router.get('/block/hash', (ctx) => {

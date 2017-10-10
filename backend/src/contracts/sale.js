@@ -40,15 +40,22 @@ class Sale extends Contract {
   constructor (connector, address) {
     super(connector, address, SecondPriceAuction, STATICS);
 
-    this._chartData = Promise.resolve(null);
+    this._chartData = [];
+    this.init();
+  }
+
+  async init () {
+    try {
+      await this.fetchChartLogs();
+      await this.subscribe([ 'Buyin', 'Injected' ], (logs) => this.addChartLogs(logs));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async update () {
     try {
       await super.update();
-
-      this._chartData = await this._getChartData();
-
       log.trace(`Price is ${this.values.currentPrice.toFormat()} wei`);
     } catch (err) {
       console.error(err);
@@ -59,36 +66,46 @@ class Sale extends Contract {
     return this._chartData;
   }
 
-  async _getChartData () {
+  async fetchChartLogs () {
     const logs = await this.logs([
       'Buyin',
       'Injected'
     ]);
 
-    const blockNumbers = uniq(logs.map((log) => log.blockNumber));
-    const blocks = await Promise.all(blockNumbers.map((bn) => this.connector.getBlock(bn)));
+    await this.addChartLogs(logs);
+  }
 
-    logs.forEach((log) => {
-      const bnIndex = blockNumbers.indexOf(log.blockNumber);
-      const block = blocks[bnIndex];
+  async addChartLogs (logs) {
+    try {
+      const blockNumbers = uniq(logs.map((log) => log.blockNumber));
+      const blocks = await Promise.all(blockNumbers.map((bn) => this.connector.getBlock(bn)));
 
-      log.timestamp = int2date(block.timestamp);
-    });
+      logs.forEach((log) => {
+        const bnIndex = blockNumbers.indexOf(log.blockNumber);
+        const block = blocks[bnIndex];
 
-    let totalAccounted = new BigNumber(0);
-
-    return logs
-      .sort((logA, logB) => logA.timestamp - logB.timestamp)
-      .map((log) => {
-        const { accounted } = log.params;
-
-        totalAccounted = totalAccounted.add(accounted);
-
-        return {
-          totalAccounted: '0x' + totalAccounted.toString(16),
-          time: log.timestamp
-        };
+        log.timestamp = int2date(block.timestamp);
       });
+
+      let totalAccounted = new BigNumber(0);
+
+      const parsedLogs = logs
+        .sort((logA, logB) => logA.timestamp - logB.timestamp)
+        .map((log) => {
+          const { accounted } = log.params;
+
+          totalAccounted = totalAccounted.add(accounted);
+
+          return {
+            totalAccounted: '0x' + totalAccounted.toString(16),
+            time: log.timestamp
+          };
+        });
+
+      this._chartData = this.chartData.concat(parsedLogs);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 
