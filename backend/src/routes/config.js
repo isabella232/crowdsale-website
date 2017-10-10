@@ -12,14 +12,18 @@ async function get ({ connector }) {
   });
 
   const chainId = await connector.netVersion();
+  const etherscan = config.get('etherscan');
   const gasPrice = config.get('gasPrice');
   const picopsUrl = config.get('picopsUrl');
+  const saleWebsite = config.get('saleWebsite');
 
   router.get('/config', async (ctx, next) => {
     ctx.body = {
       chainId,
+      etherscan,
       gasPrice,
-      picopsUrl
+      picopsUrl,
+      saleWebsite
     };
   });
 

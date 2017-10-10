@@ -63,34 +63,66 @@ function get ({ sale, connector }) {
     ctx.body = sale.chartData;
   });
 
+  router.get('/dummy-deal', async (ctx, next) => {
+    const { accounted, refund, price, value } = await sale.dummyDeal();
+
+    ctx.body = {
+      accounted: int2hex(accounted),
+      price: int2hex(price),
+      value: int2hex(value),
+
+      refund
+    };
+  });
+
   router.get('/constants', (ctx) => {
     const {
-      BONUS_DURATION,
-      BONUS_SIZE,
-      DIVISOR,
+      DUST_LIMIT,
       STATEMENT_HASH,
+      STATEMENT,
+      BONUS_LATCH,
+      BONUS_MIN_DURATION,
+      BONUS_MAX_DURATION,
+      USDWEI,
+      DIVISOR,
+
+      admin,
       beginTime,
-      tokenCap
+      certifier,
+      tokenCap,
+      tokenContract,
+      treasury
     } = sale.values;
 
     ctx.body = {
-      BONUS_DURATION,
-      BONUS_SIZE,
-      DIVISOR,
+      DUST_LIMIT: int2hex(DUST_LIMIT),
       STATEMENT_HASH,
+      STATEMENT,
+      BONUS_LATCH: int2hex(BONUS_LATCH),
+      BONUS_MIN_DURATION: int2hex(BONUS_MIN_DURATION),
+      BONUS_MAX_DURATION: int2hex(BONUS_MAX_DURATION),
+      USDWEI: int2hex(USDWEI),
+      DIVISOR: int2hex(DIVISOR),
+
+      admin,
       beginTime: int2date(beginTime),
-      tokenCap
+      certifier,
+      tokenCap: int2hex(tokenCap),
+      tokenContract,
+      treasury,
+
+      contractAddress: sale.address
     };
   });
 
   router.get('/', (ctx) => {
     const extras = {
       block: connector.block,
-      connected: connector.status,
-      contractAddress: sale.address
+      connected: connector.status
     };
 
     const {
+      currentBonus,
       currentPrice,
       endTime,
       tokensAvailable,
@@ -99,11 +131,12 @@ function get ({ sale, connector }) {
     } = sale.values;
 
     ctx.body = Object.assign({}, extras, {
-      currentPrice,
+      currentBonus: int2hex(currentBonus),
+      currentPrice: int2hex(currentPrice),
       endTime: int2date(endTime),
-      tokensAvailable,
-      totalAccounted,
-      totalReceived
+      tokensAvailable: int2hex(tokensAvailable),
+      totalAccounted: int2hex(totalAccounted),
+      totalReceived: int2hex(totalReceived)
     });
   });
 

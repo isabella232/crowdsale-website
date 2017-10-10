@@ -16,21 +16,89 @@ class Backend {
   }
 
   async config () {
-    const { chainId, gasPrice, picopsUrl } = await get(this.url('/config'));
+    const {
+      chainId,
+      etherscan,
+      gasPrice,
+      picopsUrl,
+      saleWebsite
+    } = await get(this.url('/config'));
 
     return {
       chainId: parseInt(chainId),
+      etherscan,
       gasPrice: new BigNumber(gasPrice),
-      picopsUrl
+      picopsUrl,
+      saleWebsite
     };
   }
 
-  status () {
-    return get(this.url('/auction'));
+  async status () {
+    const {
+      block,
+      connected,
+
+      currentBonus,
+      currentPrice,
+      endTime,
+      tokensAvailable,
+      totalAccounted,
+      totalReceived
+    } = await get(this.url('/auction'));
+
+    return {
+      block,
+      connected,
+
+      currentBonus: new BigNumber(currentBonus),
+      currentPrice: new BigNumber(currentPrice),
+      endTime: new Date(endTime),
+      tokensAvailable: new BigNumber(tokensAvailable),
+      totalAccounted: new BigNumber(totalAccounted),
+      totalReceived: new BigNumber(totalReceived)
+    };
   }
 
-  sale () {
-    return get(this.url('/auction/constants'));
+  async sale () {
+    const {
+      DUST_LIMIT,
+      STATEMENT_HASH,
+      STATEMENT,
+      BONUS_LATCH,
+      BONUS_MIN_DURATION,
+      BONUS_MAX_DURATION,
+      DIVISOR,
+      USDWEI,
+
+      admin,
+      beginTime,
+      certifier,
+      tokenCap,
+      tokenContract,
+      treasury,
+
+      contractAddress
+    } = await get(this.url('/auction/constants'));
+
+    return {
+      DUST_LIMIT: new BigNumber(DUST_LIMIT),
+      STATEMENT_HASH,
+      STATEMENT,
+      BONUS_LATCH: new BigNumber(BONUS_LATCH),
+      BONUS_MIN_DURATION: new BigNumber(BONUS_MIN_DURATION),
+      BONUS_MAX_DURATION: new BigNumber(BONUS_MAX_DURATION),
+      DIVISOR: new BigNumber(DIVISOR),
+      USDWEI: new BigNumber(USDWEI),
+
+      admin,
+      beginTime: new Date(beginTime),
+      certifier,
+      tokenCap: new BigNumber(tokenCap),
+      tokenContract,
+      treasury,
+
+      contractAddress
+    };
   }
 
   url (path) {
@@ -41,6 +109,18 @@ class Backend {
     const { certifier } = await get(this.url(`/certifier`));
 
     return certifier;
+  }
+
+  async dummyDeal () {
+    const { accounted, refund, price, value } = await get(this.url(`/auction/dummy-deal`));
+
+    return {
+      accounted: new BigNumber(accounted),
+      price: new BigNumber(price),
+      value: new BigNumber(value),
+
+      refund
+    };
   }
 
   async getAddressInfo (address) {

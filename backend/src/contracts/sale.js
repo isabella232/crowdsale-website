@@ -12,12 +12,12 @@ const log = require('../logger');
 const { int2date } = require('../utils');
 
 const STATICS = [
-  'ERA_PERIOD',
   'DUST_LIMIT',
   'STATEMENT_HASH',
   'STATEMENT',
-  'BONUS_SIZE',
-  'BONUS_DURATION',
+  'BONUS_LATCH',
+  'BONUS_MIN_DURATION',
+  'BONUS_MAX_DURATION',
   'USDWEI',
   'DIVISOR',
 
@@ -42,6 +42,13 @@ class Sale extends Contract {
 
     this._chartData = [];
     this.init();
+  }
+
+  async dummyDeal () {
+    const value = new BigNumber(Math.pow(10, 16));
+    const [ accounted, refund, price ] = await this.methods.theDeal(value).get();
+
+    return { accounted, refund, price, value };
   }
 
   async init () {

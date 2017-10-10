@@ -156,6 +156,20 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "BONUS_MIN_DURATION",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "DUST_LIMIT",
     "outputs": [
       {
@@ -185,6 +199,20 @@
     "constant": true,
     "inputs": [],
     "name": "totalFinalised",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "BONUS_LATCH",
     "outputs": [
       {
         "name": "",
@@ -254,7 +282,7 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "BONUS_SIZE",
+    "name": "beginTime",
     "outputs": [
       {
         "name": "",
@@ -268,11 +296,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "beginTime",
+    "name": "lastNewInterest",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "payable": false,
@@ -319,10 +347,10 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "currentPrice",
+    "name": "BONUS_MAX_DURATION",
     "outputs": [
       {
-        "name": "weiPerIndivisibleTokenPart",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -333,10 +361,10 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "BONUS_DURATION",
+    "name": "currentPrice",
     "outputs": [
       {
-        "name": "",
+        "name": "weiPerIndivisibleTokenPart",
         "type": "uint256"
       }
     ],
@@ -498,11 +526,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "MAX_GAS_PRICE",
+    "name": "currentBonus",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "payable": false,
@@ -539,6 +567,10 @@
   },
   {
     "inputs": [
+      {
+        "name": "_certifierContract",
+        "type": "address"
+      },
       {
         "name": "_tokenContract",
         "type": "address"
