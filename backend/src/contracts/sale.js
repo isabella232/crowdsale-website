@@ -94,7 +94,9 @@ class Sale extends Contract {
         log.timestamp = int2date(block.timestamp);
       });
 
-      let totalAccounted = new BigNumber(0);
+      let totalAccounted = this._chartData.length > 0
+        ? new BigNumber(this._chartData[this._chartData.length - 1].totalAccounted)
+        : new BigNumber(0);
 
       const parsedLogs = logs
         .sort((logA, logB) => logA.timestamp - logB.timestamp)
@@ -104,12 +106,32 @@ class Sale extends Contract {
           totalAccounted = totalAccounted.add(accounted);
 
           return {
-            totalAccounted: '0x' + totalAccounted.toString(16),
+            totalAccounted: totalAccounted.plus(0),
+            blockNumber: log.blockNumber,
             time: log.timestamp
           };
         });
 
-      this._chartData = this.chartData.concat(parsedLogs);
+      const logPerBlock = parsedLogs.reduce((data, log) => {
+        const key = log.blockNumber;
+
+        if (!data[key] || data[key].totalAccounted.lt(log.totalAccounted)) {
+          data[key] = log;
+        }
+
+        return data;
+      }, {});
+
+      const uniqLogs = Object.keys(logPerBlock).map((key) => {
+        const log = logPerBlock[key];
+
+        return {
+          time: log.time,
+          totalAccounted: '0x' + log.totalAccounted.toString(16)
+        };
+      });
+
+      this._chartData = this.chartData.concat(uniqLogs);
     } catch (error) {
       console.error(error);
     }
