@@ -155,10 +155,10 @@ class AccountStore {
   @action setSpending (spending) {
     // No refunds allowed in the contract,
     // so need to modify the actual spending
-    const { accepted } = auctionStore.theDeal(spending);
+    const { accounted } = auctionStore.theDeal(spending);
 
-    console.warn('wants to send', spending.toFormat(), 'accepted', accepted.toString());
-    this.spending = accepted;
+    console.warn('wants to send', spending.toFormat(), 'accepted', accounted.toString());
+    this.spending = accounted;
   }
 
   /**

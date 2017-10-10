@@ -6,12 +6,6 @@ import backend from '../backend';
 import blockStore from './block.store';
 
 class AuctionStore extends EventEmitter {
-  BONUS_DURATION = new BigNumber(0);
-  BONUS_SIZE = new BigNumber(0);
-  DIVISOR = new BigNumber(1);
-  STATEMENT_HASH = '0x';
-  USDWEI = new BigNumber(10).pow(18).div(200);
-
   beginTime = new Date();
   contractAddress = '0x';
   tokenCap = new BigNumber(0);
@@ -32,26 +26,78 @@ class AuctionStore extends EventEmitter {
 
   async init () {
     const {
-      BONUS_DURATION,
-      BONUS_SIZE,
+      BONUS_LATCH,
+      BONUS_MIN_DURATION,
+      BONUS_MAX_DURATION,
       DIVISOR,
+      STATEMENT,
       STATEMENT_HASH,
+      USDWEI,
+
       beginTime,
-      tokenCap
+      tokenCap,
+
+      contractAddress
     } = await backend.sale();
 
-    this.BONUS_DURATION = new BigNumber(BONUS_DURATION);
-    this.BONUS_SIZE = new BigNumber(BONUS_SIZE);
-    this.DIVISOR = new BigNumber(DIVISOR);
+    this.BONUS_LATCH = BONUS_LATCH;
+    this.BONUS_MIN_DURATION = BONUS_MIN_DURATION;
+    this.BONUS_MAX_DURATION = BONUS_MAX_DURATION;
+    this.DIVISOR = DIVISOR;
+    this.USDWEI = USDWEI;
+
+    this.STATEMENT = STATEMENT;
     this.STATEMENT_HASH = STATEMENT_HASH;
 
     this.beginTime = new Date(beginTime);
     this.tokenCap = new BigNumber(tokenCap);
 
+    this.contractAddress = contractAddress;
+
     await this.refresh();
 
     this.emit('loaded');
     this.loaded = true;
+
+    this.checkDummyDeal();
+  }
+
+  async checkDummyDeal () {
+    const { accounted, refund, price, value } = await backend.dummyDeal();
+    const deal = this.theDeal(value);
+    const expectedPrice = this.getPrice(this.now);
+    const expectedTime = this.getTime(price);
+
+    let error = false;
+
+    if (!deal.accounted.eq(accounted)) {
+      error = true;
+      console.warn(`mismatch in accounted value: ${deal.accounted.toFormat()} vs. ${accounted.toFormat()}`);
+    }
+
+    if (deal.refund !== refund) {
+      error = true;
+      console.warn(`mismatch in refund value: ${deal.refund} vs. ${refund}`);
+    }
+
+    if (!deal.price.eq(price)) {
+      error = true;
+      console.warn(`mismatch in price value: ${deal.price.toFormat()} vs. ${price.toFormat()}`);
+    }
+
+    if (!deal.price.eq(expectedPrice)) {
+      error = true;
+      console.warn(`mismatch in computed price value: ${deal.price.toFormat()} vs. ${expectedPrice.toFormat()}`);
+    }
+
+    if (Math.abs(expectedTime.getTime() - this.now.getTime()) > 1500) {
+      error = true;
+      console.warn(`mismatch in computed time value: ${this.now} vs. ${expectedTime}`);
+    }
+
+    if (!error) {
+      console.warn('everything looks good!');
+    }
   }
 
   ready (cb) {
@@ -63,26 +109,27 @@ class AuctionStore extends EventEmitter {
   }
 
   bonus (value) {
-    if (!this.isActive() || !this.inBonus) {
-      return new BigNumber(0);
-    }
-
-    return value.mul(this.BONUS_SIZE).div(100);
-  }
-
-  getPrice (_time) {
     if (!this.isActive()) {
       return new BigNumber(0);
     }
 
-    const time = new BigNumber(Math.round(_time.getTime() / 1000));
-    const beginTime = new BigNumber(Math.round(this.beginTime.getTime() / 1000));
+    return value.mul(this.currentBonus).div(100);
+  }
+
+  getPrice (_time) {
+    if (_time < this.beginTime || _time > this.endTime) {
+      return new BigNumber(0);
+    }
+
+    const time = new BigNumber(Math.floor(_time.getTime() / 1000));
+    const beginTime = new BigNumber(Math.floor(this.beginTime.getTime() / 1000));
+    const K = new BigNumber(40000000);
     const { DIVISOR, USDWEI } = this;
 
-    return USDWEI
-      .mul(new BigNumber(18432000).div(time.sub(beginTime).add(5760)).sub(5))
-      .div(DIVISOR)
-      .round();
+    const p1 = USDWEI.mul(K).div(time.sub(beginTime).add(5760)).floor();
+    const p2 = USDWEI.mul(5);
+
+    return p1.sub(p2).div(DIVISOR).floor();
   }
 
   getTarget (time) {
@@ -92,19 +139,14 @@ class AuctionStore extends EventEmitter {
   }
 
   getTime (price) {
-    const beginTime = new BigNumber(Math.round(this.beginTime.getTime() / 1000));
+    const beginTime = new BigNumber(Math.floor(this.beginTime.getTime() / 1000));
+    const K = new BigNumber(40000000);
     const { DIVISOR, USDWEI } = this;
 
-    const f1 = price
-      .mul(DIVISOR)
-      .div(USDWEI)
-      .add(5);
+    const f1 = USDWEI.mul(K).floor();
+    const f2 = price.mul(DIVISOR).add(USDWEI.mul(5)).floor();
 
-    const time = new BigNumber(18432000)
-      .div(f1)
-      .sub(5760)
-      .add(beginTime)
-      .round();
+    const time = beginTime.sub(5760).add(f1.div(f2).floor()).floor();
 
     return new Date(time.mul(1000).toNumber());
   }
@@ -126,41 +168,35 @@ class AuctionStore extends EventEmitter {
       return new BigNumber(0);
     }
 
-    const dots = deal.accepted.div(deal.price).floor();
+    const dots = deal.accounted.div(deal.price).floor();
 
     return dots.div(this.DIVISOR);
   }
 
   theDeal (value) {
-    let accepted = new BigNumber(0);
-    let refund = new BigNumber(0);
+    let accounted = new BigNumber(0);
+    let refund = false;
 
     const bonus = this.bonus(value);
     const price = this.currentPrice;
 
     if (!this.isActive() || !value) {
       return {
-        accepted,
-        bonus,
+        accounted,
         refund,
         price
       };
     }
 
-    accepted = value.add(bonus);
+    accounted = value.add(bonus).floor();
 
-    let tokens = accepted.div(price);
+    const available = this.tokensAvailable;
+    const tokens = accounted.div(price).floor();
 
-    if (tokens.gt(this.tokensAvailable)) {
-      accepted = this.tokensAvailable.mul(price);
-      if (value.gt(accepted)) {
-        refund = value.sub(accepted);
-      }
-    }
+    refund = (tokens.gt(available));
 
     return {
-      accepted,
-      bonus,
+      accounted,
       refund,
       price
     };
@@ -174,18 +210,6 @@ class AuctionStore extends EventEmitter {
   @computed
   get endPrice () {
     return this.getPrice(this.endTime);
-  }
-
-  @computed
-  get inBonus () {
-    const bonusEndTime = new Date(this.beginTime.getTime() + this.BONUS_DURATION * 1000);
-
-    return this.now < bonusEndTime;
-  }
-
-  @computed
-  get maxSpend () {
-    return this.currentPrice.mul(this.tokensAvailable);
   }
 
   @computed
@@ -212,8 +236,8 @@ class AuctionStore extends EventEmitter {
     const {
       block,
       connected,
-      contractAddress,
 
+      currentBonus,
       currentPrice,
       endTime,
       tokensAvailable,
@@ -225,15 +249,15 @@ class AuctionStore extends EventEmitter {
       block.number = new BigNumber(block.number);
     }
 
-    this.currentPrice = new BigNumber(currentPrice);
-    this.endTime = new Date(endTime);
-    this.tokensAvailable = new BigNumber(tokensAvailable);
-    this.totalAccounted = new BigNumber(totalAccounted);
-    this.totalReceived = new BigNumber(totalReceived);
+    this.currentBonus = currentBonus;
+    this.currentPrice = currentPrice;
+    this.endTime = endTime;
+    this.tokensAvailable = tokensAvailable;
+    this.totalAccounted = totalAccounted;
+    this.totalReceived = totalReceived;
 
     this.block = block;
     this.connected = connected;
-    this.contractAddress = contractAddress;
   }
 }
 

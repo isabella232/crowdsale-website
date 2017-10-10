@@ -7,6 +7,7 @@ import AccountInfo from '../AccountInfo';
 import accountStore from '../../stores/account.store';
 import appStore from '../../stores/app.store';
 import buyStore from '../../stores/buy.store';
+import config from '../../stores/config.store';
 import auctionStore from '../../stores/auction.store';
 
 import { fromWei } from '../../utils';
@@ -49,7 +50,7 @@ export default class Summary extends Component {
           </div>
 
           <div style={{ marginTop: '2.5em' }}>
-            <Button primary size='big' as='a' href='http://www.tokenpage.io/'>
+            <Button primary size='big' as='a' href={config.get('saleWebsite')}>
               Return to the main website
             </Button>
           </div>

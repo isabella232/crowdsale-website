@@ -4,6 +4,7 @@ import { Button, Header, Loader } from 'semantic-ui-react';
 
 import accountStore from '../../stores/account.store';
 import feeStore from '../../stores/fee.store';
+import config from '../../stores/config.store';
 
 @observer
 export default class FeePayment extends Component {
@@ -17,7 +18,7 @@ export default class FeePayment extends Component {
 
   render () {
     const { transaction } = feeStore;
-    const etherscanUrl = 'https://etherscan.io/tx/' + transaction;
+    const etherscanUrl = config.get('etherscan') + '/tx/' + transaction;
 
     return (
       <div style={{ textAlign: 'center' }}>

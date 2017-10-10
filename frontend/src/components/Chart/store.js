@@ -7,7 +7,7 @@ import auctionStore from '../../stores/auction.store';
 import { fromWei } from '../../utils';
 
 class ChartStore {
-  @observable chart = {};
+  @observable chart = null;
   @observable loading = true;
 
   totalAccounted = new BigNumber(0);
@@ -50,7 +50,7 @@ class ChartStore {
 
     // Only update the chart when the price updates
     const nextTotalAccounted = new BigNumber(totalAccounted);
-    const update = !nextTotalAccounted.eq(this.totalAccounted);
+    const update = !nextTotalAccounted.eq(this.totalAccounted) || !this.chart;
 
     this.totalAccounted = new BigNumber(totalAccounted);
 
@@ -105,9 +105,13 @@ class ChartStore {
       data.push({ target, time, raised });
     }
 
+    const firstRaisedData = raisedData.length > 0
+      ? raisedData[0].value
+      : new BigNumber(0);
+
     data.push({
       time: new Date(now.getTime() + dateInterval),
-      raised: raisedData[0].value,
+      raised: firstRaisedData,
       target: nowTarget
     });
 

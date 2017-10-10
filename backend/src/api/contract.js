@@ -3,6 +3,7 @@
 
 'use strict';
 
+const BigNumber = require('bignumber.js');
 const EthereumAbi = require('ethereumjs-abi');
 
 const { buf2hex, ejs2val, hex2buf } = require('../utils');
@@ -127,7 +128,14 @@ class Method {
       throw new Error(`Expected ${types.length} params for "${this._name}" ; ${params.length} given`);
     }
 
-    const encoded = EthereumAbi.rawEncode(types, params);
+    const nextParams = params.map((param) => {
+      if (param instanceof BigNumber) {
+        return param.toNumber().toString();
+      }
+
+      return param;
+    });
+    const encoded = EthereumAbi.rawEncode(types, nextParams);
 
     return this.id + encoded.toString('hex');
   }

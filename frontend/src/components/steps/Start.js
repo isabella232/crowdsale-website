@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Header } from 'semantic-ui-react';
 
 import appStore from '../../stores/app.store';
+import config from '../../stores/config.store';
 
 export default class Start extends Component {
   render () {
@@ -62,7 +63,7 @@ export default class Start extends Component {
         </div>
 
         <div>
-          <Button secondary size='big' as='a' href='https://polkadot.network/'>
+          <Button secondary size='big' as='a' href={config.get('saleWebsite')}>
             Return to website
           </Button>
           <Button primary size='big' onClick={this.handleStart}>
