@@ -5,6 +5,7 @@ import { Button, Header } from 'semantic-ui-react';
 import AccountInfo from '../AccountInfo';
 
 import accountStore from '../../stores/account.store';
+import appStore from '../../stores/app.store';
 import buyStore from '../../stores/buy.store';
 import auctionStore from '../../stores/auction.store';
 
@@ -78,7 +79,7 @@ export default class Summary extends Component {
           </div>
 
           <div style={{ marginTop: '2.5em' }}>
-            <Button primary size='big'>
+            <Button primary size='big' onClick={this.handleRetry}>
               Try again
             </Button>
           </div>
@@ -86,4 +87,8 @@ export default class Summary extends Component {
       </div>
     );
   }
+
+  handleRetry = () => {
+    appStore.goto('contribute');
+  };
 }

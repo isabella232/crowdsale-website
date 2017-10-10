@@ -69,6 +69,17 @@ class ParityConnector extends EventEmitter {
   }
 
   /**
+   * Get chain id / network version
+   *
+   * @return {Promise<String>} The chain id
+   */
+  netVersion () {
+    return this
+      ._transport
+      .request('net_version');
+  }
+
+  /**
    * Get next nonce for address
    *
    * @param  {String} address

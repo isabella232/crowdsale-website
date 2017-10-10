@@ -8,15 +8,15 @@ const Auction = require('./auction');
 const Chain = require('./chain');
 const Config = require('./config');
 
-module.exports = function set (app, { sale, connector, certifier }) {
-  [
+module.exports = async function set (app, { sale, connector, certifier }) {
+  for (const Route of [
     Accounts,
     Auction,
     Chain,
     Config
-  ].forEach((Route) => {
-    const instance = Route({ sale, connector, certifier });
+  ]) {
+    const instance = await Route({ sale, connector, certifier });
 
     app.use(instance.routes(), instance.allowedMethods());
-  });
+  }
 };
