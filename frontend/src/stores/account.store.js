@@ -157,8 +157,8 @@ class AccountStore {
     // so need to modify the actual spending
     const { accounted } = auctionStore.theDeal(spending);
 
-    console.warn('wants to send', spending.toFormat(), 'accepted', accounted.toString());
-    this.spending = accounted;
+    console.warn('wants to send', spending.toFormat(), 'but will account', accounted.toFormat());
+    this.spending = spending;
   }
 
   /**

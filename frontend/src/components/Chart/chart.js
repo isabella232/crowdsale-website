@@ -91,10 +91,14 @@ class CustomChart extends Component {
     }
 
     const { beginTime, endTime } = auctionStore;
+    const lastTime = data[data.length - 1].time;
+    const xMax = lastTime > beginTime.getTime()
+      ? beginTime.getTime() + (lastTime - beginTime.getTime()) * 2
+      : endTime;
 
     const xDomain = [
       beginTime.getTime(),
-      endTime.getTime()
+      xMax
     ];
 
     const yDomain = [
@@ -231,9 +235,11 @@ class CustomChart extends Component {
     const { now } = auctionStore;
     const { margins } = chart;
 
+    const minTime = xScale.invert(xScale(now) - 20);
     const maxTime = xScale.invert(xScale(now) - 10);
+    const xDomain = xScale.domain();
 
-    if (xScale.domain()[1] < maxTime) {
+    if (xDomain[1] < maxTime || xDomain[0] > minTime) {
       return null;
     }
 
