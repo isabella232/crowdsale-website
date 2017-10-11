@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
+import { background as bgColor, border as borderColor } from './colors';
+
 const Label = styled.span`
+  background-color: ${bgColor};
   border-radius: 7px;
   font-size: 0.85rem;
   font-weight: bold;
@@ -10,7 +13,7 @@ const Label = styled.span`
   white-space: nowrap;
 
   &:after, &:before {
-    border: solid transparent;
+    border: solid ${bgColor};
     content: " ";
     height: 0;
     width: 0;
@@ -25,7 +28,7 @@ const Label = styled.span`
 
   &:before {
     border-color: rgba(194, 225, 245, 0);
-    border-width: 8px;
+    border-width: 6px;
   }
 `;
 
@@ -38,13 +41,13 @@ export const LabelTarget = styled(Label)`
   }
 
   &:after {
-    border-top-color: white;
+    border-top-color: ${bgColor};
     margin-left: -5px;
   }
 
   &:before {
-    border-top-color: gray;
-    margin-left: -8px;
+    border-top-color: ${borderColor};
+    margin-left: -6px;
   }
 `;
 
@@ -57,12 +60,12 @@ export const LabelRaised = styled(Label)`
   }
 
   &:after {
-    border-right-color: white;
+    border-right-color: ${bgColor};
     margin-top: -5px;
   }
 
   &:before {
-    border-right-color: red;
-    margin-top: -8px;
+    border-right-color: ${borderColor};
+    margin-top: -6px;
   }
 `;

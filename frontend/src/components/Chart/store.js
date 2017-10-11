@@ -9,6 +9,7 @@ import { fromWei } from '../../utils';
 class ChartStore {
   @observable chart = null;
   @observable loading = true;
+  @observable priceChart = null;
 
   totalAccounted = new BigNumber(0);
 
@@ -31,12 +32,20 @@ class ChartStore {
     this.chart = chart;
   }
 
+  @action setPriceChart (priceChart) {
+    this.priceChart = priceChart;
+  }
+
   @action setLoading (loading) {
     this.loading = loading;
   }
 
   update = async () => {
     const { totalAccounted } = auctionStore;
+
+    if (!this.priceChart) {
+      this.computePriceChart();
+    }
 
     // Only update the chart when the price updates
     const nextTotalAccounted = new BigNumber(totalAccounted);
@@ -51,6 +60,40 @@ class ChartStore {
     if (this.loading) {
       this.setLoading(false);
     }
+  }
+
+  computePriceChart () {
+    const { beginTime, endTime } = auctionStore;
+    const NUM_TICKS = 200;
+    const data = [];
+
+    const beginTarget = auctionStore.getTarget(beginTime);
+    const endTarget = auctionStore.getTarget(endTime);
+
+    const targetInteval = beginTarget.sub(endTarget).div(NUM_TICKS);
+
+    for (let i = 0; i <= NUM_TICKS; i++) {
+      // The target decreases with time
+      const target = beginTarget.sub(targetInteval.mul(i));
+      const time = auctionStore.getTimeFromTarget(target);
+
+      data.push({ target: fromWei(target).round().toNumber(), time: time.getTime() });
+    }
+
+    const dateInterval = (endTime - beginTime) / NUM_TICKS;
+
+    for (let i = 0; i <= NUM_TICKS; i++) {
+      const time = new Date(beginTime.getTime() + dateInterval * i);
+      const target = auctionStore.getTarget(time);
+
+      data.push({ target: fromWei(target).round().toNumber(), time: time.getTime() });
+    }
+
+    const formattedData = data.sort((ptA, ptB) => ptA.time - ptB.time);
+
+    this.setPriceChart({
+      data: formattedData
+    });
   }
 
   async updateChartData () {

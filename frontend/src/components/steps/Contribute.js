@@ -29,17 +29,14 @@ export default class AccountLoader extends Component {
         description={(
           <div>
             <p>
-              Please confirm how much ETH you would like to contribute
-              to the sale.
+              Please confirm how much ETH you would like to contribute to the auction.
             </p>
             <p>
-              At the end of the auction, you will be notified of the amount
-              of DOTs you have received.
+              At the end of the auction, you will be notified of the amount of DOTs you have received.
             </p>
             <p style={{ color: 'red', fontWeight: 'bold' }}>
-              Be advised that by clicking “certify your identity” you will
-              not be able to change the amount contributed to the sale.
-              Once verified, your wallet will be debited by the amount
+              Be advised that by clicking “certify your identity” you will not be able to change the
+              amount contributed to the auction. Once verified, your wallet will be debited by the amount
               you have chosen to contribute.
             </p>
           </div>

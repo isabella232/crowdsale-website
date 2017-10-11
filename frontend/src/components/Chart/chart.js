@@ -6,9 +6,11 @@ import styled from 'styled-components';
 import * as d3 from 'd3';
 import { Header, Loader } from 'semantic-ui-react';
 
+import { target as targetColor, raised as raisedColor, border as borderColor } from './colors';
 import DotPair from './DotPair';
 import Line from './Line';
 import { LabelRaised, LabelTarget } from './Labels';
+import PointedElement from './PointedElement';
 
 import auctionStore from '../../stores/auction.store';
 import chartStore from './store';
@@ -73,16 +75,17 @@ class CustomChart extends Component {
     }
 
     const { width } = this.containerRef.getBoundingClientRect();
-    const height = width * 0.75;
+    const height = width * 9 / 16;
 
-    this.setState({ size: { width, height } }, () => {
-      this.computeScales();
-    });
+    this.computeScales({ size: { width, height } });
   };
 
-  computeScales () {
-    const { width, height } = this.state.size;
-    const margins = { top: 20, right: 0, bottom: 80, left: 10 };
+  computeScales (nextState) {
+    const { width, height } = nextState
+      ? nextState.size
+      : this.state.size;
+
+    const margins = { top: 30, right: 30, bottom: 20, left: 20 };
 
     const { data } = this.props;
 
@@ -91,14 +94,10 @@ class CustomChart extends Component {
     }
 
     const { beginTime, endTime } = auctionStore;
-    const lastTime = data[data.length - 1].time;
-    const xMax = lastTime > beginTime.getTime()
-      ? beginTime.getTime() + (lastTime - beginTime.getTime()) * 2
-      : endTime;
 
     const xDomain = [
       beginTime.getTime(),
-      xMax
+      endTime.getTime() * 1.15 - beginTime.getTime() * 0.15
     ];
 
     const yDomain = [
@@ -124,7 +123,32 @@ class CustomChart extends Component {
       xScale = transform.rescaleX(xScale);
     }
 
-    this.setState({ xDomain, yDomain, xScale, yScale, chart: { width, height, margins } });
+    const { now } = auctionStore;
+    const { priceChart } = chartStore;
+
+    const nowTime = now.getTime();
+    const futurePriceData = priceChart.data.filter((datum) => datum.time >= nowTime);
+
+    const targetLine = d3.line()
+      .x((datum) => xScale(datum.time))
+      .y((datum) => yScale(datum.target))
+      .curve(d3.curveLinear);
+
+    const targetFutureLine = d3.line()
+      .x((datum) => xScale(datum.time))
+      .y((datum) => yScale(datum.target))
+      .curve(d3.curveLinear);
+
+    const raisedLine = d3.line()
+      .x((datum) => xScale(datum.time))
+      .y((datum) => yScale(datum.raised))
+      .curve(d3.curveLinear);
+
+    this.setState(Object.assign(
+      { xDomain, yDomain, xScale, yScale, chart: { width, height, margins } },
+      { futurePriceData, targetLine, targetFutureLine, raisedLine },
+      nextState || {}
+    ));
   }
 
   render () {
@@ -136,20 +160,11 @@ class CustomChart extends Component {
     }
 
     const { width, height, margins } = chart;
-
-    const targetLine = d3.line()
-      .x((datum) => xScale(datum.time))
-      .y((datum) => yScale(datum.raised))
-      .curve(d3.curveLinear);
-
-    const raisedLine = d3.line()
-      .x((datum) => xScale(datum.time))
-      .y((datum) => yScale(datum.target))
-      .curve(d3.curveLinear);
+    const { mouse, futurePriceData, targetLine, targetFutureLine, raisedLine } = this.state;
 
     return (
-      <div ref={this.setContainerRef}>
-        <Container style={{ height, width }}>
+      <div ref={this.setContainerRef} style={{ width: '100%' }}>
+        <Container style={{ height, width, overflow: 'hidden' }}>
           {this.renderNowLabels()}
           {this.renderPointedLabels()}
 
@@ -186,13 +201,20 @@ class CustomChart extends Component {
               <path
                 d={raisedLine(data)}
                 fill='none'
-                stroke='gray'
+                stroke={raisedColor}
                 strokeWidth={2}
               />
               <path
                 d={targetLine(data)}
                 fill='none'
-                stroke='red'
+                stroke={targetColor}
+                strokeWidth={2}
+              />
+              <path
+                d={targetFutureLine(futurePriceData)}
+                fill='none'
+                stroke={targetColor}
+                strokeDasharray='2, 2'
                 strokeWidth={2}
               />
 
@@ -207,7 +229,7 @@ class CustomChart extends Component {
 
               <DotPair
                 datum={data[data.length - 1]}
-                r={4}
+                r={7}
                 xScale={xScale}
                 yScale={yScale}
               />
@@ -216,12 +238,17 @@ class CustomChart extends Component {
                 animated
                 datum={data[data.length - 1]}
                 plain={false}
-                r={7}
+                r={10}
                 xScale={xScale}
                 yScale={yScale}
               />
 
-              {this.renderPointedElements()}
+              <PointedElement
+                data={data}
+                mouse={mouse}
+                xScale={xScale}
+                yScale={yScale}
+              />
             </g>
           </svg>
         </Container>
@@ -232,75 +259,29 @@ class CustomChart extends Component {
   renderNowLabels () {
     const { data } = this.props;
     const { chart, xScale, yScale } = this.state;
-    const { now } = auctionStore;
     const { margins } = chart;
-
-    const minTime = xScale.invert(xScale(now) - 20);
-    const maxTime = xScale.invert(xScale(now) - 10);
-    const xDomain = xScale.domain();
-
-    if (xDomain[1] < maxTime || xDomain[0] > minTime) {
-      return null;
-    }
 
     return (
       <span>
         <LabelTarget
           style={{
             left: xScale(data[data.length - 1].time) + margins.left,
-            top: yScale(data[data.length - 1].target) + margins.top,
-            border: '2px solid gray'
+            top: yScale(data[data.length - 1].target) + margins.top - 5,
+            border: `1px solid ${borderColor}`
           }}
         >
           CURRENT CAP
         </LabelTarget>
         <LabelRaised
           style={{
-            left: xScale(data[data.length - 1].time) + margins.left,
+            left: xScale(data[data.length - 1].time) + margins.left + 5,
             top: yScale(data[data.length - 1].raised) + margins.top,
-            border: '2px solid red'
+            border: `1px solid ${borderColor}`
           }}
         >
           CONTRIBUTED SO FAR*
         </LabelRaised>
       </span>
-    );
-  }
-
-  renderPointedElements () {
-    const { mouse, xScale, yScale } = this.state;
-
-    if (!mouse) {
-      return null;
-    }
-
-    const { beginTime, now } = auctionStore;
-    const { data } = this.props;
-    const time = xScale.invert(mouse.x);
-    const datum = data.find((datum) => datum.time >= time);
-
-    if (!datum || time < beginTime || time > now) {
-      return null;
-    }
-
-    return (
-      <g>
-        <Line
-          color='lightgray'
-          dashed
-          from={[ datum.time, data[0].target ]}
-          to={[ datum.time, 0 ]}
-          scales={[ xScale, yScale ]}
-          width={2}
-        />
-
-        <DotPair
-          datum={datum}
-          r={3}
-          xScale={xScale}
-          yScale={yScale}
-        />
-      </g>
     );
   }
 
@@ -341,13 +322,13 @@ class CustomChart extends Component {
           left
         }}>
           <PointedLabel style={{
-            borderColor: 'gray'
+            borderColor: targetColor
           }}>
             {this.renderFigure(datum.target)}
           </PointedLabel>
 
           <PointedLabel style={{
-            borderColor: 'red',
+            borderColor: raisedColor,
             marginTop: '5px'
           }}>
             {this.renderFigure(datum.raised)}
@@ -409,14 +390,13 @@ class CustomChart extends Component {
       .zoom()
       .scaleExtent([ 1, Infinity ])
       .translateExtent([[0, 0], [width, height]])
-      .extent([[0, 0], [width, height]])
-      .on('zoom', this.zoomed);
+      .extent([[0, 0], [width, height]]);
+      // .on('zoom', this.zoomed);
 
     this.svgRef = svgRef;
     this.d3SvgRef = d3.select(this.svgRef);
 
-    this.d3SvgRef
-      .call(zoom);
+    this.d3SvgRef.call(zoom);
   };
 
   zoomed = () => {
@@ -432,6 +412,7 @@ class CustomChart extends Component {
 export default class Chart extends Component {
   render () {
     const { chart, loading } = chartStore;
+    const isActive = auctionStore.isActive();
 
     if (loading) {
       return (
@@ -440,6 +421,16 @@ export default class Chart extends Component {
 
           <Header as='h2'>
             Loading data...
+          </Header>
+        </div>
+      );
+    }
+
+    if (!isActive) {
+      return (
+        <div style={{ textAlign: 'center' }}>
+          <Header as='h2'>
+            Sale is not active
           </Header>
         </div>
       );

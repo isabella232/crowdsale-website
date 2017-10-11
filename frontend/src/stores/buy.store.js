@@ -3,7 +3,7 @@ import { ecsign } from 'ethereumjs-util';
 import { action, observable } from 'mobx';
 
 import appStore from './app.store';
-import auctionStore from './auction.store';
+import auctionStore, { TSCS_HASH } from './auction.store';
 import blockStore from './block.store';
 import backend from '../backend';
 import config from './config.store';
@@ -58,7 +58,7 @@ class BuyStore {
   async purchase (address, spending, privateKey) {
     console.warn('buying tokens for', spending.toFormat());
 
-    const { contractAddress, STATEMENT_HASH } = auctionStore;
+    const { contractAddress } = auctionStore;
 
     if (!address || !privateKey) {
       throw new Error('no address or no private key');
@@ -66,7 +66,7 @@ class BuyStore {
 
     try {
       const privateKeyBuf = Buffer.from(privateKey.slice(2), 'hex');
-      const { v, r, s } = ecsign(hex2buf(STATEMENT_HASH), privateKeyBuf);
+      const { v, r, s } = ecsign(hex2buf(TSCS_HASH), privateKeyBuf);
       const data = buildABIData(BUYIN_SIG, v, r, s);
 
       const transaction = new Transaction(privateKey);

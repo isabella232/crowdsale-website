@@ -3,6 +3,7 @@ import EventEmitter from 'eventemitter3';
 import { difference, uniq } from 'lodash';
 import { action, computed, observable } from 'mobx';
 import store from 'store';
+// import History from 'history.js';
 
 import backend from '../backend';
 import config from './config.store';
@@ -33,7 +34,8 @@ export const STEPS = {
   'picops': Symbol('picops'),
   'fee-payment': Symbol('fee payment'),
   'purchase': Symbol('purchase'),
-  'summary': Symbol('summary')
+  'summary': Symbol('summary'),
+  'late-uncertified': Symbol('late-uncertified')
 };
 
 let nextErrorId = 1;
@@ -77,6 +79,9 @@ class AppStore extends EventEmitter {
       case STEPS['purchase']:
       case STEPS['summary']:
         return 2;
+
+      case STEPS['late-uncertified']:
+        return -1;
 
       default:
         if (this.step) {
@@ -235,6 +240,12 @@ class AppStore extends EventEmitter {
 }
 
 const appStore = new AppStore();
+
+// History.Adapter.bind(window, 'statechange', () => {
+//   const State = History.getState();
+
+//   console.warn(State);
+// });
 
 // window.appStore = appStore;
 export default appStore;

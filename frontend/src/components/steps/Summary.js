@@ -41,12 +41,14 @@ export default class Summary extends Component {
           />
 
           <div style={{ marginTop: '1.5em', fontSize: '1.25em' }}>
-            You have successfully contributed {fromWei(accounted).toFormat()} ETH and will
-            receive at least {dots.toFormat()} DOTs
+            You have successfully contributed {fromWei(accounted).toFormat()} ETH and will receive at
+            least {dots.toFormat()} DOTs.
           </div>
 
           <div style={{ marginTop: '1em', fontSize: '1.25em' }}>
-            You will receive your DOTs once the sale has ended to the address above
+            DOT tokens will become available upon the genesis of the Polkadot network. Once the auction
+            ends, you will be able to check your DOT allocation
+            at <a href='https://sale.polkadot.network/#/dots'>https://sale.polkadot.network/#/dots</a>
           </div>
 
           <div style={{ marginTop: '2.5em' }}>

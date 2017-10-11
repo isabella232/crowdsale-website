@@ -33,10 +33,18 @@ export default class AccountSelection extends Component {
           LOAD / GENERATE YOUR WALLET
         </Header>
 
-        <div style={{ margin: '2em 0 3em', fontSize: '1.1em' }}>
+        <div style={{ margin: '2em auto 1.5em', fontSize: '1.1em', maxWidth: '50em' }}>
           In order to be able to claim your DOTs, it is necessary to
           have access to the private key corresponding to the contribution
           address. <b>Hardware wallets, exchanges and multisig wallets are not supported in this process.</b>
+        </div>
+
+        <div style={{ margin: '1.5em auto 3em', fontSize: '1.1em', maxWidth: '50em' }}>
+          Your private key will be used only to send a fee for KYC service,
+          to sign terms and conditions, and to sign your contribution transaction.
+          All signing is done in-browser. Your private key is not uploaded to any server
+          or handled by any third party. Your private key will necessary to access your
+          DOTs upon the launch of Polkadot's Genesis block.
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>

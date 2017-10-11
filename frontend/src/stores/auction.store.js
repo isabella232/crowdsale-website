@@ -3,6 +3,7 @@ import EventEmitter from 'eventemitter3';
 import { action, computed, observable } from 'mobx';
 
 import backend from '../backend';
+import appStore from './app.store';
 import blockStore from './block.store';
 import { ascii2hex, sha3 } from '../utils';
 
@@ -13,8 +14,9 @@ function toUTF8 (x) {
 }
 
 const tscs = ascii2hex(toUTF8(rawTerms));
-const tscsMessage = ascii2hex('\x19Ethereum Signed Message:\n' + (tscs.length / 2 - 1) + tscs.substr(2));
-const tscsHash = sha3(tscsMessage);
+const tscsMessage = ascii2hex('\x19Ethereum Signed Message:\n' + (tscs.length / 2 - 1)) + tscs.substr(2);
+
+export const TSCS_HASH = sha3(tscsMessage);
 
 class AuctionStore extends EventEmitter {
   beginTime = new Date();
@@ -25,6 +27,7 @@ class AuctionStore extends EventEmitter {
   @observable connected = 'disconnected'
   @observable currentPrice = new BigNumber(0);
   @observable endTime = new Date();
+  @observable halted = false;
   @observable tokensAvailable = new BigNumber(0);
   @observable totalAccounted = new BigNumber(0);
   @observable totalReceived = new BigNumber(0);
@@ -70,8 +73,9 @@ class AuctionStore extends EventEmitter {
 
     this.checkDummyDeal();
 
-    if (STATEMENT_HASH !== tscsHash) {
-      console.error(`Could not compute T&C hash. Expected ${STATEMENT_HASH} but computed ${tscsHash}`);
+    if (STATEMENT_HASH !== TSCS_HASH) {
+      console.warn(`> In contract: ${STATEMENT_HASH} // Computed: ${TSCS_HASH} ...`);
+      appStore.addError(new Error(`Unexpected statement hash in the Sale contract.`));
     }
   }
 
@@ -253,6 +257,7 @@ class AuctionStore extends EventEmitter {
       currentBonus,
       currentPrice,
       endTime,
+      halted,
       tokensAvailable,
       totalAccounted,
       totalReceived
@@ -265,6 +270,7 @@ class AuctionStore extends EventEmitter {
     this.currentBonus = currentBonus;
     this.currentPrice = currentPrice;
     this.endTime = endTime;
+    this.halted = halted;
     this.tokensAvailable = tokensAvailable;
     this.totalAccounted = totalAccounted;
     this.totalReceived = totalReceived;
