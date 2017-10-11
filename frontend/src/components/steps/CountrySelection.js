@@ -80,7 +80,7 @@ export default class CountrySelector extends Component {
           textAlign: 'center',
           margin: '1.5em 0 2.5em'
         }}>
-          Are you a citizen of, resident in, or established in one of these countries: United States or China?
+          Are you a citizen of, resident in, or established in one of these countries: People's Republic of China or the United States?
         </div>
 
         <Grid>

@@ -64,7 +64,10 @@ export default class Terms extends Component {
         <div>
           <Checkbox
             disabled={!hitBottom}
-            label={`I confirm that I am not a citizen of China or the USA (我确定自己非中国公民，也非美国公民。)`}
+            label={`
+              I confirm that I am not a citizen or resident of the People's Republic of
+              China or the United States (我确定自己非中国公民，也非美国公民。)
+            `}
             checked={citizenAccepted}
             onChange={this.handleCitizenChecked}
             style={{ marginBottom: '1em' }}

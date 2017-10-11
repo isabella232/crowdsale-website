@@ -55,6 +55,10 @@ export default class Picops extends Component {
       console.warn('requesting to sign', message.data);
       this.handleSignMessage(message.data, event.source, event.origin);
     }
+
+    if (message.action === 'certified') {
+      accountStore.checkPayment();
+    }
   };
 
   handleSignMessage = (message, source, origin) => {

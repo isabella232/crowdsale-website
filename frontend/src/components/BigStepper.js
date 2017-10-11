@@ -20,6 +20,10 @@ export default class BigStepper extends Component {
   render () {
     const current = appStore.stepper;
 
+    if (current < 0) {
+      return null;
+    }
+
     const steps = [
       { name: 'Confirm Eligibility' },
       { name: 'Load / Generate Wallet' },

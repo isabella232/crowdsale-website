@@ -27,6 +27,7 @@ class AuctionStore extends EventEmitter {
   @observable connected = 'disconnected'
   @observable currentPrice = new BigNumber(0);
   @observable endTime = new Date();
+  @observable halted = false;
   @observable tokensAvailable = new BigNumber(0);
   @observable totalAccounted = new BigNumber(0);
   @observable totalReceived = new BigNumber(0);
@@ -256,6 +257,7 @@ class AuctionStore extends EventEmitter {
       currentBonus,
       currentPrice,
       endTime,
+      halted,
       tokensAvailable,
       totalAccounted,
       totalReceived
@@ -268,6 +270,7 @@ class AuctionStore extends EventEmitter {
     this.currentBonus = currentBonus;
     this.currentPrice = currentPrice;
     this.endTime = endTime;
+    this.halted = halted;
     this.tokensAvailable = tokensAvailable;
     this.totalAccounted = totalAccounted;
     this.totalReceived = totalReceived;

@@ -11,6 +11,7 @@ import Contribute from './steps/Contribute';
 import CountrySelection from './steps/CountrySelection';
 import FeePayment from './steps/FeePayment';
 import ImportantNotice from './steps/ImportantNotice';
+import LateUncertified from './steps/LateUncertified';
 import Payment from './steps/Payment';
 import Picops from './steps/Picops';
 import PicopsTerms from './steps/PicopsTerms';
@@ -70,7 +71,7 @@ class MainApp extends Component {
       );
     }
 
-    if (!auctionStore.isActive()) {
+    if (!auctionStore.isActive() || auctionStore.halted) {
       return (
         <InactiveAuction />
       );
@@ -130,6 +131,9 @@ class MainApp extends Component {
 
       case STEPS['summary']:
         return (<Summary />);
+
+      case STEPS['late-uncertified']:
+        return (<LateUncertified />);
 
       default:
         return null;

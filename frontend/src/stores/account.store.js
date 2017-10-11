@@ -104,6 +104,12 @@ class AccountStore {
    */
   async gotoContribute () {
     const { certified } = await backend.getAddressInfo(this.address);
+    const { now, endTime } = auctionStore;
+
+    // Last hour
+    if (!certified && endTime - now < 1000 * 3600) {
+      return appStore.goto('late-uncertified');
+    }
 
     if (!certified) {
       return appStore.goto('picops-terms');

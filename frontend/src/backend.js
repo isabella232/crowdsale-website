@@ -41,6 +41,7 @@ class Backend {
       currentBonus,
       currentPrice,
       endTime,
+      halted,
       tokensAvailable,
       totalAccounted,
       totalReceived
@@ -53,6 +54,7 @@ class Backend {
       currentBonus: new BigNumber(currentBonus),
       currentPrice: new BigNumber(currentPrice),
       endTime: new Date(endTime),
+      halted,
       tokensAvailable: new BigNumber(tokensAvailable),
       totalAccounted: new BigNumber(totalAccounted),
       totalReceived: new BigNumber(totalReceived)

@@ -48,6 +48,7 @@ class StepperStore {
           : 'IDENTITY CERTIFICATION & SALE CONTRIBUTION';
 
       case STEPS['summary']:
+      case STEPS['late-uncertified']:
         return '';
 
       default:
@@ -94,6 +95,7 @@ class StepperStore {
         return this.certified ? 2 : 5;
 
       case STEPS['summary']:
+      case STEPS['late-uncertified']:
         return -1;
 
       default:
@@ -152,6 +154,7 @@ class StepperStore {
         ];
 
       case STEPS['summary']:
+      case STEPS['late-uncertified']:
         return [];
 
       default:
