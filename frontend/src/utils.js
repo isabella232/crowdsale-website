@@ -11,8 +11,29 @@ export function ascii2hex (string) {
     .join('');
 }
 
-export function sha3 (input) {
-  return '0x' + keccak_256(input);
+export function sha3 (value, options) {
+  const forceHex = options && options.encoding === 'hex';
+
+  if (forceHex || (!options && isHex(value))) {
+    const bytes = hexToBytes(value);
+
+    return sha3(bytes);
+  }
+
+  const hash = keccak_256(value);
+
+  return `0x${hash}`;
+}
+
+export function hexToBytes (hex) {
+  const raw = hex.slice(2);
+  const bytes = [];
+
+  for (let i = 0; i < raw.length; i += 2) {
+    bytes.push(parseInt(raw.substr(i, 2), 16));
+  }
+
+  return bytes;
 }
 
 export function createWallet (secret, password) {
@@ -101,6 +122,22 @@ export async function post (url, body) {
   }
 
   return response.json();
+}
+
+export function isHex (_test) {
+  if (!isString(_test)) {
+    return false;
+  }
+
+  if (_test.substr(0, 2) === '0x') {
+    return isHex(_test.slice(2));
+  }
+
+  return /^[0-9a-f]+$/.test(_test);
+}
+
+export function isString (test) {
+  return Object.prototype.toString.call(test) === '[object String]';
 }
 
 function validateHex (hex) {
