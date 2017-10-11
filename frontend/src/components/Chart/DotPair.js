@@ -2,6 +2,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
+import { target as targetColor, raised as raisedColor } from './colors';
+
+const animate = false;
+
 const animation = keyframes`
   0% {
     transform: scale(1);
@@ -17,10 +21,12 @@ const animation = keyframes`
   }
 `;
 
-const AnimatedCircle = styled.g`
-  animation: ${animation} 2s cubic-bezier(0.4, 0, 1, 1) infinite;
-  transform-origin: center center;
-`;
+const AnimatedCircle = animate
+  ? styled.g`
+    animation: ${animation} 2s cubic-bezier(0.4, 0, 1, 1) infinite;
+    transform-origin: center center;
+  `
+  : styled.g``;
 
 const DotPair = (props) => {
   const { animated, datum, plain, r, xScale, yScale } = props;
@@ -33,12 +39,12 @@ const DotPair = (props) => {
     };
 
   const raisedProps = plain
-    ? { ...defaultProps, fill: 'red' }
-    : { ...defaultProps, stroke: 'red' };
+    ? { ...defaultProps, fill: raisedColor }
+    : { ...defaultProps, stroke: raisedColor };
 
   const targetProps = plain
-    ? { ...defaultProps, fill: 'gray' }
-    : { ...defaultProps, stroke: 'gray' };
+    ? { ...defaultProps, fill: targetColor }
+    : { ...defaultProps, stroke: targetColor };
 
   const circles = [
     <circle

@@ -9,9 +9,8 @@ export default class ChartContainer extends Component {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '400px',
-        width: '200px',
-        margin: '0 auto'
+        width: '100vw',
+        padding: '2em'
       }}>
         <Chart />
       </div>
