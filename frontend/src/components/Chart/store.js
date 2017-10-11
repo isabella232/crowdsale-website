@@ -13,18 +13,8 @@ class ChartStore {
   totalAccounted = new BigNumber(0);
 
   constructor () {
-    auctionStore.ready(this.fetch);
-    blockStore.on('block', this.fetch);
-  }
-
-  fetch = async () => {
-    const status = await backend.status();
-
-    await this.update(status);
-
-    if (this.loading) {
-      this.setLoading(false);
-    }
+    auctionStore.ready(this.update);
+    blockStore.on('block', this.update);
   }
 
   formatChartData (data) {
@@ -45,8 +35,8 @@ class ChartStore {
     this.loading = loading;
   }
 
-  async update (status) {
-    const { totalAccounted } = status;
+  update = async () => {
+    const { totalAccounted } = auctionStore;
 
     // Only update the chart when the price updates
     const nextTotalAccounted = new BigNumber(totalAccounted);
@@ -56,6 +46,10 @@ class ChartStore {
 
     if (update) {
       await this.updateChartData();
+    }
+
+    if (this.loading) {
+      this.setLoading(false);
     }
   }
 

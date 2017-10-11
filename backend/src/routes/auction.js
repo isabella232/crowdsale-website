@@ -79,7 +79,6 @@ function get ({ sale, connector }) {
     const {
       DUST_LIMIT,
       STATEMENT_HASH,
-      STATEMENT,
       BONUS_LATCH,
       BONUS_MIN_DURATION,
       BONUS_MAX_DURATION,
@@ -97,7 +96,6 @@ function get ({ sale, connector }) {
     ctx.body = {
       DUST_LIMIT: int2hex(DUST_LIMIT),
       STATEMENT_HASH,
-      STATEMENT,
       BONUS_LATCH: int2hex(BONUS_LATCH),
       BONUS_MIN_DURATION: int2hex(BONUS_MIN_DURATION),
       BONUS_MAX_DURATION: int2hex(BONUS_MAX_DURATION),
@@ -124,18 +122,28 @@ function get ({ sale, connector }) {
     const {
       currentBonus,
       currentPrice,
+      endPrice,
       endTime,
+      halted,
+      lastNewInterest,
+      maxPurchase,
       tokensAvailable,
       totalAccounted,
+      totalFinalised,
       totalReceived
     } = sale.values;
 
     ctx.body = Object.assign({}, extras, {
       currentBonus: int2hex(currentBonus),
       currentPrice: int2hex(currentPrice),
+      endPrice: int2hex(endPrice),
       endTime: int2date(endTime),
+      halted,
+      lastNewInterest: int2hex(lastNewInterest),
+      maxPurchase: int2hex(maxPurchase),
       tokensAvailable: int2hex(tokensAvailable),
       totalAccounted: int2hex(totalAccounted),
+      totalFinalised: int2hex(totalFinalised),
       totalReceived: int2hex(totalReceived)
     });
   });

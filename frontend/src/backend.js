@@ -63,7 +63,6 @@ class Backend {
     const {
       DUST_LIMIT,
       STATEMENT_HASH,
-      STATEMENT,
       BONUS_LATCH,
       BONUS_MIN_DURATION,
       BONUS_MAX_DURATION,
@@ -83,7 +82,6 @@ class Backend {
     return {
       DUST_LIMIT: new BigNumber(DUST_LIMIT),
       STATEMENT_HASH,
-      STATEMENT,
       BONUS_LATCH: new BigNumber(BONUS_LATCH),
       BONUS_MIN_DURATION: new BigNumber(BONUS_MIN_DURATION),
       BONUS_MAX_DURATION: new BigNumber(BONUS_MAX_DURATION),

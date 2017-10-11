@@ -20,10 +20,12 @@ import Summary from './steps/Summary';
 import Terms from './steps/Terms';
 
 import Chart from './Chart';
+import InactiveAuction from './InactiveAuction';
 import DotsQuery from './DotsQuery';
 import Messages from './Messages';
 
 import appStore, { STEPS } from '../stores/app.store';
+import auctionStore from '../stores/auction.store';
 
 @observer
 export default class App extends Component {
@@ -45,7 +47,9 @@ export default class App extends Component {
 class MainApp extends Component {
   render () {
     return (
-      <AppContainer>
+      <AppContainer
+        hideStepper={!auctionStore.isActive()}
+      >
         {this.renderContent()}
       </AppContainer>
     );
@@ -63,6 +67,12 @@ class MainApp extends Component {
             Loading data...
           </Header>
         </div>
+      );
+    }
+
+    if (!auctionStore.isActive()) {
+      return (
+        <InactiveAuction />
       );
     }
 

@@ -14,7 +14,6 @@ const { int2date } = require('../utils');
 const STATICS = [
   'DUST_LIMIT',
   'STATEMENT_HASH',
-  'STATEMENT',
   'BONUS_LATCH',
   'BONUS_MIN_DURATION',
   'BONUS_MAX_DURATION',

@@ -4,6 +4,17 @@ import { action, computed, observable } from 'mobx';
 
 import backend from '../backend';
 import blockStore from './block.store';
+import { ascii2hex, sha3 } from '../utils';
+
+import rawTerms from '!raw-loader!../terms.md'; // eslint-disable-line import/no-webpack-loader-syntax
+
+function toUTF8 (x) {
+  return unescape(encodeURIComponent(x));
+}
+
+const tscs = ascii2hex(toUTF8(rawTerms));
+const tscsMessage = ascii2hex('\x19Ethereum Signed Message:\n' + (tscs.length / 2 - 1) + tscs.substr(2));
+const tscsHash = sha3(tscsMessage);
 
 class AuctionStore extends EventEmitter {
   beginTime = new Date();
@@ -30,7 +41,6 @@ class AuctionStore extends EventEmitter {
       BONUS_MIN_DURATION,
       BONUS_MAX_DURATION,
       DIVISOR,
-      STATEMENT,
       STATEMENT_HASH,
       USDWEI,
 
@@ -46,7 +56,6 @@ class AuctionStore extends EventEmitter {
     this.DIVISOR = DIVISOR;
     this.USDWEI = USDWEI;
 
-    this.STATEMENT = STATEMENT;
     this.STATEMENT_HASH = STATEMENT_HASH;
 
     this.beginTime = new Date(beginTime);
@@ -60,6 +69,10 @@ class AuctionStore extends EventEmitter {
     this.loaded = true;
 
     this.checkDummyDeal();
+
+    if (STATEMENT_HASH !== tscsHash) {
+      console.error(`Could not compute T&C hash. Expected ${STATEMENT_HASH} but computed ${tscsHash}`);
+    }
   }
 
   async checkDummyDeal () {
