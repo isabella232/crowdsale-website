@@ -4,6 +4,17 @@ import { keccak_256 } from 'js-sha3'; // eslint-disable-line camelcase
 
 const WEI = new BigNumber(10).pow(18);
 
+export function ascii2hex (string) {
+  return '0x' + string.split('')
+    .map(s => s.charCodeAt(0))
+    .map(s => s < 0x10 ? '0' + s.toString(16) : s.toString(16))
+    .join('');
+}
+
+export function sha3 (input) {
+  return '0x' + keccak_256(input);
+}
+
 export function createWallet (secret, password) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {

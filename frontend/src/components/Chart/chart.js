@@ -252,7 +252,7 @@ class CustomChart extends Component {
             border: '2px solid gray'
           }}
         >
-          TARGET RAISED
+          CURRENT CAP
         </LabelTarget>
         <LabelRaised
           style={{
@@ -261,7 +261,7 @@ class CustomChart extends Component {
             border: '2px solid red'
           }}
         >
-          RAISED SO FAR
+          CONTRIBUTED SO FAR*
         </LabelRaised>
       </span>
     );
