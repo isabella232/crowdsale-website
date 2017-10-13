@@ -34,8 +34,12 @@ export default class Terms extends Component {
           lineHeight: '1.5em',
           margin: '1.5em 0'
         }}>
-          <div>The Polkadot token sale Terms & Conditions are important, detailed, and govern your transaction.</div>
-          <div>Please read and understand them fully before proceeding.</div>
+          <div>
+            The Web3 Auction Terms & Conditions are important, detailed, and govern your transaction.
+          </div>
+          <div>
+            Please read and understand them fully before proceeding.
+          </div>
         </div>
         <div
           style={{

@@ -16,6 +16,7 @@ class FeeStore {
   fee = null;
   feeRegistrar = null;
   totalFee = null;
+  txFee = null;
 
   // The transaction hash for the Fee Registrar
   @observable transaction;
@@ -32,7 +33,8 @@ class FeeStore {
 
       this.fee = fee;
       this.feeRegistrar = feeRegistrar;
-      this.totalFee = fee.plus(config.get('gasPrice').mul(FEE_REGISTRAR_GAS_LIMIT));
+      this.txFee = config.get('gasPrice').mul(FEE_REGISTRAR_GAS_LIMIT);
+      this.totalFee = fee.plus(this.txFee);
     } catch (error) {
       appStore.addError(error);
     }

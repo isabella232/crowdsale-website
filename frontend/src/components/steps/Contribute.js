@@ -7,6 +7,7 @@ import { fromWei, toWei } from '../../utils';
 
 import accountStore from '../../stores/account.store';
 import auctionStore from '../../stores/auction.store';
+import buyStore from '../../stores/buy.store';
 import feeStore from '../../stores/fee.store';
 import appStore from '../../stores/app.store';
 import AccountInfo from '../AccountInfo';
@@ -19,7 +20,7 @@ export default class AccountLoader extends Component {
   };
 
   render () {
-    const { address, spending } = accountStore;
+    const { address, balance, missingWei, spending } = accountStore;
 
     return (
       <Step
@@ -29,13 +30,16 @@ export default class AccountLoader extends Component {
             <p>
               Please confirm how much ETH you would like to contribute to the auction.
             </p>
+
             <p>
-              At the end of the auction, you will be notified of the amount of DOTs you have received.
+              At the end of the auction, you will be able to check the amount of DOTs
+              you received with your public Ethereum address.
             </p>
+
             <p style={{ color: 'red', fontWeight: 'bold' }}>
-              Be advised that by clicking “certify your identity” you will not be able to change the
-              amount contributed to the auction. Once verified, your wallet will be debited by the amount
-              you have chosen to contribute.
+              Be advised that by clicking forward you will not be able to change the
+              amount contributed to the auction. If you still need to certify, your
+              contribution will only be debited after certification.
             </p>
           </div>
         )}
@@ -44,6 +48,17 @@ export default class AccountLoader extends Component {
           <Header as='h3'>
             Your Ethereum address
           </Header>
+
+          {
+            missingWei.gt(0) || balance.eq(0)
+              ? (
+                <div>
+                  You will need to transfer the desired funds to the Ether address below.
+                </div>
+              )
+              : null
+          }
+
           <AccountInfo
             address={address}
           />
@@ -101,20 +116,32 @@ export default class AccountLoader extends Component {
 
   renderFee () {
     const { certified, paid } = accountStore;
-    const { totalFee } = feeStore;
+    const { fee } = feeStore;
 
-    if (certified || paid) {
-      return;
-    }
-
-    if (!totalFee) {
+    if (!fee) {
       console.warn('no total fee set...');
       return;
     }
 
+    let txFees = buyStore.totalGas;
+    const willPayFee = !certified || !paid;
+
+    if (willPayFee) {
+      txFees = txFees.add(feeStore.txFee || 0);
+    }
+
     return (
-      <div style={{ marginTop: '0.5em', color: 'gray', fontSize: '0.85em' }}>
-        An additional fee of {fromWei(totalFee).toFormat()} ETH will be needed for certification.
+      <div style={{ color: 'gray', fontSize: '1em' }}>
+        {
+          willPayFee
+            ? (
+              <div style={{ marginTop: '0.5em' }}>Additional certification fee will be {fromWei(fee).toFormat()} ETH. </div>
+            )
+            : null
+        }
+        <div style={{ marginTop: '0.5em' }}>
+          Addtional transaction fee{willPayFee ? <span>s</span> : null} will be {fromWei(txFees).toFormat()} ETH.
+        </div>
       </div>
     );
   }

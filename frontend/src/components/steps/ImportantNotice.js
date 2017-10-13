@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Header } from 'semantic-ui-react';
 
 import appStore from '../../stores/app.store';
+import Text from '../ui/Text';
 
 export default class ImportantNotice extends Component {
   render () {
@@ -11,21 +12,17 @@ export default class ImportantNotice extends Component {
           IMPORTANT NOTICE
         </Header>
 
-        <div style={{
-          fontSize: '1em',
-          margin: '2em 0 3em',
-          maxWidth: '600px'
-        }}>
-          <p style={{ lineHeight: '1.5em' }}>
-            The Polkadot token sale requires experience and knowledge of <b>sending and receiving
-            Ether</b>, as well as the <b>safe storage of JSON wallet files</b>.
-          </p>
+        <Text.Container>
+          <Text>
+            The Polkadot auction requires experience and knowledge of <b>sending and receiving Ether</b> as well
+            as the <b>safe storage of JSON wallet files</b>.
+          </Text>
 
-          <p style={{ lineHeight: '1.5em' }}>
-            Polkadot will <b>not</b> provide any customer support for the registration process.
-            By participating in the sale, you assume full responsibility for your funds.
-          </p>
-        </div>
+          <Text>
+            Polkadot will not provide any customer support for the registration process. <b>By
+            participating in the auction, you assume full responsibility for your funds.</b>
+          </Text>
+        </Text.Container>
 
         <Button primary size='big' onClick={this.handleContinue}>
           Continue

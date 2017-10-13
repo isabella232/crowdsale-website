@@ -31,8 +31,8 @@ export default class Password extends Component {
           </Header>
           <div style={{ lineHeight: '2em' }}>
             <p>
-              Choose a unique and secure password. Write it down and
-              keep it safe. You will need it to unlock access your wallet.
+              Choose a unique and secure password. <b>Write it down and
+              keep it safe.</b> You will need it to unlock access your wallet.
             </p>
           </div>
         </Grid.Column>

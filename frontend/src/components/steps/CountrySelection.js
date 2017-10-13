@@ -5,6 +5,7 @@ import { Button, Card, Checkbox, Dropdown, Grid, Header, Icon, Image, Modal } fr
 
 import appStore from '../../stores/app.store';
 import supportedCountries from './../../supported-documents.json';
+import Text from '../ui/Text';
 
 import DriverLicense from '../../images/DriverLicense.svg';
 import IDCard from '../../images/IDCard.svg';
@@ -76,12 +77,9 @@ export default class CountrySelector extends Component {
         {this.renderInvalidModal()}
         {this.renderValidModal()}
 
-        <div style={{
-          textAlign: 'center',
-          margin: '1.5em 0 2.5em'
-        }}>
+        <Text>
           Are you a citizen of, resident in, or established in one of these countries: People's Republic of China or the United States?
-        </div>
+        </Text>
 
         <Grid>
           <Grid.Column tablet={16} computer={8}>
