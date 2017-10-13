@@ -4,25 +4,24 @@ import IFrame from '../ui/IFrame';
 import picopsBackend from '../../picops-backend';
 import appStore from '../../stores/app.store';
 
-export default class PicopsTerms extends Component {
+export default class PicopsCountrySelection extends Component {
   render () {
     return (
       <IFrame
         onMessage={this.handleMessage}
-        src={`${picopsBackend.baseUrl}/?no-padding#/tc`}
+        src={`${picopsBackend.baseUrl}/?no-padding&blacklist[]=CHN#/country-selection`}
       />
     );
   }
 
   handleMessage = (_, message) => {
-    if (message.action !== 'terms-accepted') {
+    if (message.action !== 'selected-country') {
       return;
     }
 
-    if (!message.termsAccepted) {
-      return;
-    }
+    const { country } = message;
 
-    appStore.goto('picops-country-selection');
+    console.warn('selected country', country);
+    appStore.goto('contribute');
   };
 }

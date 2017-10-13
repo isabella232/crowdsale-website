@@ -46,6 +46,7 @@ class StepperStore {
       case STEPS['fee-payment']:
       case STEPS['picops']:
       case STEPS['picops-terms']:
+      case STEPS['picops-country-selection']:
       case STEPS['purchase']:
         return this.certified
           ? 'SALE CONTRIBUTION'
@@ -88,6 +89,7 @@ class StepperStore {
         return 2;
 
       case STEPS['picops-terms']:
+      case STEPS['picops-country-selection']:
         return this.certified ? -1 : 0;
       case STEPS['contribute']:
         return this.certified ? 0 : 1;
@@ -141,6 +143,7 @@ class StepperStore {
       case STEPS['fee-payment']:
       case STEPS['picops']:
       case STEPS['picops-terms']:
+      case STEPS['picops-country-selection']:
       case STEPS['purchase']:
         if (this.certified) {
           return [
@@ -154,7 +157,7 @@ class StepperStore {
           'PICOPS T&C',
           'Select Contribution',
           'Add Ether',
-          'Fee payment',
+          'Fee Payment',
           'PICOPS Certification',
           'Contribute'
         ];

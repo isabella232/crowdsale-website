@@ -10,7 +10,7 @@ const Text = styled.div`
 
 Text.Container = styled.div`
   margin: 0 auto;
-  padding: 1em 0 2em;
+  padding: 0.5em 0 2em;
 `;
 
 export default Text;

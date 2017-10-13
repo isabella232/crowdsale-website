@@ -33,5 +33,6 @@ export default class ImportantNotice extends Component {
 
   handleContinue = () => {
     appStore.goto('start');
+    // appStore.goto('picops-country-selection');
   };
 }
