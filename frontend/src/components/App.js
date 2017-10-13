@@ -72,11 +72,11 @@ class MainApp extends Component {
       );
     }
 
-    // if (!auctionStore.isActive() || auctionStore.halted) {
-    //   return (
-    //     <InactiveAuction />
-    //   );
-    // }
+    if (!auctionStore.isActive() || auctionStore.halted) {
+      return (
+        <InactiveAuction />
+      );
+    }
 
     switch (step) {
       case STEPS['important-notice']:
