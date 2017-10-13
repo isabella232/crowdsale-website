@@ -4,6 +4,7 @@ import { Button, Header, Icon } from 'semantic-ui-react';
 
 import accountStore from '../../../stores/account.store';
 import appStore from '../../../stores/app.store';
+import history from '../../../stores/history';
 
 const dropzoneStyle = {
   width: '25em',
@@ -54,7 +55,7 @@ export default class Upload extends Component {
   }
 
   handleCancel = () => {
-    appStore.goto('account-selection');
+    history.goBack();
   };
 
   handleDrop = (files) => {
@@ -93,7 +94,7 @@ export default class Upload extends Component {
         }
 
         accountStore.setJSONWallet(json);
-        appStore.goto('unlock-account');
+        history.push('/', { goto: 'unlock-account' });
       } catch (error) {
         console.error(error, content);
         appStore.addError(new Error('Invalid file format.'));

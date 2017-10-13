@@ -6,6 +6,7 @@
 const Router = require('koa-router');
 
 const { rateLimiter } = require('./utils');
+const { int2hex } = require('../utils');
 
 function get ({ sale, connector, certifier }) {
   const router = new Router({
@@ -25,8 +26,20 @@ function get ({ sale, connector, certifier }) {
 
     ctx.body = {
       certified,
-      eth: '0x' + eth.toString(16),
-      accounted: '0x' + accounted.toString(16)
+      eth: int2hex(eth),
+      accounted: int2hex(accounted)
+    };
+  });
+
+  router.get('/:address/balance', async (ctx, next) => {
+    const { address } = ctx.params;
+
+    await rateLimiter(address, ctx.remoteAddress);
+
+    const balance = await connector.balance(address);
+
+    ctx.body = {
+      balance: int2hex(balance)
     };
   });
 

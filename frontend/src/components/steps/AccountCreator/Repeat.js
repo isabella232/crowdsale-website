@@ -3,8 +3,8 @@ import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Form, Grid, Header } from 'semantic-ui-react';
 
-import appStore from '../../../stores/app.store';
 import accountCreator from './accountCreator.store';
+import history from '../../../stores/history';
 
 @observer
 export default class Repeat extends Component {
@@ -75,7 +75,7 @@ export default class Repeat extends Component {
       event.preventDefault();
     }
 
-    appStore.goto('create-account-recovery');
+    history.goBack();
   };
 
   handleKeyUp = (event) => {
@@ -91,7 +91,7 @@ export default class Repeat extends Component {
       event.preventDefault();
     }
 
-    appStore.goto('create-account-download');
+    history.push('/', { goto: 'create-account-download' });
   };
 
   handleRecoveryRepeatChange = (_, { value }) => {

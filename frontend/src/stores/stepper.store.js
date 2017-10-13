@@ -4,13 +4,15 @@ import appStore, { STEPS } from './app.store';
 import accountStore from './account.store';
 
 class StepperStore {
+  _certified = null;
+
   /**
    * Store the value of certification,
    * so that the steps and title don't
    * change when the user finally gets certified
    */
   get certified () {
-    if (this._certified) {
+    if (this._certified !== null) {
       return this._certified;
     }
 
@@ -29,12 +31,14 @@ class StepperStore {
       case STEPS['account-selection']:
       case STEPS['load-account']:
       case STEPS['unlock-account']:
+        this._certified = null;
         return '';
 
       case STEPS['create-account-password']:
       case STEPS['create-account-recovery']:
       case STEPS['create-account-repeat']:
       case STEPS['create-account-download']:
+        this._certified = null;
         return 'GENERATE WALLET';
 
       case STEPS['contribute']:
@@ -49,6 +53,7 @@ class StepperStore {
 
       case STEPS['summary']:
       case STEPS['late-uncertified']:
+        this._certified = null;
         return '';
 
       default:
@@ -56,6 +61,7 @@ class StepperStore {
           console.warn('UNKOWN STEP FOR STEPPER', step);
         }
 
+        this._certified = null;
         return '';
     }
   }

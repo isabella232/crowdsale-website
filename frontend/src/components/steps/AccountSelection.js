@@ -5,7 +5,7 @@ import EthereumImg from '../../images/ethereum.png';
 import EthereumBlankImg from '../../images/ethereum_blank.png';
 
 import accountCreator from './AccountCreator/accountCreator.store';
-import appStore from '../../stores/app.store';
+import history from '../../stores/history';
 
 const cardStyle = {
   width: '300px',
@@ -75,11 +75,11 @@ export default class AccountSelection extends Component {
   }
 
   handleLoad = () => {
-    appStore.goto('load-account');
+    history.push('/', { goto: 'load-account' });
   };
 
   handleCreate = () => {
     accountCreator.generateWallet();
-    appStore.goto('create-account-password');
+    history.push('/', { goto: 'create-account-password' });
   };
 }

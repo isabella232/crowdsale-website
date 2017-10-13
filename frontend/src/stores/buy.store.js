@@ -15,6 +15,7 @@ const GAS_LIMIT = new BigNumber(200000);
 
 class BuyStore {
   @observable accounted;
+  @observable received;
   @observable success;
 
   // The transaction hash for the Sale contract
@@ -49,6 +50,7 @@ class BuyStore {
 
     this.setInfo({
       accounted: success ? hex2bn(result.accounted) : null,
+      received: success ? hex2bn(result.received) : null,
       success
     });
 
@@ -85,8 +87,9 @@ class BuyStore {
     }
   }
 
-  @action setInfo ({ accounted, success }) {
+  @action setInfo ({ accounted, received, success }) {
     this.accounted = accounted;
+    this.received = received;
     this.success = success;
   }
 

@@ -40,7 +40,7 @@ export default class FeePayment extends Component {
         {
           transaction
             ? (
-              <Button as='a' href={etherscanUrl} target='_blank' basic>
+              <Button as='a' href={etherscanUrl} target='_blank' basic style={{ marginTop: '1em' }}>
                 View transaction on Etherscan
               </Button>
             )

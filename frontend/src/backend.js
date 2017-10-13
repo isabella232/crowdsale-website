@@ -7,6 +7,12 @@ class Backend {
     this._url = url;
   }
 
+  async balance (address) {
+    const { balance } = await get(this.url(`/accounts/${address}/balance`));
+
+    return new BigNumber(balance);
+  }
+
   blockHash () {
     return get(this.url('/block/hash'));
   }

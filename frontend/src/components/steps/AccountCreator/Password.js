@@ -2,8 +2,8 @@ import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Form, Grid, Header } from 'semantic-ui-react';
 
-import appStore from '../../../stores/app.store';
 import accountCreator from './accountCreator.store';
+import history from '../../../stores/history';
 
 @observer
 export default class Password extends Component {
@@ -80,7 +80,7 @@ export default class Password extends Component {
       event.preventDefault();
     }
 
-    appStore.goto('account-selection');
+    history.goBack();
   };
 
   handleNext = async (event) => {
@@ -88,7 +88,7 @@ export default class Password extends Component {
       event.preventDefault();
     }
 
-    appStore.goto('create-account-recovery');
+    history.push('/', { goto: 'create-account-recovery' });
   };
 
   handlePasswordChange = (_, { value }) => {
