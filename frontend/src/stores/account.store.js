@@ -35,7 +35,7 @@ class AccountStore {
       missingWei = new BigNumber(0);
     }
 
-    // console.warn(JSON.stringify({ balance, missingWei, paid, spending, totalFee, auctionGasValue }, null, 2));
+    // console.warn(JSON.stringify({ balance, missingWei, paid, spending, totalFee }, null, 2));
     return missingWei;
   }
 
@@ -62,7 +62,7 @@ class AccountStore {
   }
 
   async checkPayment () {
-    const { eth: balance } = await backend.getAddressInfo(this.address);
+    const balance = await backend.balance(this.address);
 
     this.setInfo({ balance });
 
@@ -108,14 +108,14 @@ class AccountStore {
 
     // Last hour
     if (!certified && endTime - now < 1000 * 3600) {
-      return appStore.goto('late-uncertified');
+      return appStore.revertAndGo('late-uncertified');
     }
 
     if (!certified) {
-      return appStore.goto('picops-terms');
+      return appStore.revertAndGo('picops-terms');
     }
 
-    return appStore.goto('contribute');
+    return appStore.revertAndGo('contribute');
   }
 
   async setAccount ({ address, privateKey }) {

@@ -20,6 +20,10 @@ export default class Unlock extends Component {
     const { jsonWallet } = accountStore;
     const { showPassword, password, unlocking } = this.state;
 
+    if (!jsonWallet) {
+      return null;
+    }
+
     return (
       <Step
         title="ENTER YOUR WALLET'S PASSWORD"
@@ -108,6 +112,7 @@ export default class Unlock extends Component {
         const privateKey = '0x' + wallet.getPrivateKey().toString('hex');
 
         try {
+          appStore.revertableSteps = 2;
           await accountStore.setAccount({ address: wallet.getChecksumAddressString(), privateKey });
           await accountStore.gotoContribute();
         } catch (error) {

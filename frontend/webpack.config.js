@@ -23,7 +23,6 @@ const config = {
       'country-data',
       'datamaps',
       'mobx',
-      'onfido-sdk-ui',
       'react',
       'react-dom'
     ]

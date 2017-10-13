@@ -2,8 +2,8 @@ import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Form, Grid, Header, Segment } from 'semantic-ui-react';
 
-import appStore from '../../../stores/app.store';
 import accountCreator from './accountCreator.store';
+import history from '../../../stores/history';
 
 const RECOVERY_VERIFICATION = 'I have written down my recovery phrase';
 
@@ -86,7 +86,7 @@ export default class Recovery extends Component {
       event.preventDefault();
     }
 
-    appStore.goto('create-account-password');
+    history.goBack();
   };
 
   handleNext = async (event) => {
@@ -94,7 +94,7 @@ export default class Recovery extends Component {
       event.preventDefault();
     }
 
-    appStore.goto('create-account-repeat');
+    history.push('/', { goto: 'create-account-repeat' });
   };
 
   handleRecoveryVerificationChange = (_, { value }) => {

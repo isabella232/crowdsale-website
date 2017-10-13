@@ -68,6 +68,7 @@ export default class Download extends Component {
     const { address, secret } = accountCreator;
 
     try {
+      appStore.revertableSteps = 4;
       await accountStore.setAccount({ address, privateKey: secret });
       await accountStore.gotoContribute();
     } catch (error) {

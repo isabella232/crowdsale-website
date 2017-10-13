@@ -35,6 +35,7 @@ export default class ImportantNotice extends Component {
   }
 
   handleContinue = () => {
-    appStore.goto('start');
+    // appStore.goto('start');
+    appStore.goto('account-selection');
   };
 }

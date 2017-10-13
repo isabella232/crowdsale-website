@@ -15,13 +15,11 @@ import Step from '../Step';
 @observer
 export default class AccountLoader extends Component {
   state = {
-    dots: new BigNumber(0),
-    spending: new BigNumber(0)
+    dots: new BigNumber(0)
   };
 
   render () {
-    const { address } = accountStore;
-    const { spending } = this.state;
+    const { address, spending } = accountStore;
 
     return (
       <Step
@@ -50,7 +48,7 @@ export default class AccountLoader extends Component {
             address={address}
           />
 
-          <div style={{ marginTop: '1.5em' }}>
+          <div style={{ marginTop: '0.5em' }}>
             <span>
               How much ETH would you like to contribute?
             </span>
@@ -70,7 +68,7 @@ export default class AccountLoader extends Component {
             />
           </div>
           {
-            spending
+            spending.gt(0)
               ? (
                 <div>
                   {this.renderSending()}
@@ -86,16 +84,15 @@ export default class AccountLoader extends Component {
   }
 
   renderAction () {
-    const { certified } = accountStore;
-    const { spending } = this.state;
+    const { certified, missingWei, spending } = accountStore;
 
     return (
       <div style={{ textAlign: 'right', marginTop: '1.5em' }}>
         <Button primary onClick={this.handleContinue} disabled={!spending || spending.eq(0)}>
           {
-            certified
-              ? 'Contribute'
-              : 'Certify your identity'
+            missingWei.eq(0)
+              ? (certified ? 'Contribute' : 'Certify your identity')
+              : 'Continue'
           }
         </Button>
       </div>
@@ -123,7 +120,8 @@ export default class AccountLoader extends Component {
   }
 
   renderSending () {
-    const { dots, spending } = this.state;
+    const { spending } = accountStore;
+    const { dots } = this.state;
 
     if (!dots) {
       return null;
@@ -131,19 +129,17 @@ export default class AccountLoader extends Component {
 
     return (
       <div style={{ marginTop: '1.5em', color: 'gray' }}>
-        By spending {spending.toFormat()} ETH you will receive at least {dots.toFormat()} DOTs.
+        By spending {fromWei(spending).toFormat()} ETH you will receive at least {dots.toFormat()} DOTs.
       </div>
     );
   }
 
   handleContinue = async () => {
-    const { spending } = this.state;
+    const { spending } = accountStore;
 
     if (!spending || spending.eq(0)) {
       return;
     }
-
-    accountStore.setSpending(toWei(spending));
 
     try {
       await accountStore.checkPayment();
@@ -153,7 +149,7 @@ export default class AccountLoader extends Component {
   };
 
   handleSpendChange = async (_, { value }) => {
-    let spending = null;
+    let spending = new BigNumber(0);
     let dots = null;
 
     try {
@@ -162,7 +158,8 @@ export default class AccountLoader extends Component {
     } catch (error) {
     }
 
-    this.setState({ dots, spending });
+    accountStore.setSpending(toWei(spending));
+    this.setState({ dots });
   };
 
   setInputRef = (inputElement) => {

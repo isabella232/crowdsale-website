@@ -1,4 +1,5 @@
 import EventEmitter from 'eventemitter3';
+import { action, observable } from 'mobx';
 
 import backend from '../backend';
 
@@ -8,6 +9,8 @@ import backend from '../backend';
  */
 class Config extends EventEmitter {
   loaded = false;
+
+  @observable saleWebsite = '';
 
   constructor () {
     super();
@@ -24,12 +27,15 @@ class Config extends EventEmitter {
 
     const conf = await backend.config();
 
+    this.set(conf);
+    this.loaded = true;
+    this.emit('loaded');
+  }
+
+  @action set (conf) {
     Object.keys(conf).forEach((key) => {
       this[key] = conf[key];
     });
-
-    this.loaded = true;
-    this.emit('loaded');
   }
 
   get (key) {

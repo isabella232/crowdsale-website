@@ -9,14 +9,17 @@ import appStore from '../../stores/app.store';
 import buyStore from '../../stores/buy.store';
 import config from '../../stores/config.store';
 import auctionStore from '../../stores/auction.store';
+import { Text } from '../ui/Text';
 
 import { fromWei } from '../../utils';
+
+const dotsLink = window.location.origin + '/#/dots';
 
 @observer
 export default class Summary extends Component {
   render () {
     const { address } = accountStore;
-    const { success, accounted } = buyStore;
+    const { success, accounted, received } = buyStore;
     const dots = auctionStore.weiToDot(accounted);
 
     if (!success) {
@@ -40,18 +43,18 @@ export default class Summary extends Component {
             address={address}
           />
 
-          <div style={{ marginTop: '1.5em', fontSize: '1.25em' }}>
-            You have successfully contributed {fromWei(accounted).toFormat()} ETH and will receive at
+          <Text>
+            You have successfully contributed {fromWei(received).toFormat()} ETH and will receive at
             least {dots.toFormat()} DOTs.
-          </div>
+          </Text>
 
-          <div style={{ marginTop: '1em', fontSize: '1.25em' }}>
+          <Text style={{ marginTop: '0', textAlign: 'center' }}>
             DOT tokens will become available upon the genesis of the Polkadot network. Once the auction
             ends, you will be able to check your DOT allocation
-            at <a href='https://sale.polkadot.network/#/dots'>https://sale.polkadot.network/#/dots</a>
-          </div>
+            at <a href={dotsLink}>{dotsLink}</a>
+          </Text>
 
-          <div style={{ marginTop: '2.5em' }}>
+          <div style={{ marginTop: '1em' }}>
             <Button primary size='big' as='a' href={config.get('saleWebsite')}>
               Return to the main website
             </Button>
@@ -76,10 +79,10 @@ export default class Summary extends Component {
           alignItems: 'center'
         }}>
 
-          <div style={{ marginTop: '1em', fontSize: '1.25em' }}>
+          <Text>
             Something went wrong during the contribution.
             Please try again and contrat us if it fails again.
-          </div>
+          </Text>
 
           <div style={{ marginTop: '2.5em' }}>
             <Button primary size='big' onClick={this.handleRetry}>

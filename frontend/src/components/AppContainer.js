@@ -7,12 +7,13 @@ import appStore, { STEPS } from '../stores/app.store';
 import stepperStore from '../stores/stepper.store';
 
 import BigStepper from './BigStepper.js';
+import Footer from './Footer';
 import MainLogo from '../images/MainLogo.svg';
 import Stepper from './Stepper';
 
 const baseContentStyle = {
   backgroundColor: 'white',
-  padding: '4em 2.5em'
+  padding: '4em 2.5em 3em'
 };
 
 const headerStyle = {
@@ -43,20 +44,25 @@ export default class AppContainer extends Component {
     const { hideStepper } = this.props;
 
     return (
-      <div style={{ paddingBottom: '4em' }}>
-        <div style={headerStyle}>
-          <img src={MainLogo} style={mainLogoStyle} />
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: '4em', flex: '1 1 auto' }}>
+          <div style={headerStyle}>
+            <img src={MainLogo} style={mainLogoStyle} />
+          </div>
+          {
+            hideStepper
+              ? null
+              : (
+                <div style={{ paddingTop: '0em' }}>
+                  <BigStepper />
+                </div>
+              )
+          }
+          {this.renderContent()}
         </div>
-        {
-          hideStepper
-            ? null
-            : (
-              <div style={{ paddingTop: '0em' }}>
-                <BigStepper />
-              </div>
-            )
-        }
-        {this.renderContent()}
+        <div style={{ flex: '0 0 auto' }}>
+          <Footer />
+        </div>
       </div>
     );
   }

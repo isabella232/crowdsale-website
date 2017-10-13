@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
 
 import backend from '../backend';
+import blockStore from '../stores/block.store';
 import { fromWei, toChecksumAddress } from '../utils';
 
 import AccountIcon from './AccountIcon.js';
@@ -27,6 +28,11 @@ export default class AccountInfo extends Component {
 
   componentWillMount () {
     this.fetchInfo();
+    blockStore.on('block', this.fetchInfo, this);
+  }
+
+  componentWillUnmount () {
+    blockStore.removeListener('block', this.fetchInfo, this);
   }
 
   componentWillReceiveProps (nextProps) {
@@ -41,9 +47,9 @@ export default class AccountInfo extends Component {
     const nextState = {};
 
     if (showBalance) {
-      const { eth } = await backend.getAddressInfo(address);
+      const balance = await backend.balance(address);
 
-      nextState.balance = eth;
+      nextState.balance = balance;
     }
 
     if (showCertified) {
@@ -114,7 +120,8 @@ export default class AccountInfo extends Component {
                   <div style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}>
                     {this.renderBalance()}
                     {this.renderCertified()}
@@ -137,7 +144,10 @@ export default class AccountInfo extends Component {
     }
 
     return (
-      <span>
+      <span style={{
+        wordWrap: 'break-word',
+        overflow: 'hidden'
+      }}>
         Current funds: {fromWei(balance).toFormat()} ETH
       </span>
     );
@@ -165,7 +175,8 @@ export default class AccountInfo extends Component {
       fontWeight: 'bold',
       padding: '0em 0.5em',
       marginLeft: '0.5em',
-      lineHeight: '1.75em'
+      lineHeight: '1.75em',
+      flex: '1 0 auto'
     };
 
     return (

@@ -25,7 +25,7 @@ export default class Picops extends Component {
     return (
       <iframe
         frameBorder={0}
-        src={`${picopsBackend.baseUrl}/?no-padding&no-stepper&terms-accepted&paid-for=${address}`}
+        src={`${picopsBackend.baseUrl}/?no-padding&no-stepper&terms-accepted&no-final-screen&paid-for=${address}`}
         style={{
           height: '500px',
           width: '100%',

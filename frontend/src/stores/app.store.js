@@ -3,10 +3,10 @@ import EventEmitter from 'eventemitter3';
 import { difference, uniq } from 'lodash';
 import { action, computed, observable } from 'mobx';
 import store from 'store';
-// import History from 'history.js';
 
 import backend from '../backend';
 import config from './config.store';
+import history from './history';
 
 export const CITIZENSHIP_LS_KEY = '_parity-crowdsale::citizenship';
 export const TERMS_LS_KEY = '_parity-crowdsale::agreed-terms::v1';
@@ -37,6 +37,15 @@ export const STEPS = {
   'summary': Symbol('summary'),
   'late-uncertified': Symbol('late-uncertified')
 };
+
+window.addEventListener('beforeunload', (e) => {
+  const confirmationMessage = 'Are you sure you want to leave this page?';
+
+  // Gecko + IE
+  (e || window.event).returnValue = confirmationMessage;
+  // Gecko + Webkit, Safari, Chrome etc.
+  return confirmationMessage;
+});
 
 let nextErrorId = 1;
 
@@ -95,6 +104,25 @@ class AppStore extends EventEmitter {
   constructor () {
     super();
     this.load();
+
+    history.listen((location, action) => {
+      if (action === 'REPLACE') {
+        return;
+      }
+
+      // console.warn('history event', location, action);
+
+      if (location.state && location.state.goto && !this.halted) {
+        this.goto(location.state.goto);
+      }
+
+      if (this.historyCallback) {
+        const cb = this.historyCallback.bind(this);
+
+        delete this.historyCallback;
+        cb();
+      }
+    });
   }
 
   load = async () => {
@@ -117,6 +145,8 @@ class AppStore extends EventEmitter {
     this.setLoading(true);
     this.setStep(STEPS[name]);
 
+    history.replace('/', { goto: name });
+
     // Trigger the loaders and wait for them to return
     if (this.loaders[name]) {
       for (let loader of this.loaders[name]) {
@@ -131,6 +161,17 @@ class AppStore extends EventEmitter {
     }
 
     this.setLoading(false);
+  }
+
+  revertAndGo (name) {
+    this.halted = true;
+
+    this.historyCallback = () => {
+      this.halted = false;
+      history.push('/', { goto: name });
+    };
+
+    history.go((this.revertableSteps || 1) * -1);
   }
 
   async fetchBlacklistedCountries () {
@@ -241,11 +282,4 @@ class AppStore extends EventEmitter {
 
 const appStore = new AppStore();
 
-// History.Adapter.bind(window, 'statechange', () => {
-//   const State = History.getState();
-
-//   console.warn(State);
-// });
-
-// window.appStore = appStore;
 export default appStore;

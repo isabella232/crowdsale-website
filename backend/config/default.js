@@ -12,6 +12,6 @@ module.exports = {
   // Gas Price of 5 Gwei
   gasPrice: '0x12a05f200',
   picopsUrl: 'https://staging-picops.parity.io',
-  saleContract: '0xC5552bc3615720236c8687f187151bb45FA5e1C3',
+  saleContract: '0xf5B955755c0834E734c6d07973819d363EF76380',
   saleWebsite: 'https://crowdsale-staging.polkadot.network/'
 };
