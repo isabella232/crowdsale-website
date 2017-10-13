@@ -70,6 +70,7 @@ export default class AppContainer extends Component {
   renderContent () {
     const { hideStepper, children, header, footer } = this.props;
     const noPadding = appStore.step === STEPS['picops'];
+
     const style = {
       textAlign: 'left'
     };

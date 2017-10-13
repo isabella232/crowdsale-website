@@ -29,6 +29,7 @@ export const STEPS = {
   'create-account-download': Symbol('create-account-download'),
 
   'picops-terms': Symbol('picops terms and conditions'),
+  'picops-country-selection': Symbol('picops country selection'),
   'contribute': Symbol('contribute'),
   'payment': Symbol('payment'),
   'picops': Symbol('picops'),
@@ -85,6 +86,7 @@ class AppStore extends EventEmitter {
       case STEPS['fee-payment']:
       case STEPS['picops']:
       case STEPS['picops-terms']:
+      case STEPS['picops-country-selection']:
       case STEPS['purchase']:
       case STEPS['summary']:
         return 2;

@@ -176,7 +176,7 @@ export default class AccountInfo extends Component {
       padding: '0em 0.5em',
       marginLeft: '0.5em',
       lineHeight: '1.75em',
-      flex: '1 0 auto'
+      flex: '0 0 auto'
     };
 
     return (

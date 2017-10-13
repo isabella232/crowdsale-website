@@ -14,6 +14,7 @@ import ImportantNotice from './steps/ImportantNotice';
 import LateUncertified from './steps/LateUncertified';
 import Payment from './steps/Payment';
 import Picops from './steps/Picops';
+import PicopsCountrySelection from './steps/PicopsCountrySelection';
 import PicopsTerms from './steps/PicopsTerms';
 import Purchase from './steps/Purchase';
 import Start from './steps/Start';
@@ -71,11 +72,11 @@ class MainApp extends Component {
       );
     }
 
-    if (!auctionStore.isActive() || auctionStore.halted) {
-      return (
-        <InactiveAuction />
-      );
-    }
+    // if (!auctionStore.isActive() || auctionStore.halted) {
+    //   return (
+    //     <InactiveAuction />
+    //   );
+    // }
 
     switch (step) {
       case STEPS['important-notice']:
@@ -122,6 +123,9 @@ class MainApp extends Component {
 
       case STEPS['picops-terms']:
         return (<PicopsTerms />);
+
+      case STEPS['picops-country-selection']:
+        return (<PicopsCountrySelection />);
 
       case STEPS['picops']:
         return (<Picops />);

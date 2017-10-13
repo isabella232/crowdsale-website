@@ -9,7 +9,7 @@ import appStore from '../../stores/app.store';
 import buyStore from '../../stores/buy.store';
 import config from '../../stores/config.store';
 import auctionStore from '../../stores/auction.store';
-import { Text } from '../ui/Text';
+import Text from '../ui/Text';
 
 import { fromWei } from '../../utils';
 
@@ -45,16 +45,18 @@ export default class Summary extends Component {
             address={address}
           />
 
-          <Text>
-            You have successfully contributed {fromWei(received).toFormat()} ETH and will receive at
-            least {dots.toFormat()} DOTs.
-          </Text>
+          <Text.Container>
+            <Text>
+              You have successfully contributed {fromWei(received).toFormat()} ETH and will receive at
+              least {dots.toFormat()} DOTs.
+            </Text>
 
-          <Text style={{ marginTop: '0', textAlign: 'center' }}>
-            DOT tokens will become available upon the genesis of the Polkadot network. Once the auction
-            ends, you will be able to check your DOT allocation
-            at <a href={dotsLink}>{dotsLink}</a>
-          </Text>
+            <Text>
+              DOT tokens will become available upon the genesis of the Polkadot network. Once the auction
+              ends, you will be able to check your DOT allocation
+              at <a href={dotsLink}>{dotsLink}</a>
+            </Text>
+          </Text.Container>
 
           <div style={{ marginTop: '1em' }}>
             <Button primary size='big' as='a' href={config.get('saleWebsite')}>

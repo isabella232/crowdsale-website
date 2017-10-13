@@ -6,6 +6,7 @@ import EthereumBlankImg from '../../images/ethereum_blank.png';
 
 import accountCreator from './AccountCreator/accountCreator.store';
 import history from '../../stores/history';
+import Text from '../ui/Text';
 
 const cardStyle = {
   width: '300px',
@@ -25,6 +26,13 @@ const imageContainerStyle = {
   width: '100%'
 };
 
+const cardHeaderStyle = {
+  padding: '1em 0.5em',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+};
+
 export default class AccountSelection extends Component {
   render () {
     return (
@@ -33,27 +41,29 @@ export default class AccountSelection extends Component {
           LOAD / GENERATE YOUR WALLET
         </Header>
 
-        <div style={{ margin: '2em auto 1.5em', fontSize: '1.1em', maxWidth: '50em' }}>
-          In order to be able to claim your DOTs, it is necessary to
-          have access to the private key corresponding to the contribution
-          address. <b>Hardware wallets, exchanges and multisig wallets are not supported in this process.</b>
-        </div>
+        <Text.Container>
+          <Text>
+            In order to be able to claim your DOTs, it is necessary to
+            have access to the private key corresponding to the contribution
+            address. <b>Hardware wallets, exchanges and multisig wallets are not supported in this process.</b>
+          </Text>
 
-        <div style={{ margin: '1.5em auto 3em', fontSize: '1.1em', maxWidth: '50em' }}>
-          Your private key will be used only to send a fee for KYC service,
-          to sign terms and conditions, and to sign your contribution transaction.
-          All signing is done in-browser. Your private key is not uploaded to any server
-          or handled by any third party. Your private key will necessary to access your
-          DOTs upon the launch of Polkadot's Genesis block.
-        </div>
+          <Text>
+            Your private key will be used only to send a fee for KYC service,
+            to sign terms and conditions, and to sign your contribution transaction.
+            All signing is done in-browser. Your private key is not uploaded to any server
+            or handled by any third party. Your private key will necessary to access your
+            DOTs upon the launch of Polkadot's genesis block.
+          </Text>
+        </Text.Container>
 
         <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
           <Card fluid link style={cardStyle} onClick={this.handleLoad}>
             <div style={imageContainerStyle}>
               <Image src={EthereumImg} style={imageStyle} />
             </div>
-            <Card.Content>
-              <Card.Header textAlign='center' style={{ padding: '0.5em 0' }}>
+            <Card.Content style={cardHeaderStyle}>
+              <Card.Header textAlign='center'>
                 Load an Ethereum JSON Keystore File
               </Card.Header>
             </Card.Content>
@@ -63,8 +73,8 @@ export default class AccountSelection extends Component {
             <div style={imageContainerStyle}>
               <Image src={EthereumBlankImg} style={imageStyle} />
             </div>
-            <Card.Content>
-              <Card.Header textAlign='center' style={{ padding: '0.5em 0' }}>
+            <Card.Content style={cardHeaderStyle}>
+              <Card.Header textAlign='center'>
                 Generate a new Ethereum wallet
               </Card.Header>
             </Card.Content>

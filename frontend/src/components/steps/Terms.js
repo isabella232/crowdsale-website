@@ -34,8 +34,12 @@ export default class Terms extends Component {
           lineHeight: '1.5em',
           margin: '1.5em 0'
         }}>
-          <div>The Polkadot token sale Terms & Conditions are important, detailed, and govern your transaction.</div>
-          <div>Please read and understand them fully before proceeding.</div>
+          <div>
+            The Web3 Auction Terms & Conditions are important, detailed, and govern your transaction.
+          </div>
+          <div>
+            Please read and understand them fully before proceeding.
+          </div>
         </div>
         <div
           style={{
@@ -51,40 +55,46 @@ export default class Terms extends Component {
           </Segment>
         </div>
 
-        <div>
-          <Checkbox
-            disabled={!hitBottom}
-            label={`I confirm that I have read and agreed to the Terms & Conditions`}
-            checked={termsAccepted}
-            onChange={this.handleTermsChecked}
-            style={{ marginBottom: '1em' }}
-          />
-        </div>
+        <div style={{
+          maxWidth: '40em',
+          margin: '0 auto',
+          textAlign: 'justify'
+        }}>
+          <div>
+            <Checkbox
+              disabled={!hitBottom}
+              label={`I confirm that I have read and agreed to the Terms & Conditions`}
+              checked={termsAccepted}
+              onChange={this.handleTermsChecked}
+              style={{ marginBottom: '1em' }}
+            />
+          </div>
 
-        <div>
-          <Checkbox
-            disabled={!hitBottom}
-            label={`
-              I confirm that I am not a citizen or resident of the People's Republic of
-              China or the United States (我确定自己非中国公民，也非美国公民。)
-            `}
-            checked={citizenAccepted}
-            onChange={this.handleCitizenChecked}
-            style={{ marginBottom: '1em' }}
-          />
-        </div>
+          <div>
+            <Checkbox
+              disabled={!hitBottom}
+              label={`
+                I confirm that I am not a citizen or resident of the People's Republic of
+                China or the United States (我确定自己非中国公民，也非美国公民。)
+              `}
+              checked={citizenAccepted}
+              onChange={this.handleCitizenChecked}
+              style={{ marginBottom: '1em' }}
+            />
+          </div>
 
-        <div>
-          <Checkbox
-            disabled={!hitBottom}
-            label={`
-              I confirm that I agree to pay a fee of ${fromWei(totalFee).toFormat()} Ether for the certification process
-              in the event that my Ethereum wallet has not already been certified through PICOPS.
-            `}
-            checked={spendingAccepted}
-            onChange={this.handleSpendingChecked}
-            style={{ marginBottom: '3em' }}
-          />
+          <div>
+            <Checkbox
+              disabled={!hitBottom}
+              label={`
+                I confirm that I agree to pay a fee of ${fromWei(totalFee).toFormat()} Ether for the certification process
+                in the event that my Ethereum wallet has not already been certified through PICOPS.
+              `}
+              checked={spendingAccepted}
+              onChange={this.handleSpendingChecked}
+              style={{ marginBottom: '3em' }}
+            />
+          </div>
         </div>
 
         <Button

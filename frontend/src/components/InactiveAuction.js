@@ -4,7 +4,7 @@ import { Button, Header } from 'semantic-ui-react';
 
 import auctionStore from '../stores/auction.store';
 import config from '../stores/config.store';
-import { Text } from './ui/Text';
+import Text from './ui/Text';
 
 @observer
 export default class InactiveAuction extends Component {
@@ -49,9 +49,9 @@ export default class InactiveAuction extends Component {
         <Header as='h2'>
           THE SALE HAS NOT STARTED YET
         </Header>
-        <Text>
+        <Text.Container>
           Come back on {beginTime.toString()}.
-        </Text>
+        </Text.Container>
         <Button secondary size='large' as='a' href={config.get('saleWebsite')}>
           Return to main website
         </Button>
@@ -66,13 +66,14 @@ export default class InactiveAuction extends Component {
           THE SALE HAS ENDED
         </Header>
 
-        <Text>
-          The Polkadot auction has concluded and all DOTs have been committed.
-          Unfortunately, your ETH contribution was not processed in time and you
-          will not be able to receive DOTs. You will still be able to access
-          this wallet and retrieve your ETH. Visit this FAQ if you require
-          further instruction on how to retrieve your ETH.
-        </Text>
+        <Text.Container>
+          The Web3 auction has concluded and all DOTs have been committed.
+          If you were in the middle of the process, your ETH contribution
+          will not be processed in time and you will not be able to receive
+          DOTs. You will still be able to access this wallet and retrieve
+          your ETH. Visit this FAQ if you require further instruction on how
+          to retrieve your ETH.
+        </Text.Container>
 
         <Button secondary size='large' as='a' href={config.get('saleWebsite')}>
           Return to main website

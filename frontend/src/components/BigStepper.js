@@ -27,7 +27,7 @@ export default class BigStepper extends Component {
     const steps = [
       { name: 'Confirm Eligibility' },
       { name: 'Load / Generate Wallet' },
-      { name: 'Contribute to the auction' }
+      { name: 'Contribute to the Auction' }
     ];
 
     const elements = steps.reduce((elements, step, index) => {

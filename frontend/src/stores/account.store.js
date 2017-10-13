@@ -62,9 +62,9 @@ class AccountStore {
   }
 
   async checkPayment () {
-    const balance = await backend.balance(this.address);
+    const { eth: balance, certified } = await backend.getAddressInfo(this.address);
 
-    this.setInfo({ balance });
+    this.setInfo({ balance, certified });
 
     if (this.missingWei.eq(0)) {
       this.unwatchPayment();

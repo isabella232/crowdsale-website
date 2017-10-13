@@ -30,8 +30,8 @@ export default class Repeat extends Component {
           </Header>
           <div style={{ lineHeight: '2em' }}>
             <p>
-              We were serious when we reminded you: write your
-              recovery phrase down. Please repeat your recovery phrase
+              <b>We were serious when we reminded you: write your
+              recovery phrase down.</b> Please repeat your recovery phrase
               in the box to the right.
             </p>
           </div>
