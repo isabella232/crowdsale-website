@@ -20,9 +20,11 @@ export default class Summary extends Component {
   render () {
     const { address } = accountStore;
     const { success, accounted, received } = buyStore;
-    const dots = auctionStore.weiToDot(accounted);
+    const dots = accounted
+      ? auctionStore.weiToDot(accounted)
+      : null;
 
-    if (!success) {
+    if (!success || !accounted) {
       return this.renderFailure();
     }
 

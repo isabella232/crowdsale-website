@@ -27,6 +27,14 @@ async function get ({ sale, connector, certifier }) {
     ctx.body = { hash: connector.block.hash };
   });
 
+  router.get('/block/date', (ctx) => {
+    if (!connector.block) {
+      throw new Error('Could not fetch latest block');
+    }
+
+    ctx.body = { date: new Date(connector.block.timestamp) };
+  });
+
   router.post('/tx', async (ctx, next) => {
     const { tx } = ctx.request.body;
 

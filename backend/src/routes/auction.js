@@ -9,10 +9,10 @@ const { int2hex, int2date } = require('../utils');
 
 function get ({ sale, connector }) {
   const router = new Router({
-    prefix: '/api/auction'
+    prefix: '/api'
   });
 
-  router.get('/tx/:hash', async (ctx, next) => {
+  router.get('/auction/tx/:hash', async (ctx, next) => {
     const { hash } = ctx.params;
 
     const transaction = await connector.getTx(hash);
@@ -59,11 +59,11 @@ function get ({ sale, connector }) {
     };
   });
 
-  router.get('/chart', async (ctx, next) => {
+  router.get('/auction/chart', async (ctx, next) => {
     ctx.body = sale.chartData;
   });
 
-  router.get('/dummy-deal', async (ctx, next) => {
+  router.get('/auction/dummy-deal', async (ctx, next) => {
     const { accounted, refund, price, value } = await sale.dummyDeal();
 
     ctx.body = {
@@ -75,7 +75,7 @@ function get ({ sale, connector }) {
     };
   });
 
-  router.get('/constants', (ctx) => {
+  router.get('/auction/constants', (ctx) => {
     const {
       DUST_LIMIT,
       STATEMENT_HASH,
@@ -113,7 +113,7 @@ function get ({ sale, connector }) {
     };
   });
 
-  router.get('/', (ctx) => {
+  router.get('/auction', (ctx) => {
     const extras = {
       block: connector.block,
       connected: connector.status
@@ -146,6 +146,30 @@ function get ({ sale, connector }) {
       totalFinalised: int2hex(totalFinalised),
       totalReceived: int2hex(totalReceived)
     });
+  });
+
+  router.get('/sale', (ctx) => {
+    const {
+      currentBonus,
+      currentPrice,
+      endTime,
+      halted,
+      tokensAvailable,
+      totalAccounted,
+      totalFinalised,
+      totalReceived
+    } = sale.values;
+
+    ctx.body = {
+      currentBonus: int2hex(currentBonus),
+      currentPrice: int2hex(currentPrice),
+      endTime: int2date(endTime),
+      halted,
+      tokensAvailable: int2hex(tokensAvailable),
+      totalAccounted: int2hex(totalAccounted),
+      totalFinalised: int2hex(totalFinalised),
+      totalReceived: int2hex(totalReceived)
+    };
   });
 
   return router;
