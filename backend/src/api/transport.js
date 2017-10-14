@@ -320,6 +320,10 @@ class RpcTransport {
   }
 }
 
+const METHODS_WHITELIST = [
+  'parity_nextNonce'
+];
+
 class CachingTransport extends RpcTransport {
   /**
    * Variant of `RpcTransport` that will cache request results
@@ -342,12 +346,17 @@ class CachingTransport extends RpcTransport {
   /**
    * Perform a single request to JSON-RPC API.
    *
-   * @param  {String} method RPC method name
-   * @param  {...Any} params RPC parameters
+   * @param  {String}  method RPC method name
+   * @param  {...Any}  params RPC parameters
+   * @param  {Boolean} force  Force fetching of the data
    *
    * @return {Any}           result from the API
    */
   async request (method, ...params) {
+    if (METHODS_WHITELIST.includes(method)) {
+      return super.request(method, ...params);
+    }
+
     const requestCache = this._requestCache;
     const hash = keccak256(JSON.stringify({ method, params })).slice(-20);
     const cached = requestCache.get(hash);

@@ -18,7 +18,7 @@ export default class Terms extends Component {
   render () {
     const { citizenAccepted, spendingAccepted, termsAccepted } = appStore;
     const { hitBottom } = this.state;
-    const { totalFee } = feeStore;
+    const { fee } = feeStore;
 
     return (
       <Segment basic textAlign='center'>
@@ -87,7 +87,7 @@ export default class Terms extends Component {
             <Checkbox
               disabled={!hitBottom}
               label={`
-                I confirm that I agree to pay a fee of ${fromWei(totalFee).toFormat()} Ether for the certification process
+                I confirm that I agree to pay a fee of ${fromWei(fee).toFormat()} Ether for the certification process
                 in the event that my Ethereum wallet has not already been certified through PICOPS.
               `}
               checked={spendingAccepted}

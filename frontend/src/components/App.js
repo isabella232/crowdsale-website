@@ -25,6 +25,7 @@ import Chart from './Chart';
 import InactiveAuction from './InactiveAuction';
 import DotsQuery from './DotsQuery';
 import Messages from './Messages';
+import Warning from './Warning';
 
 import appStore, { STEPS } from '../stores/app.store';
 import auctionStore from '../stores/auction.store';
@@ -78,6 +79,15 @@ class MainApp extends Component {
       );
     }
 
+    return (
+      <div>
+        <Warning />
+        {this.renderStep(step)}
+      </div>
+    );
+  }
+
+  renderStep (step) {
     switch (step) {
       case STEPS['important-notice']:
         return (<ImportantNotice />);

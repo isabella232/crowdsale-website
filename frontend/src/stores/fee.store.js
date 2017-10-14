@@ -13,10 +13,9 @@ const FEE_REGISTRAR_GAS_LIMIT = new BigNumber('0x30d40');
 const FEE_REGISTRAR_PAY_SIGNATURE = '0x0c11dedd';
 
 class FeeStore {
-  fee = null;
+  fee = new BigNumber(0);
   feeRegistrar = null;
-  totalFee = null;
-  txFee = null;
+  txFee = new BigNumber(0);
 
   // The transaction hash for the Fee Registrar
   @observable transaction;
@@ -26,7 +25,13 @@ class FeeStore {
     config.ready(this.load);
   }
 
+  get totalFee () {
+    return this.fee.add(this.txFee);
+  }
+
   load = async () => {
+    console.warn('loading fee store...');
+
     try {
       // Retrieve the fee
       const { fee, feeRegistrar } = await picopsBackend.fee();
@@ -34,7 +39,6 @@ class FeeStore {
       this.fee = fee;
       this.feeRegistrar = feeRegistrar;
       this.txFee = config.get('gasPrice').mul(FEE_REGISTRAR_GAS_LIMIT);
-      this.totalFee = fee.plus(this.txFee);
     } catch (error) {
       appStore.addError(error);
     }

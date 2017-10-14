@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import EventEmitter from 'eventemitter3';
 import { action, computed, observable } from 'mobx';
 
 import backend from '../backend';
@@ -18,10 +17,12 @@ const tscsMessage = ascii2hex('\x19Ethereum Signed Message:\n' + (tscs.length / 
 
 export const TSCS_HASH = sha3(tscsMessage);
 
-class AuctionStore extends EventEmitter {
+class AuctionStore {
   beginTime = new Date();
   contractAddress = '0x';
   tokenCap = new BigNumber(0);
+
+  _readyCallbacks = [];
 
   @observable block = {};
   @observable connected = 'disconnected'
@@ -33,7 +34,6 @@ class AuctionStore extends EventEmitter {
   @observable totalReceived = new BigNumber(0);
 
   constructor () {
-    super();
     this.init();
     blockStore.on('block', this.refresh, this);
   }
@@ -43,6 +43,7 @@ class AuctionStore extends EventEmitter {
       BONUS_LATCH,
       BONUS_MIN_DURATION,
       BONUS_MAX_DURATION,
+      DUST_LIMIT,
       DIVISOR,
       STATEMENT_HASH,
       USDWEI,
@@ -56,6 +57,7 @@ class AuctionStore extends EventEmitter {
     this.BONUS_LATCH = BONUS_LATCH;
     this.BONUS_MIN_DURATION = BONUS_MIN_DURATION;
     this.BONUS_MAX_DURATION = BONUS_MAX_DURATION;
+    this.DUST_LIMIT = DUST_LIMIT;
     this.DIVISOR = DIVISOR;
     this.USDWEI = USDWEI;
 
@@ -68,15 +70,23 @@ class AuctionStore extends EventEmitter {
 
     await this.refresh();
 
-    this.emit('loaded');
-    this.loaded = true;
-
     this.checkDummyDeal();
 
     if (STATEMENT_HASH !== TSCS_HASH) {
       console.warn(`> In contract: ${STATEMENT_HASH} // Computed: ${TSCS_HASH} ...`);
       appStore.addError(new Error(`Unexpected statement hash in the Sale contract.`));
     }
+
+    this._readyCallbacks.forEach((cb) => cb());
+    this.loaded = true;
+  }
+
+  ready (cb) {
+    if (this.loaded) {
+      return cb();
+    }
+
+    this._readyCallbacks.push(cb);
   }
 
   async checkDummyDeal () {
@@ -115,14 +125,6 @@ class AuctionStore extends EventEmitter {
     if (!error) {
       console.warn('everything looks good!');
     }
-  }
-
-  ready (cb) {
-    if (this.loaded) {
-      return cb();
-    }
-
-    this.once('loaded', () => cb());
   }
 
   bonus (value) {
@@ -176,6 +178,12 @@ class AuctionStore extends EventEmitter {
 
   isActive () {
     return this.now >= this.beginTime && this.now < this.endTime;
+  }
+
+  @computed get maxSpendable () {
+    const { currentPrice, tokensAvailable } = this;
+
+    return tokensAvailable.mul(currentPrice);
   }
 
   weiToDot (weiValue) {

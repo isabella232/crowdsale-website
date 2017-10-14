@@ -39,15 +39,6 @@ export const STEPS = {
   'late-uncertified': Symbol('late-uncertified')
 };
 
-window.addEventListener('beforeunload', (e) => {
-  const confirmationMessage = 'Are you sure you want to leave this page?';
-
-  // Gecko + IE
-  (e || window.event).returnValue = confirmationMessage;
-  // Gecko + Webkit, Safari, Chrome etc.
-  return confirmationMessage;
-});
-
 let nextErrorId = 1;
 
 class AppStore extends EventEmitter {
@@ -103,6 +94,21 @@ class AppStore extends EventEmitter {
     }
   }
 
+  get canClose () {
+    switch (this.step) {
+      case STEPS['contribute']:
+      case STEPS['payment']:
+      case STEPS['fee-payment']:
+      case STEPS['picops']:
+      case STEPS['picops-terms']:
+      case STEPS['picops-country-selection']:
+      case STEPS['purchase']:
+        return false;
+    }
+
+    return true;
+  }
+
   constructor () {
     super();
     this.load();
@@ -124,6 +130,20 @@ class AppStore extends EventEmitter {
         delete this.historyCallback;
         cb();
       }
+    });
+
+    // Show a don't close warning if needed on close
+    window.addEventListener('beforeunload', (e) => {
+      if (this.canClose) {
+        return;
+      }
+
+      const confirmationMessage = 'Are you sure you want to leave this page?';
+
+      // Gecko + IE
+      (e || window.event).returnValue = confirmationMessage;
+      // Gecko + Webkit, Safari, Chrome etc.
+      return confirmationMessage;
     });
   }
 

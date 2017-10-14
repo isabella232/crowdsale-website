@@ -21,6 +21,12 @@ class AccountStore {
   @observable privateKey = '';
   @observable spending = new BigNumber(0);
 
+  constructor () {
+    auctionStore.ready(() => {
+      this.spending = auctionStore.DUST_LIMIT;
+    });
+  }
+
   @computed get missingWei () {
     const { balance, paid, spending } = this;
     const { totalFee } = feeStore;
