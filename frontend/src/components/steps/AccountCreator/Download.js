@@ -10,12 +10,17 @@ import AccountInfo from '../../AccountInfo';
 
 @observer
 export default class Download extends Component {
+  state = {
+    loading: false
+  };
+
   componentWillMount () {
     accountCreator.downloadWallet();
   }
 
   render () {
     const { address } = accountCreator;
+    const { loading } = this.state;
 
     return (
       <Grid>
@@ -55,6 +60,7 @@ export default class Download extends Component {
             <Button
               color='green'
               onClick={this.handleDone}
+              loading={loading}
             >
               Continue
             </Button>
@@ -67,6 +73,8 @@ export default class Download extends Component {
   handleDone = async () => {
     const { address, secret } = accountCreator;
 
+    this.setState({ loading: true });
+
     try {
       appStore.revertableSteps = 4;
       await accountStore.setAccount({ address, privateKey: secret });
@@ -74,6 +82,8 @@ export default class Download extends Component {
     } catch (error) {
       appStore.addError(error);
     }
+
+    this.setState({ loading: false });
   };
 
   handleDownload = () => {
