@@ -23,6 +23,11 @@ function errorHandler (err) {
 }
 
 client.on('error', (err) => errorHandler(err));
+client.on('ready', () => console.warn('Redis is ready!'));
+client.on('connect', () => console.warn('Redis is connected!'));
+client.on('reconnecting', () => console.warn('Redis is reconnecting...'));
+client.on('end', () => console.warn('Redis has ended.'));
+client.on('warning', (event) => console.warn('Redis send a warning', event));
 
 // Promisfy & export required Redis commands
 for (const func of [
