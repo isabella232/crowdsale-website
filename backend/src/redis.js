@@ -10,8 +10,17 @@ const { promisify } = require('util');
 const client = redis.createClient(config.get('redis'));
 
 function errorHandler (err) {
-  if (err && err.code === 'ECONNREFUSED') {
+  if (!err) {
+    return;
+  }
+
+  if (err.code === 'ECONNREFUSED') {
     return console.error(err.message);
+  }
+
+  if (err.code === 'NOAUTH') {
+    console.error(err.message);
+    return process.exit(1);
   }
 
   if (err instanceof redis.AbortError) {
@@ -22,8 +31,17 @@ function errorHandler (err) {
   console.error('Redis error', err);
 }
 
+const timeout = setTimeout(() => {
+  console.error('Redis is still not ready 5 seconds after startup.');
+  process.exit(1);
+}, 5000);
+
 client.on('error', (err) => errorHandler(err));
-client.on('ready', () => console.warn('Redis is ready!'));
+client.on('ready', () => {
+  console.warn('Redis is ready!');
+  clearTimeout(timeout);
+});
+
 client.on('connect', () => console.warn('Redis is connected!'));
 client.on('reconnecting', () => console.warn('Redis is reconnecting...'));
 client.on('end', () => console.warn('Redis has ended.'));
