@@ -21,15 +21,22 @@ class Config extends EventEmitter {
   }
 
   async load () {
-    if (this.loaded) {
+    if (this.loaded || this.loading) {
       return;
     }
 
-    const conf = await backend.config();
+    try {
+      const conf = await backend.config();
 
-    this.set(conf);
-    this.loaded = true;
-    this.emit('loaded');
+      this.set(conf);
+      this.loaded = true;
+      this.emit('loaded');
+    } catch (error) {
+      console.error(error);
+      setTimeout(() => this.load(), 1000);
+    }
+
+    this.loading = false;
   }
 
   @action set (conf) {

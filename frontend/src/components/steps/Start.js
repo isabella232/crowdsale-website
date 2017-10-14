@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Button, Header } from 'semantic-ui-react';
 
@@ -8,6 +9,7 @@ import Text from '../ui/Text';
 
 import { fromWei } from '../../utils';
 
+@observer
 export default class Start extends Component {
   render () {
     const { fee } = feeStore;

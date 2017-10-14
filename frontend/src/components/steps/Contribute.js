@@ -21,6 +21,7 @@ export default class AccountLoader extends Component {
 
   render () {
     const { address, balance, missingWei, spending } = accountStore;
+    const { DUST_LIMIT, maxSpendable } = auctionStore;
 
     return (
       <Step
@@ -68,7 +69,6 @@ export default class AccountLoader extends Component {
               How much ETH would you like to contribute?
             </span>
             <Input
-              defaultValue={0}
               label='ETH'
               labelPosition='right'
               onChange={this.handleSpendChange}
@@ -78,19 +78,31 @@ export default class AccountLoader extends Component {
                 width: '6.5em'
               }}
               type='number'
-              min={0}
+              min={fromWei(DUST_LIMIT).toNumber()}
+              max={fromWei(maxSpendable).toNumber()}
               step={0.01}
+              defaultValue={fromWei(spending).toNumber()}
             />
           </div>
           {
-            spending.gt(0)
-              ? (
-                <div>
-                  {this.renderSending()}
-                  {this.renderFee()}
+            spending.gte(DUST_LIMIT)
+              ? spending.lt(maxSpendable)
+                ? (
+                  <div>
+                    {this.renderSending()}
+                    {this.renderFee()}
+                  </div>
+                )
+                : (
+                  <div style={{ color: 'red', fontSize: '1em', marginTop: '1em' }}>
+                    You cannot spend more than {fromWei(maxSpendable).toFormat(5)} ETH
+                  </div>
+                )
+              : (
+                <div style={{ color: 'red', fontSize: '1em', marginTop: '1em' }}>
+                  You should spend at least {fromWei(DUST_LIMIT).toFormat()} ETH
                 </div>
               )
-              : null
           }
           {this.renderAction()}
         </div>
@@ -99,11 +111,12 @@ export default class AccountLoader extends Component {
   }
 
   renderAction () {
+    const { DUST_LIMIT } = auctionStore;
     const { certified, missingWei, spending } = accountStore;
 
     return (
       <div style={{ textAlign: 'right', marginTop: '1.5em' }}>
-        <Button primary onClick={this.handleContinue} disabled={!spending || spending.eq(0)}>
+        <Button primary onClick={this.handleContinue} disabled={!spending || spending.eq(0) || spending.lt(DUST_LIMIT)}>
           {
             missingWei.eq(0)
               ? (certified ? 'Contribute' : 'Certify your identity')
