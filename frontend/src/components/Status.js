@@ -109,7 +109,7 @@ export default class Status extends Component {
       return Math.round(percentage * 10) / 10;
     }
 
-    return percentage;
+    return Math.round(percentage);
   }
 
   renderContent () {
