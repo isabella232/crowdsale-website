@@ -53,7 +53,7 @@ export default class Summary extends Component {
                 bonus
                   ? (
                     <span>
-                      A {bonus}% bonus has been accounted.
+                      A {bonus}% bonus has been accounted for.
                     </span>
                   )
                   : null

@@ -423,12 +423,14 @@ export default class Chart extends Component {
 
     if (loading) {
       return (
-        <div style={{ textAlign: 'center' }}>
-          <Loader active inline='centered' size='huge' />
+        <div style={{ textAlign: 'center', minHeight: '15em', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div>
+            <Loader active inline='centered' size='huge' />
 
-          <Header as='h2'>
-            Loading data...
-          </Header>
+            <Header as='h2'>
+              Loading data...
+            </Header>
+          </div>
         </div>
       );
     }
