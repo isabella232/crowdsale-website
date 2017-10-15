@@ -25,7 +25,7 @@ class ChartStore {
 
     return {
       target: fromWei(target).round().toNumber(),
-      raised: fromWei(raised).toNumber(),
+      raised: raised ? fromWei(raised).toNumber() : raised,
       time: time.getTime()
     };
   }
@@ -79,7 +79,7 @@ class ChartStore {
       const target = beginTarget.sub(targetInteval.mul(i));
       const time = auctionStore.getTimeFromTarget(target);
 
-      data.push({ target: fromWei(target).round().toNumber(), time: time.getTime() });
+      data.push({ target, time });
     }
 
     const dateInterval = (initialEndTime - beginTime) / NUM_TICKS;
@@ -92,10 +92,12 @@ class ChartStore {
         break;
       }
 
-      data.push({ target: fromWei(target).round().toNumber(), time: time.getTime() });
+      data.push({ target, time });
     }
 
-    const formattedData = data.sort((ptA, ptB) => ptA.time - ptB.time);
+    const formattedData = data
+      .map((datum) => this.formattedData(datum))
+      .sort((ptA, ptB) => ptA.time - ptB.time);
 
     this.setPriceChart({
       data: formattedData

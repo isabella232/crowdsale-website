@@ -21,7 +21,7 @@ export default class Warning extends Component {
     return (
       <Portal open>
         <div style={{
-          position: 'fixed', top: 0, right: 0,
+          position: 'fixed', top: '0', right: '4.75em',
           textAlign: 'left'
         }}>
           <div style={messageStyle}>
