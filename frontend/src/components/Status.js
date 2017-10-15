@@ -113,7 +113,8 @@ export default class Status extends Component {
   }
 
   renderContent () {
-    const { endTime, tokensAvailable } = auctionStore;
+    const { DIVISOR, endTime, tokensAvailable } = auctionStore;
+    const formattedTA = tokensAvailable.div(DIVISOR);
 
     return (
       <div>
@@ -122,7 +123,7 @@ export default class Status extends Component {
           contributions are submitted.
         </div>
         <div>
-          There are still {tokensAvailable.toFormat()} DOTs available to sale.
+          There are still {formattedTA.toFormat()} DOTs available to buy.
         </div>
       </div>
     );
