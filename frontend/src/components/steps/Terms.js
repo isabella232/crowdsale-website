@@ -35,7 +35,7 @@ export default class Terms extends Component {
           margin: '1.5em 0'
         }}>
           <div>
-            The Web3 Auction Terms & Conditions are important, detailed, and govern your transaction.
+            The Polkadot Auction Terms & Conditions are important, detailed, and govern your transaction.
           </div>
           <div>
             Please read and understand them fully before proceeding.
@@ -75,7 +75,7 @@ export default class Terms extends Component {
               disabled={!hitBottom}
               label={`
                 I confirm that I am not a citizen or resident of the People's Republic of
-                China or the United States (我确定自己非中国公民，也非美国公民。)
+                China or the United States of America (我确定自己非中国公民，也非美国公民。)
               `}
               checked={citizenAccepted}
               onChange={this.handleCitizenChecked}

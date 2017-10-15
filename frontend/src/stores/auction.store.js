@@ -135,13 +135,13 @@ class AuctionStore {
     return value.mul(this.currentBonus).div(100);
   }
 
-  getPrice (_time) {
-    if (_time < this.beginTime || _time > this.endTime) {
+  getPrice (_time, onlyActive = true) {
+    if (onlyActive && (_time < this.beginTime || _time > this.endTime)) {
       return new BigNumber(0);
     }
 
-    const time = new BigNumber(Math.floor(_time.getTime() / 1000));
-    const beginTime = new BigNumber(Math.floor(this.beginTime.getTime() / 1000));
+    const time = new BigNumber(_time.getTime() / 1000).floor();
+    const beginTime = new BigNumber(this.beginTime.getTime() / 1000).floor();
     const K = new BigNumber(40000000);
     const { DIVISOR, USDWEI } = this;
 
@@ -151,8 +151,8 @@ class AuctionStore {
     return p1.sub(p2).div(DIVISOR).floor();
   }
 
-  getTarget (time) {
-    const price = this.getPrice(time);
+  getTarget (time, onlyActive = true) {
+    const price = this.getPrice(time, onlyActive);
 
     return price.mul(this.DIVISOR).mul(this.tokenCap);
   }
@@ -184,6 +184,11 @@ class AuctionStore {
     const { currentPrice, tokensAvailable } = this;
 
     return tokensAvailable.mul(currentPrice);
+  }
+
+  @computed get initialEndTime () {
+    // Initial end-time in 28 days
+    return new Date(this.beginTime.getTime() + 28 * 24 * 3600 * 1000);
   }
 
   weiToDot (weiValue) {

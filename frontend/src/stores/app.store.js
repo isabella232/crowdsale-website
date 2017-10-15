@@ -1,7 +1,7 @@
 import { countries } from 'country-data';
 import EventEmitter from 'eventemitter3';
 import { difference, uniq } from 'lodash';
-import { action, computed, observable } from 'mobx';
+import { action, observable } from 'mobx';
 import store from 'store';
 
 import backend from '../backend';
@@ -10,6 +10,7 @@ import history from './history';
 
 export const CITIZENSHIP_LS_KEY = '_parity-crowdsale::citizenship';
 export const TERMS_LS_KEY = '_parity-crowdsale::agreed-terms::v1';
+export const CURRENT_STEP_LS_KEY = 'parity-crowdsale::current-step';
 
 // Messages displays for 15s
 const MESSAGE_TIMELIFE = 1000 * 15;
@@ -55,60 +56,6 @@ class AppStore extends EventEmitter {
   @observable spendingAccepted = false;
   @observable termsAccepted = false;
 
-  @computed get stepper () {
-    switch (this.step) {
-      case STEPS['important-notice']:
-      case STEPS['start']:
-      case STEPS['terms']:
-      case STEPS['country-selection']:
-        return 0;
-
-      case STEPS['account-selection']:
-      case STEPS['load-account']:
-      case STEPS['unlock-account']:
-      case STEPS['create-account-password']:
-      case STEPS['create-account-recovery']:
-      case STEPS['create-account-repeat']:
-      case STEPS['create-account-download']:
-        return 1;
-
-      case STEPS['contribute']:
-      case STEPS['payment']:
-      case STEPS['fee-payment']:
-      case STEPS['picops']:
-      case STEPS['picops-terms']:
-      case STEPS['picops-country-selection']:
-      case STEPS['purchase']:
-      case STEPS['summary']:
-        return 2;
-
-      case STEPS['late-uncertified']:
-        return -1;
-
-      default:
-        if (this.step) {
-          console.warn('UNKOWN STEP FOR STEPPER', this.step);
-        }
-
-        return 0;
-    }
-  }
-
-  get canClose () {
-    switch (this.step) {
-      case STEPS['contribute']:
-      case STEPS['payment']:
-      case STEPS['fee-payment']:
-      case STEPS['picops']:
-      case STEPS['picops-terms']:
-      case STEPS['picops-country-selection']:
-      case STEPS['purchase']:
-        return false;
-    }
-
-    return true;
-  }
-
   constructor () {
     super();
     this.load();
@@ -131,20 +78,6 @@ class AppStore extends EventEmitter {
         cb();
       }
     });
-
-    // Show a don't close warning if needed on close
-    window.addEventListener('beforeunload', (e) => {
-      if (this.canClose) {
-        return;
-      }
-
-      const confirmationMessage = 'Are you sure you want to leave this page?';
-
-      // Gecko + IE
-      (e || window.event).returnValue = confirmationMessage;
-      // Gecko + Webkit, Safari, Chrome etc.
-      return confirmationMessage;
-    });
   }
 
   load = async () => {
@@ -156,18 +89,21 @@ class AppStore extends EventEmitter {
       this.addError(error);
     }
 
-    this.goto('important-notice');
+    this.emit('loaded');
   };
 
   async goto (name) {
     if (!STEPS[name]) {
-      throw new Error(`unknown step ${name}`);
+      console.error(new Error(`unknown step ${name}`));
+      return this.goto('important-notice');
     }
 
     this.setLoading(true);
-    this.setStep(STEPS[name]);
+    this.setStep(name);
 
-    history.replace('/', { goto: name });
+    const { pathname, search, hash } = window.location;
+
+    history.replace(`${pathname}${search}${hash}`, { goto: name });
 
     // Trigger the loaders and wait for them to return
     if (this.loaders[name]) {
@@ -286,8 +222,9 @@ class AppStore extends EventEmitter {
     this.termsAccepted = termsAccepted;
   }
 
-  @action setStep (step) {
-    this.step = step;
+  @action setStep (name) {
+    this.step = STEPS[name];
+    this.stepName = name;
   }
 
   storeValidCitizenship () {

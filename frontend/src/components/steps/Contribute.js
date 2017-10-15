@@ -54,7 +54,7 @@ export default class AccountLoader extends Component {
             missingWei.gt(0) || balance.eq(0)
               ? (
                 <div>
-                  You will need to transfer the desired funds to the Ether address below.
+                  You will need to transfer the desired funds to the Ethereum address below.
                 </div>
               )
               : null

@@ -4,13 +4,13 @@ import FileSaver from 'file-saver';
 import { action, observable } from 'mobx';
 
 import appStore from '../../../stores/app.store';
+import accountStore from '../../../stores/account.store';
 import { createWallet } from '../../../utils';
 
 class AccountCreatorStore {
   @observable password = '';
 
   address = null;
-  jsonWallet = null;
   phrase = null;
   secret = null;
 
@@ -24,7 +24,7 @@ class AccountCreatorStore {
     const { password, secret } = this;
     const jsonWallet = await createWallet(secret, password);
 
-    this.jsonWallet = jsonWallet;
+    accountStore.setJSONWallet(jsonWallet);
   }
 
   generateWallet () {
@@ -40,7 +40,8 @@ class AccountCreatorStore {
     this.address = address;
     this.phrase = phrase;
     this.secret = secret;
-    this.jsonWallet = null;
+
+    accountStore.setJSONWallet(null);
   }
 
   downloadWallet () {
@@ -50,11 +51,11 @@ class AccountCreatorStore {
   }
 
   async _downloadWallet () {
-    if (!this.jsonWallet) {
+    if (!accountStore.jsonWallet) {
       await this._createWallet();
     }
 
-    const { jsonWallet } = this;
+    const { jsonWallet } = accountStore;
     const blob = new Blob([JSON.stringify(jsonWallet)], { type: 'text/json;charset=utf-8' });
 
     FileSaver.saveAs(blob, `${jsonWallet.id}.json`);

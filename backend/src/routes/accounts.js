@@ -5,8 +5,8 @@
 
 const Router = require('koa-router');
 
-const { rateLimiter } = require('./utils');
-const { int2hex } = require('../utils');
+const { error: errorHandler, rateLimiter } = require('./utils');
+const { int2hex, isValidAddress } = require('../utils');
 
 function get ({ sale, connector, certifier }) {
   const router = new Router({
@@ -15,6 +15,10 @@ function get ({ sale, connector, certifier }) {
 
   router.get('/:address', async (ctx, next) => {
     const { address } = ctx.params;
+
+    if (!isValidAddress(address)) {
+      return errorHandler(ctx, 400, 'Invalid address');
+    }
 
     await rateLimiter(address, ctx.remoteAddress);
 
@@ -34,6 +38,10 @@ function get ({ sale, connector, certifier }) {
   router.get('/:address/balance', async (ctx, next) => {
     const { address } = ctx.params;
 
+    if (!isValidAddress(address)) {
+      return errorHandler(ctx, 400, 'Invalid address');
+    }
+
     await rateLimiter(address, ctx.remoteAddress);
 
     const balance = await connector.balance(address);
@@ -45,6 +53,10 @@ function get ({ sale, connector, certifier }) {
 
   router.get('/:address/nonce', async (ctx, next) => {
     const { address } = ctx.params;
+
+    if (!isValidAddress(address)) {
+      return errorHandler(ctx, 400, 'Invalid address');
+    }
 
     await rateLimiter(address, ctx.remoteAddress);
 

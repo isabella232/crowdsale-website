@@ -16,7 +16,6 @@ import auctionStore from '../../stores/auction.store';
 import chartStore from './store';
 
 const Container = styled.div`
-  cursor: move;
   position: relative;
 `;
 
@@ -36,6 +35,7 @@ const PointedLabel = styled.span`
   white-space: nowrap;
 `;
 
+@observer
 class CustomChart extends Component {
   static propTypes = {
     data: PropTypes.array
@@ -93,11 +93,11 @@ class CustomChart extends Component {
       return;
     }
 
-    const { beginTime, endTime } = auctionStore;
+    const { beginTime, initialEndTime } = auctionStore;
 
     const xDomain = [
       beginTime.getTime(),
-      endTime.getTime() * 1.15 - beginTime.getTime() * 0.15
+      initialEndTime.getTime()
     ];
 
     const yDomain = [
@@ -113,7 +113,7 @@ class CustomChart extends Component {
       .range([ 0, chartWidth ]);
 
     const yScale = d3.scalePow()
-      .exponent(0.15)
+      .exponent(0.17)
       .domain(yDomain)
       .range([ 0, chartHeight ]);
 
@@ -122,13 +122,6 @@ class CustomChart extends Component {
     if (transform) {
       xScale = transform.rescaleX(xScale);
     }
-
-    const { now } = auctionStore;
-    const { priceChart } = chartStore;
-
-    const nowTime = now.getTime();
-    const futurePriceData = priceChart.data.filter((datum) => datum.time >= nowTime);
-
     const targetLine = d3.line()
       .x((datum) => xScale(datum.time))
       .y((datum) => yScale(datum.target))
@@ -146,7 +139,7 @@ class CustomChart extends Component {
 
     this.setState(Object.assign(
       { xDomain, yDomain, xScale, yScale, chart: { width, height, margins } },
-      { futurePriceData, targetLine, targetFutureLine, raisedLine },
+      { targetLine, targetFutureLine, raisedLine },
       nextState || {}
     ));
   }
@@ -160,11 +153,16 @@ class CustomChart extends Component {
     }
 
     const { width, height, margins } = chart;
-    const { mouse, futurePriceData, targetLine, targetFutureLine, raisedLine } = this.state;
+    const { mouse, targetLine, targetFutureLine, raisedLine } = this.state;
+    const { now } = auctionStore;
+    const { priceChart } = chartStore;
+
+    const nowTime = now.getTime();
+    const futurePriceData = priceChart.data.filter((datum) => datum.time >= nowTime);
 
     return (
       <div ref={this.setContainerRef} style={{ width: '100%' }}>
-        <Container style={{ height, width, overflow: 'hidden' }}>
+        <Container style={{ height, width }}>
           {this.renderNowLabels()}
           {this.renderPointedLabels()}
 
@@ -187,7 +185,10 @@ class CustomChart extends Component {
               <Line
                 color='lightgray'
                 from={[ xDomain[0], yDomain[1] ]}
-                to={[ xDomain[1], yDomain[1] ]}
+                to={[
+                  futurePriceData.length > 0 ? futurePriceData[futurePriceData.length - 1].time : xDomain[1],
+                  yDomain[1]
+                ]}
                 scales={[ xScale, yScale ]}
                 width={1}
               />
@@ -252,6 +253,12 @@ class CustomChart extends Component {
             </g>
           </svg>
         </Container>
+        <div style={{
+          textAlign: 'center',
+          fontSize: '1.2em'
+        }}>
+          Time
+        </div>
       </div>
     );
   }
@@ -270,7 +277,7 @@ class CustomChart extends Component {
             border: `1px solid ${borderColor}`
           }}
         >
-          CURRENT CAP
+          CURRENT EFFECTIVE CAP
         </LabelTarget>
         <LabelRaised
           style={{
@@ -384,19 +391,19 @@ class CustomChart extends Component {
   };
 
   setSVGRef = (svgRef) => {
-    const { width, height } = this.state.chart;
+    // const { width, height } = this.state.chart;
 
-    const zoom = d3
-      .zoom()
-      .scaleExtent([ 1, Infinity ])
-      .translateExtent([[0, 0], [width, height]])
-      .extent([[0, 0], [width, height]]);
-      // .on('zoom', this.zoomed);
+    // const zoom = d3
+    //   .zoom()
+    //   .scaleExtent([ 1, Infinity ])
+    //   .translateExtent([[0, 0], [width, height]])
+    //   .extent([[0, 0], [width, height]]);
+    //   .on('zoom', this.zoomed);
 
     this.svgRef = svgRef;
     this.d3SvgRef = d3.select(this.svgRef);
 
-    this.d3SvgRef.call(zoom);
+    // this.d3SvgRef.call(zoom);
   };
 
   zoomed = () => {

@@ -11,7 +11,7 @@ export default class Picops extends Component {
     return (
       <IFrame
         onMessage={this.handleMessage}
-        src={`${picopsBackend.baseUrl}/?no-padding&no-stepper&terms-accepted&no-final-screen&paid-for=${address}`}
+        src={`${picopsBackend.baseUrl}/?no-padding&no-stepper&terms-accepted&no-final-screen&blacklist[]=CHN&paid-for=${address}`}
       />
     );
   }

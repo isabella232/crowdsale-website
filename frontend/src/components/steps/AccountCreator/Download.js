@@ -32,7 +32,7 @@ export default class Download extends Component {
             <p>
               You have now created a new Ethereum wallet - it will
               download automatically. This wallet will be used to identify
-              you in the auction. Once verified, this will be the address
+              you in the auction. Once certified, this will be the address
               with which you can contribute funds to the token sale.
               Store it somewhere safe, and <b>DO NOT LOSE IT</b>.
             </p>
@@ -40,7 +40,7 @@ export default class Download extends Component {
         </Grid.Column>
         <Grid.Column width={10}>
           <div style={{ fontSize: '1.15em' }}><b>
-            Your ethereum address
+            Your Ethereum address
           </b></div>
 
           <AccountInfo

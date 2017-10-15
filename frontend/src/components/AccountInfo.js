@@ -42,23 +42,27 @@ export default class AccountInfo extends Component {
   }
 
   async fetchInfo (props = this.props) {
-    const { address, showBalance, showCertified } = props;
+    try {
+      const { address, showBalance, showCertified } = props;
 
-    const nextState = {};
+      const nextState = {};
 
-    if (showBalance) {
-      const balance = await backend.balance(address);
+      if (showBalance) {
+        const balance = await backend.balance(address);
 
-      nextState.balance = balance;
+        nextState.balance = balance;
+      }
+
+      if (showCertified) {
+        const { certified } = await backend.getAddressInfo(address);
+
+        nextState.certified = certified;
+      }
+
+      this.setState(nextState);
+    } catch (error) {
+      console.error(error);
     }
-
-    if (showCertified) {
-      const { certified } = await backend.getAddressInfo(address);
-
-      nextState.certified = certified;
-    }
-
-    this.setState(nextState);
   }
 
   render () {
@@ -148,7 +152,7 @@ export default class AccountInfo extends Component {
         wordWrap: 'break-word',
         overflow: 'hidden'
       }}>
-        Current funds: {fromWei(balance).toFormat()} ETH
+        Current funds: <span title={`${fromWei(balance).toFormat()} ETH`}>{fromWei(balance).toFormat(5)} ETH</span>
       </span>
     );
   }

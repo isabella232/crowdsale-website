@@ -1,5 +1,6 @@
 import EthereumWallet from 'ethereumjs-wallet';
 import keycode from 'keycode';
+import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Button, Input } from 'semantic-ui-react';
 
@@ -9,16 +10,17 @@ import appStore from '../../../stores/app.store';
 import AccountInfo from '../../AccountInfo';
 import Step from '../../Step';
 
+@observer
 export default class Unlock extends Component {
   state = {
     password: '',
     showPassword: false,
-    unlocking: false
+    loading: false
   };
 
   render () {
-    const { jsonWallet } = accountStore;
-    const { showPassword, password, unlocking } = this.state;
+    const { jsonWallet, unlocking } = accountStore;
+    const { showPassword, password, loading } = this.state;
 
     if (!jsonWallet) {
       return null;
@@ -28,9 +30,17 @@ export default class Unlock extends Component {
       <Step
         title="ENTER YOUR WALLET'S PASSWORD"
         description={(
-          <p>
-            For transactions to be signed, please unlock your account with your password.
-          </p>
+          <div>
+            <p>
+              For transactions to be signed, please unlock your account with your password.
+            </p>
+            <p>
+              <b>
+                Your password is not uploaded to any server
+                or handled by any third party.
+              </b>
+            </p>
+          </div>
         )}
       >
         <div>
@@ -63,11 +73,21 @@ export default class Unlock extends Component {
           />
           <br /><br />
           <div style={{ textAlign: 'right' }}>
+            {
+              unlocking
+                ? (
+                  <Button
+                    secondary
+                    content='Restart'
+                    onClick={this.handleRestart}
+                  />
+                )
+                : null
+            }
             <Button
               color='green'
-              icon='unlock'
-              content='Proceed'
-              loading={unlocking}
+              content={unlocking ? 'Continue' : 'Proceed'}
+              loading={loading}
               onClick={this.handleUnlock}
             />
           </div>
@@ -96,12 +116,16 @@ export default class Unlock extends Component {
     }
   };
 
+  handleRestart = () => {
+    accountStore.restart();
+  };
+
   handleUnlock = async () => {
     if (this.errorId) {
       appStore.removeMessage(this.errorId);
     }
 
-    this.setState({ unlocking: true });
+    this.setState({ loading: true });
 
     const { jsonWallet } = accountStore;
     const { password } = this.state;
@@ -121,7 +145,7 @@ export default class Unlock extends Component {
       } catch (error) {
         console.error(error);
         this.errorId = appStore.addError(new Error('Failed to unlock your wallet. The password might be wrong.'));
-        this.setState({ unlocking: false });
+        this.setState({ loading: false });
       }
     });
   };

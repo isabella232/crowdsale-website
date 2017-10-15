@@ -2,7 +2,7 @@ import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Container, Icon, Responsive, Segment } from 'semantic-ui-react';
 
-import appStore from '../stores/app.store';
+import stepperStore from '../stores/stepper.store';
 
 const containerStyle = {
   backgroundColor: 'white',
@@ -18,7 +18,7 @@ const containerStyle = {
 @observer
 export default class BigStepper extends Component {
   render () {
-    const current = appStore.stepper;
+    const current = stepperStore.big;
 
     if (current < 0) {
       return null;

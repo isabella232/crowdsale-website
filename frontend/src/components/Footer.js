@@ -61,7 +61,7 @@ export default class Footer extends Component {
               </Column>
 
               <Column>
-                <Title>Content e-mails</Title>
+                <Title>Contact e-mails</Title>
                 <Link target='_blank' href='mailto:help@polkadot.network'>
                   help@polkadot.network
                 </Link>

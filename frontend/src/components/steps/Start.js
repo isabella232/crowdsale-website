@@ -17,12 +17,12 @@ export default class Start extends Component {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Header as='h2'>
-          WEB3 IDENTITY VERIFICATION PROCESS
+          IDENTITY CERTIFICATION PROCESS
         </Header>
 
         <Text.Container>
           <Text>
-            Welcome to the Web3 auction registration. The registration process should take approximately 20-30 minutes.
+            Welcome to the Polkadot auction registration. The registration process should take approximately 20-30 minutes.
           </Text>
 
           <Text>
@@ -30,16 +30,16 @@ export default class Start extends Component {
           </Text>
 
           <Text>
-            1. Generate a new Ether wallet JSON file through our registration process or load an existing
+            1. Generate a new Ethereum wallet JSON file through our registration process or load an existing
             JSON file with the funds you wish to commit. <b>Please note that you will NOT be able to send funds
             via an exchange wallet. Furthermore, we DO NOT support using a hardware wallet.</b>
           </Text>
 
           <Text>
-            2. Verify your identity. Because of the existing regulatory environment, you must verify your
-            identity via our certification service PICOPS. In order to do this, your Ether wallet address
-            will be linked to your government issued identification. <b>Only addresses that are linked to a
-            verified identity will be permitted to participate.</b> There will be a fee of {fromWei(fee).toFormat()} Ether
+            2. Certify your identity. Because of the existing regulatory environment, you must certify your
+            identity via the certification service PICOPS. In order to do this, your Ethereum wallet address
+            will be linked to your government-issued identification. <b>Only addresses that are linked to a
+            certified identity will be permitted to participate.</b> There will be a fee of {fromWei(fee).toFormat()} Ether
             for the use of this service.
           </Text>
 
@@ -51,7 +51,7 @@ export default class Start extends Component {
           <Text>
             We would like to emphasize that you are participating in this auction at your own risk. We do not
             promise a return on your commitment. The crypto environment can be both volatile and hostile - please
-            ensure you take the appropriate security steps to ensure your funds are safe.
+            ensure you take the appropriate steps to secure your funds.
           </Text>
 
           <Text>

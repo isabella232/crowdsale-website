@@ -7,9 +7,17 @@ const keccak = require('keccak');
 const BigNumber = require('bignumber.js');
 
 function validateHex (hex) {
-  if (typeof hex !== 'string' || hex.substring(0, 2) !== '0x') {
+  if (!isValidHex(hex)) {
     throw new Error('hex must be a `0x` prefixed string');
   }
+}
+
+function isValidHex (hex) {
+  if (typeof hex !== 'string' || hex.substring(0, 2) !== '0x') {
+    return false;
+  }
+
+  return true;
 }
 
 function int2date (int) {
@@ -194,6 +202,7 @@ module.exports = {
   int2date,
   int2hex,
   isValidAddress,
+  isValidHex,
   pause,
   keccak256,
   sleep,
