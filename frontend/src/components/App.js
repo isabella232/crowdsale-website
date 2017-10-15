@@ -52,7 +52,7 @@ class MainApp extends Component {
   render () {
     return (
       <AppContainer
-        hideStepper={!auctionStore.isActive()}
+        hideStepper={!auctionStore.isActive() || auctionStore.halted}
       >
         {this.renderContent()}
       </AppContainer>

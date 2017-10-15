@@ -153,7 +153,7 @@ export default class AccountLoader extends Component {
             : null
         }
         <div style={{ marginTop: '0.5em' }}>
-          Addtional transaction fee{willPayFee ? <span>s</span> : null} will be {fromWei(txFees).toFormat()} ETH.
+          Additional transaction fee{willPayFee ? <span>s</span> : null} will be {fromWei(txFees).toFormat()} ETH.
         </div>
       </div>
     );

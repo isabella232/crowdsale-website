@@ -86,7 +86,11 @@ export default class AppContainer extends Component {
         <Container style={style}>
           {titleNode}
           {header || null}
-          <Stepper />
+          {
+            hideStepper
+              ? null
+              : (<Stepper />)
+          }
           {
             noPadding
               ? null
