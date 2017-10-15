@@ -93,11 +93,12 @@ class CustomChart extends Component {
       return;
     }
 
-    const { beginTime, initialEndTime } = auctionStore;
+    const { beginTime, endTime, initialEndTime } = auctionStore;
+    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime());
 
     const xDomain = [
       beginTime.getTime(),
-      initialEndTime.getTime()
+      domainEnd
     ];
 
     const yDomain = [

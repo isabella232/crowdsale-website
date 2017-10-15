@@ -4,6 +4,7 @@ import { Button, Header } from 'semantic-ui-react';
 
 import auctionStore from '../stores/auction.store';
 import config from '../stores/config.store';
+import Moment from 'react-moment';
 import Text from './ui/Text';
 
 @observer
@@ -42,7 +43,8 @@ export default class InactiveAuction extends Component {
   }
 
   renderNotStarted () {
-    const { beginTime } = auctionStore;
+    // Add a 30 sec delay
+    const beginTime = new Date(Math.max(auctionStore.beginTime, Date.now()) + 30000);
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -50,7 +52,9 @@ export default class InactiveAuction extends Component {
           THE SALE HAS NOT STARTED YET
         </Header>
         <Text.Container>
-          Come back on {beginTime.toString()}.
+          <Text>
+            Come back <Moment fromNow title={beginTime.toLocaleString()}>{beginTime}</Moment>.
+          </Text>
         </Text.Container>
         <Button secondary size='large' as='a' href={config.get('saleWebsite')}>
           Return to main website

@@ -55,7 +55,7 @@ export default class Footer extends Component {
             <Grid>
               <Column>
                 <Title>FAQs</Title>
-                <Link target='_blank' href={`${config.saleWebsite}/faq`}>
+                <Link target='_blank' href={`${config.saleWebsite}faq`}>
                   Polkadot FAQ
                 </Link>
                 <Link target='_blank' href={`${config.picopsUrl}/#/faq`}>

@@ -1,17 +1,35 @@
+import { observer } from 'mobx-react';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Header } from 'semantic-ui-react';
+import { withRouter } from 'react-router-dom';
+
+import auctionStore from '../stores/auction.store';
 
 import AppContainer from './AppContainer';
 import Chart from './Chart';
 import Text from './ui/Text';
 
-export default class ChartView extends Component {
+@observer
+class ChartView extends Component {
+  static propTypes = {
+    history: PropTypes.object.isRequired
+  };
+
+  componentWillMount () {
+    auctionStore.ready(() => {
+      if (!auctionStore.isActive()) {
+        return this.props.history.replace('/');
+      }
+    });
+  }
+
   render () {
     return (
       <AppContainer
         hideStepper
         header={(
-          <Header>
+          <Header style={{ marginTop: '0' }}>
             REAL TIME AUCTION DATA
           </Header>
         )}
@@ -61,3 +79,5 @@ export default class ChartView extends Component {
     );
   }
 }
+
+export default withRouter(ChartView);

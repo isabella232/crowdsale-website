@@ -79,7 +79,7 @@ export default class AppContainer extends Component {
     const contentStyle = Object.assign({}, baseContentStyle, this.props.style);
     const titleNode = title
       ? <Header as='h4' style={{ marginTop: '2em' }}>{title}</Header>
-      : <div style={{ marginTop: hideStepper ? '2em' : '4em' }} />;
+      : <div style={{ marginTop: hideStepper ? '1em' : '4em' }} />;
 
     return (
       <div>
