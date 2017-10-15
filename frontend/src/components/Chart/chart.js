@@ -94,7 +94,8 @@ class CustomChart extends Component {
     }
 
     const { beginTime, endTime, initialEndTime } = auctionStore;
-    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime());
+    // between the initial end and end + (end - begin) / 2
+    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime() * 1.5 - 0.5 * beginTime.getTime());
 
     const xDomain = [
       beginTime.getTime(),
