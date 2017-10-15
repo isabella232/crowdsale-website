@@ -19,12 +19,12 @@ const dotsLink = window.location.origin + '/#/dots';
 export default class Summary extends Component {
   render () {
     const { address } = accountStore;
-    const { success, accounted, received } = buyStore;
+    const { bonus, success, accounted, received } = buyStore;
     const dots = accounted
       ? auctionStore.weiToDot(accounted)
       : null;
 
-    if (!success || !accounted) {
+    if (!success || !accounted || accounted.eq(0)) {
       return this.renderFailure();
     }
 
@@ -47,18 +47,30 @@ export default class Summary extends Component {
 
           <Text.Container>
             <Text>
-              You have successfully contributed {fromWei(received).toFormat()} ETH and will receive at
-              least {dots.toFormat()} DOTs.
+              <span>You have successfully contributed {fromWei(received).toFormat()} ETH and will receive at
+              least {dots.toFormat()} DOTs. </span>
+              {
+                bonus
+                  ? (
+                    <span>
+                      A {bonus}% bonus has been accounted.
+                    </span>
+                  )
+                  : null
+              }
             </Text>
 
             <Text>
               DOT tokens will become available upon the genesis of the Polkadot network. Once the auction
               ends, you will be able to check your DOT allocation
-              at <a href={dotsLink}>{dotsLink}</a>
+              at <a href={dotsLink} target='_blank'>{dotsLink}</a>
             </Text>
           </Text.Container>
 
           <div style={{ marginTop: '1em' }}>
+            <Button secondary size='big' onClick={this.handleRetry}>
+              Contribute again
+            </Button>
             <Button primary size='big' as='a' href={config.get('saleWebsite')}>
               Return to the main website
             </Button>

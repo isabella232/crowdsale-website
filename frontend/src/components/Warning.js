@@ -29,10 +29,9 @@ export default class Warning extends Component {
               compact
               content={(
                 <div style={{ marginTop: '0.5em' }}>
-                  Any contribution you will send might no
-                  go through. In case of such event,
-                  your wallet will not be debitted. Your funds
-                  are safe.
+                  Any contribution you
+                  send might not be processed. In case of such an
+                  event, your wallet will not be debited. Your funds are safe.
                 </div>
               )}
               warning

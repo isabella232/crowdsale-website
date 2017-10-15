@@ -5,7 +5,8 @@
 
 const Router = require('koa-router');
 
-const { int2hex, int2date } = require('../utils');
+const { error: errorHandler } = require('./utils');
+const { int2hex, int2date, isValidHex } = require('../utils');
 
 function get ({ sale, connector }) {
   const router = new Router({
@@ -14,6 +15,10 @@ function get ({ sale, connector }) {
 
   router.get('/auction/tx/:hash', async (ctx, next) => {
     const { hash } = ctx.params;
+
+    if (!isValidHex(hash)) {
+      return errorHandler(ctx, 400, 'Invalid transaction hash');
+    }
 
     const transaction = await connector.getTx(hash);
 

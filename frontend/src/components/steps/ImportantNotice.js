@@ -19,7 +19,7 @@ export default class ImportantNotice extends Component {
           </Text>
 
           <Text>
-            Polkadot will not provide any customer support for the registration process. <b>By
+            Web3 Foundation will not provide any customer support for the registration process. <b>By
             participating in the auction, you assume full responsibility for your funds.</b>
           </Text>
         </Text.Container>

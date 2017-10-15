@@ -56,7 +56,8 @@ export default class CountrySelector extends Component {
         {this.renderInvalidModal()}
 
         <Text>
-          Are you a citizen of, resident in, or established in one of these countries: People's Republic of China or the United States?
+          Are you a citizen of, resident in, or established in one of these countries: People's Republic of
+          China or the United States of America?
         </Text>
 
         <Grid>
@@ -101,9 +102,9 @@ export default class CountrySelector extends Component {
       >
         <Header icon='world' content='EXCLUDED COUNTRIES' />
         <Modal.Content>
-          <p>
-            We apologize that you are unable to participate in the sale.
-          </p>
+          <Text>
+            We apologize but you are unable to participate in the sale.
+          </Text>
         </Modal.Content>
         <Modal.Actions>
           <Button inverted onClick={this.handleCloseInvalid}>

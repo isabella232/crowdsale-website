@@ -10,6 +10,7 @@ import auctionStore from './auction.store';
 import blockStore from './block.store';
 import buyStore from './buy.store';
 import feeStore from './fee.store';
+import storage from './storage';
 
 class AccountStore {
   @observable accounted = new BigNumber(0);
@@ -20,11 +21,28 @@ class AccountStore {
   @observable paid = null;
   @observable privateKey = '';
   @observable spending = new BigNumber(0);
+  @observable unlocking = false;
 
   constructor () {
     auctionStore.ready(() => {
-      this.spending = auctionStore.DUST_LIMIT;
+      this.load();
+      this.ready = true;
+
+      if (this._readyCb) {
+        const cb = this._readyCb.bind(this);
+
+        this._readyCb = null;
+        cb();
+      }
     });
+  }
+
+  load () {
+    const spending = storage.get('spending', auctionStore.DUST_LIMIT);
+    const jsonWallet = storage.get('json-wallet');
+
+    this.setSpending(new BigNumber(spending));
+    this.setJSONWallet(jsonWallet);
   }
 
   @computed get missingWei () {
@@ -109,6 +127,16 @@ class AccountStore {
    * if not go to the PICOPS T&Cs
    */
   async gotoContribute () {
+    // If there is a callback to call on unlock,
+    // call it
+    if (this._unlocked) {
+      const { resolve } = this._unlocked;
+
+      resolve();
+      this._unlocked = null;
+      return this.setUnlocking(false);
+    }
+
     const { certified } = await backend.getAddressInfo(this.address);
     const { now, endTime } = auctionStore;
 
@@ -122,6 +150,20 @@ class AccountStore {
     }
 
     return appStore.revertAndGo('contribute');
+  }
+
+  restart () {
+    if (this._unlocked) {
+      const { reject } = this._unlocked;
+
+      reject(new Error('Should restart...'));
+      this._unlocked = null;
+    }
+
+    this.setJSONWallet(null);
+    appStore.goto('important-notice');
+    storage.reset();
+    return this.setUnlocking(false);
   }
 
   async setAccount ({ address, privateKey }) {
@@ -156,6 +198,7 @@ class AccountStore {
 
   @action setJSONWallet (jsonWallet) {
     this.jsonWallet = jsonWallet;
+    storage.set('json-wallet', jsonWallet);
   }
 
   /**
@@ -165,12 +208,8 @@ class AccountStore {
    * @param {BigNumber} spending The value the user wants to send, in WEI
    */
   @action setSpending (spending) {
-    // No refunds allowed in the contract,
-    // so need to modify the actual spending
-    const { accounted } = auctionStore.theDeal(spending);
-
-    console.warn('wants to send', spending.toFormat(), 'but will account', accounted.toFormat());
     this.spending = spending;
+    storage.set('spending', '0x' + spending.toString(16));
   }
 
   /**
@@ -223,6 +262,31 @@ class AccountStore {
   /** Stop polling */
   unwatchPayment () {
     blockStore.removeListener('block', this.checkPayment, this);
+  }
+
+  @action setUnlocking (unlocking) {
+    this.unlocking = unlocking;
+  }
+
+  unlock () {
+    this.setUnlocking(true);
+
+    if (!this.ready) {
+      return new Promise((resolve, reject) => {
+        this._readyCb = () => {
+          this.unlock().then(resolve).catch(reject);
+        };
+      });
+    }
+
+    if (!this.jsonWallet) {
+      return Promise.reject(new Error('No wallet file found in storage'));
+    }
+
+    return new Promise((resolve, reject) => {
+      this._unlocked = { resolve, reject };
+      appStore.goto('unlock-account');
+    });
   }
 }
 

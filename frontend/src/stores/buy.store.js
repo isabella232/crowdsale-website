@@ -7,6 +7,7 @@ import auctionStore, { TSCS_HASH } from './auction.store';
 import blockStore from './block.store';
 import backend from '../backend';
 import config from './config.store';
+import storage from './storage';
 import Transaction from './transaction';
 import { hex2buf, hex2bn, buildABIData } from '../utils';
 
@@ -15,6 +16,7 @@ const GAS_LIMIT = new BigNumber(200000);
 
 class BuyStore {
   @observable accounted;
+  @observable bonus;
   @observable received;
   @observable success;
 
@@ -28,33 +30,52 @@ class BuyStore {
 
   init = () => {
     this.accounted = null;
+    this.bonus = null;
+    this.received = null;
     this.success = null;
+
+    this.load();
+  }
+
+  load () {
+    const transaction = storage.get('buy-transaction');
+
+    this.setTransaction(transaction);
+    this.checkPurchase(true);
   }
 
   get totalGas () {
     return GAS_LIMIT.mul(config.get('gasPrice') || 0);
   }
 
-  async checkPurchase () {
+  async checkPurchase (skipGoto = false) {
     if (!this.transaction) {
       return;
     }
 
-    const result = await backend.txStatus(this.transaction);
+    try {
+      const result = await backend.txStatus(this.transaction);
 
-    if (result.status === 'unkown') {
-      return;
+      if (result.status === 'unkown') {
+        return;
+      }
+
+      const success = result.status === 'success';
+
+      this.setInfo({
+        accounted: success ? hex2bn(result.accounted) : null,
+        received: success ? hex2bn(result.received) : null,
+        success
+      });
+
+      if (skipGoto) {
+        return;
+      }
+
+      appStore.goto('summary');
+    } catch (error) {
+      console.error(error);
     }
-
-    const success = result.status === 'success';
-
-    this.setInfo({
-      accounted: success ? hex2bn(result.accounted) : null,
-      received: success ? hex2bn(result.received) : null,
-      success
-    });
-
-    appStore.goto('summary');
   }
 
   async purchase (address, spending, privateKey) {
@@ -91,10 +112,17 @@ class BuyStore {
     this.accounted = accounted;
     this.received = received;
     this.success = success;
+
+    const bonus = accounted && accounted.gt(0) && !received.eq(accounted)
+      ? accounted.mul(100).div(received).round().toNumber() - 100
+      : null;
+
+    this.bonus = bonus;
   }
 
   @action setTransaction (transaction) {
     this.transaction = transaction;
+    storage.set('buy-transaction', transaction);
   }
 
   /** Poll on new block `this.address` dot balance, until it changes */

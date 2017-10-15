@@ -67,7 +67,7 @@ export default class InactiveAuction extends Component {
         </Header>
 
         <Text.Container>
-          The Web3 auction has concluded and all DOTs have been committed.
+          The Polkadot Auction has concluded and all DOTs have been committed.
           If you were in the middle of the process, your ETH contribution
           will not be processed in time and you will not be able to receive
           DOTs. You will still be able to access this wallet and retrieve

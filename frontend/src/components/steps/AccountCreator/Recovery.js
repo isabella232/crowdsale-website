@@ -35,7 +35,11 @@ export default class Recovery extends Component {
               You will need this for the next step.
             </p>
             <p>
-              <b>WRITE IT DOWN</b>. Should you lose your password and/or
+              <b>WRITE IT DOWN</b>.
+            </p>
+
+            <p>
+              Should you lose your password and/or
               JSON wallet file, your recovery phrase will restore access to
               your wallet.
             </p>

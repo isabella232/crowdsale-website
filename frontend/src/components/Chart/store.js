@@ -14,8 +14,10 @@ class ChartStore {
   totalAccounted = new BigNumber(0);
 
   constructor () {
-    auctionStore.ready(this.update);
-    blockStore.on('block', this.update);
+    auctionStore.ready(() => {
+      this.update();
+      blockStore.on('block', this.update);
+    });
   }
 
   formatChartData (data) {
@@ -43,7 +45,7 @@ class ChartStore {
   update = async () => {
     const { totalAccounted } = auctionStore;
 
-    if (!this.priceChart) {
+    if (!this.priceChart || this.priceChart.length === 0) {
       this.computePriceChart();
     }
 
@@ -63,12 +65,12 @@ class ChartStore {
   }
 
   computePriceChart () {
-    const { beginTime, endTime } = auctionStore;
+    const { beginTime, initialEndTime } = auctionStore;
     const NUM_TICKS = 200;
     const data = [];
 
     const beginTarget = auctionStore.getTarget(beginTime);
-    const endTarget = auctionStore.getTarget(endTime);
+    const endTarget = auctionStore.getTarget(initialEndTime);
 
     const targetInteval = beginTarget.sub(endTarget).div(NUM_TICKS);
 
@@ -80,11 +82,15 @@ class ChartStore {
       data.push({ target: fromWei(target).round().toNumber(), time: time.getTime() });
     }
 
-    const dateInterval = (endTime - beginTime) / NUM_TICKS;
+    const dateInterval = (initialEndTime - beginTime) / NUM_TICKS;
 
     for (let i = 0; i <= NUM_TICKS; i++) {
       const time = new Date(beginTime.getTime() + dateInterval * i);
-      const target = auctionStore.getTarget(time);
+      const target = auctionStore.getTarget(time, false);
+
+      if (target.lt(0)) {
+        break;
+      }
 
       data.push({ target: fromWei(target).round().toNumber(), time: time.getTime() });
     }
@@ -98,7 +104,13 @@ class ChartStore {
 
   async updateChartData () {
     const { beginTime, now } = auctionStore;
-    const raisedRawData = await backend.chartData();
+    let raisedRawData;
+
+    try {
+      raisedRawData = await backend.chartData();
+    } catch (error) {
+      return console.error(error);
+    }
 
     const raisedData = raisedRawData
       .map((datum) => {

@@ -1,10 +1,12 @@
 import BigNumber from 'bignumber.js';
 import { action, observable } from 'mobx';
 
-import picopsBackend from '../picops-backend';
-import config from './config.store';
-import Transaction from './transaction';
 import appStore from './app.store';
+import config from './config.store';
+import storage from './storage';
+import Transaction from './transaction';
+
+import picopsBackend from '../picops-backend';
 import { isValidAddress } from '../utils';
 
 // Gas Limit of 200k gas
@@ -42,7 +44,15 @@ class FeeStore {
     } catch (error) {
       appStore.addError(error);
     }
+
+    this.loadStorage();
   };
+
+  loadStorage () {
+    const transaction = storage.get('fee-transaction');
+
+    this.setTransaction(transaction);
+  }
 
   async sendPayment (who, privateKey) {
     try {
@@ -69,6 +79,7 @@ class FeeStore {
 
   @action setTransaction (transaction) {
     this.transaction = transaction;
+    storage.set('fee-transaction', transaction);
   }
 }
 

@@ -21,10 +21,11 @@ import Start from './steps/Start';
 import Summary from './steps/Summary';
 import Terms from './steps/Terms';
 
-import Chart from './Chart';
+import ChartView from './ChartView';
 import InactiveAuction from './InactiveAuction';
 import DotsQuery from './DotsQuery';
 import Messages from './Messages';
+import Status from './Status';
 import Warning from './Warning';
 
 import appStore, { STEPS } from '../stores/app.store';
@@ -36,9 +37,9 @@ export default class App extends Component {
     return (
       <Router>
         <div>
-          <Route exact path='/' component={MainApp} />
           <Route exact path='/dots' component={DotsQuery} />
-          <Route exact path='/chart' component={Chart} />
+          <Route exact path='/chart' component={ChartView} />
+          <Route exact path='/' component={MainApp} />
           <Messages />
         </div>
       </Router>
@@ -81,6 +82,7 @@ class MainApp extends Component {
 
     return (
       <div>
+        <Status />
         <Warning />
         {this.renderStep(step)}
       </div>
@@ -153,8 +155,4 @@ class MainApp extends Component {
         return null;
     }
   }
-
-  handleRestart = () => {
-    appStore.restart();
-  };
 }

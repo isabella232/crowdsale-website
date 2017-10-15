@@ -12,19 +12,21 @@ import { fromWei, isValidAddress } from '../utils';
 @observer
 export default class DotsQuery extends Component {
   state = {
+    loading: false,
     results: null,
     who: ''
   };
 
   render () {
-    const { who } = this.state;
+    const { loading, who } = this.state;
+    const valid = isValidAddress(who);
 
     return (
       <AppContainer
         hideStepper
         header={(
           <Header>
-            QUERY YOUR DOTS TOKEN
+            QUERY YOUR DOTS ALLOCATION
           </Header>
         )}
         style={{
@@ -40,8 +42,8 @@ export default class DotsQuery extends Component {
         />
         {this.renderResult()}
         <div style={{ textAlign: 'center', marginTop: '2em' }}>
-          <Button secondary as='a' href='/#/' size='big'>
-            Back
+          <Button disabled={!valid} primary size='big' loading={loading} onClick={this.handleQuery}>
+            Query
           </Button>
         </div>
       </AppContainer>
@@ -62,8 +64,11 @@ export default class DotsQuery extends Component {
     return (
       <div style={{ textAlign: 'center' }}>
         <Header as='h4'>
-          Here are the information about this address as written in the Smart Contract.
+          Your current contribution and resulting DOT allocation
         </Header>
+        <p>
+          Please note, your DOT allocation is not final until the auction concludes.
+        </p>
         <div>
           <Statistic size='huge' style={{ marginRight: '4em' }}>
             <Statistic.Value>{fromWei(accounted).toFormat()}</Statistic.Value>
@@ -78,7 +83,7 @@ export default class DotsQuery extends Component {
 
         <div style={{ marginTop: '1em' }}>
           <Statistic size='small' color='grey'>
-            <Statistic.Value>{fromWei(currentPrice.mul(DIVISOR)).toFormat()}</Statistic.Value>
+            <Statistic.Value>{fromWei(currentPrice.mul(DIVISOR)).toFormat(5)}</Statistic.Value>
             <Statistic.Label>ETH / DOT</Statistic.Label>
           </Statistic>
         </div>
@@ -87,16 +92,26 @@ export default class DotsQuery extends Component {
   }
 
   async fetchInfo (who) {
-    const { accounted } = await backend.getAddressInfo(who);
+    try {
+      const { accounted } = await backend.getAddressInfo(who);
 
-    this.setState({ results: { accounted } });
+      this.setState({ results: { accounted } });
+    } catch (error) {
+      console.error(error);
+    }
   }
+
+  handleQuery = () => {
+    const { who } = this.state;
+
+    if (isValidAddress(who)) {
+      this.setState({ loading: true });
+      this.fetchInfo(who);
+      this.setState({ loading: false });
+    }
+  };
 
   handleWhoChange = (_, { value }) => {
     this.setState({ who: value, results: null });
-
-    if (isValidAddress(value)) {
-      this.fetchInfo(value);
-    }
   };
 }

@@ -45,14 +45,15 @@ export default class AccountSelection extends Component {
           <Text>
             In order to be able to claim your DOTs, it is necessary to
             have access to the private key corresponding to the contribution
-            address. <b>Hardware wallets, exchanges and multisig wallets are not supported in this process.</b>
+            address. <b>Hardware wallets, exchanges and multisig wallets are not supported
+            in this process.</b>
           </Text>
 
           <Text>
-            Your private key will be used only to send a fee for KYC service,
-            to sign terms and conditions, and to sign your contribution transaction.
-            All signing is done in-browser. Your private key is not uploaded to any server
-            or handled by any third party. Your private key will necessary to access your
+            Your private key will be used only to send a fee for the KYC service,
+            to sign terms and conditions, and to sign your contribution transaction. <b>All signing
+            is done in-browser. Your private key is not uploaded to any server
+            or handled by any third party.</b> Your private key will be necessary to access your
             DOTs upon the launch of Polkadot's genesis block.
           </Text>
         </Text.Container>
