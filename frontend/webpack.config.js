@@ -57,7 +57,8 @@ const config = {
       },
 
       { test: /\.md$/, loader: 'babel-loader!react-markdown-loader' },
-      { test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/, loader: 'file-loader?limit=100000' }
+      { test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/, loader: 'file-loader?limit=100000' },
+      { test: /\.(ico)(\?|$)/, loader: 'file-loader?name=[name].[ext]' }
     ]
   },
 
@@ -83,7 +84,7 @@ const config = {
     }),
 
     new HtmlWebpackPlugin({
-      title: 'Parity Crowdsale Module',
+      title: 'Polkadot Auction',
       template: path.resolve(__dirname, './src/index.ejs')
     })
   ]

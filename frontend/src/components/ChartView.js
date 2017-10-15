@@ -12,13 +12,36 @@ export default class ChartView extends Component {
         hideStepper
         header={(
           <Header>
-            REAL TIME SALE DATA
+            REAL TIME AUCTION DATA
           </Header>
         )}
         style={{
           padding: '2em 2.5em'
         }}
       >
+        <Text.Container>
+          <Text>
+            <Header as='h2'>
+              The Polkadot token sale is a Spend-All Second-Price Dutch Auction.
+            </Header>
+          </Text>
+          <Text>
+            <ul>
+              <li>
+                5,000,000 DOT tokens available
+              </li>
+              <li>
+                DOT price starts high, lowers over time
+              </li>
+              <li>
+                Everyone pays the lowest price per DOT
+              </li>
+              <li>
+                15% bonus DOTs for transactions received in the first hour
+              </li>
+            </ul>
+          </Text>
+        </Text.Container>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <Chart />
 

@@ -30,7 +30,11 @@ export default class Status extends Component {
           width: '4em'
         }}>
           <Popup
-            trigger={this.renderProgress()}
+            trigger={(
+              <a target='_blank' href='/#/chart'>
+                {this.renderProgress()}
+              </a>
+            )}
             content={this.renderContent()}
           />
         </div>
@@ -115,7 +119,7 @@ export default class Status extends Component {
       <div>
         <div>
           The auction will end <Moment fromNow title={endTime.toLocaleString()}>{endTime}</Moment> if no more
-          contributions are sent.
+          contributions are submitted.
         </div>
         <div>
           There are still {tokensAvailable.toFormat()} DOTs available to sale.

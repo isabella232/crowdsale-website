@@ -9,7 +9,7 @@ import MainLogo from '../images/MainLogo.svg';
 
 const FooterContainer = styled.div`
   background-color: #F9F9F9;
-  padding: 1.5em 1em;
+  padding: 1.5em 1em 0.5em;
 `;
 
 const Content = styled.div`
@@ -55,7 +55,10 @@ export default class Footer extends Component {
             <Grid>
               <Column>
                 <Title>FAQs</Title>
-                <Link target='_blank' href='http://picops.parity.io/#/faq'>
+                <Link target='_blank' href={`${config.saleWebsite}/faq`}>
+                  Polkadot FAQ
+                </Link>
+                <Link target='_blank' href={`${config.picopsUrl}/#/faq`}>
                   PICOPS FAQ
                 </Link>
               </Column>
@@ -72,6 +75,12 @@ export default class Footer extends Component {
 
               <Column>
                 <Title>Legal</Title>
+                <Link target='_blank' href={`${config.saleWebsite}impressum`}>
+                  Polkadot Impressum
+                </Link>
+                <Link target='_blank' href={`${config.saleWebsite}privacy`}>
+                  Polkadot Privacy Policy
+                </Link>
                 <Link target='_blank' href={`${config.saleWebsite}memorandum`}>
                   Polkadot Memorandum
                 </Link>
