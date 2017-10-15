@@ -96,7 +96,7 @@ class ChartStore {
     }
 
     const formattedData = data
-      .map((datum) => this.formattedData(datum))
+      .map((datum) => this.formatChartData(datum))
       .sort((ptA, ptB) => ptA.time - ptB.time);
 
     this.setPriceChart({
