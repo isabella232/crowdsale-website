@@ -22,10 +22,11 @@ class ChartStore {
 
   formatChartData (data) {
     const { target, raised, time } = data;
+    const { DIVISOR } = auctionStore;
 
     return {
       target: fromWei(target).round().toNumber(),
-      raised: raised ? fromWei(raised).toNumber() : raised,
+      raised: raised ? fromWei(raised.mul(DIVISOR)).toNumber() : raised,
       time: time.getTime()
     };
   }
@@ -105,7 +106,8 @@ class ChartStore {
   }
 
   async updateChartData () {
-    const { beginTime, now } = auctionStore;
+    const { beginTime, endTime, now: blockNow } = auctionStore;
+    const now = new Date(Math.min(endTime, blockNow));
     let raisedRawData;
 
     try {
@@ -167,8 +169,8 @@ class ChartStore {
     });
 
     const formattedData = data
-      .sort((ptA, ptB) => ptA.time - ptB.time)
-      .map((datum) => this.formatChartData(datum));
+      .map((datum) => this.formatChartData(datum))
+      .sort((ptA, ptB) => ptA.time - ptB.time);
 
     this.setChart({
       data: formattedData

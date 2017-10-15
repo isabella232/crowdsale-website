@@ -75,7 +75,7 @@ class CustomChart extends Component {
     }
 
     const { width } = this.containerRef.getBoundingClientRect();
-    const height = width * 9 / 16;
+    const height = width * 1 / (4 / 3);
 
     this.computeScales({ size: { width, height } });
   };
@@ -95,7 +95,7 @@ class CustomChart extends Component {
 
     const { beginTime, endTime, initialEndTime } = auctionStore;
     // between the initial end and end + (end - begin) / 2
-    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime() * 1.5 - 0.5 * beginTime.getTime());
+    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime() * 1.25 - 0.25 * beginTime.getTime());
 
     const xDomain = [
       beginTime.getTime(),
@@ -103,7 +103,7 @@ class CustomChart extends Component {
     ];
 
     const yDomain = [
-      Math.round(data[0].target) * 1.25,
+      Math.round(data[0].target) * 1.05,
       0
     ];
 
@@ -115,7 +115,7 @@ class CustomChart extends Component {
       .range([ 0, chartWidth ]);
 
     const yScale = d3.scalePow()
-      .exponent(0.17)
+      .exponent(1)
       .domain(yDomain)
       .range([ 0, chartHeight ]);
 
@@ -268,19 +268,27 @@ class CustomChart extends Component {
   renderNowLabels () {
     const { data } = this.props;
     const { chart, xScale, yScale } = this.state;
+    const { beginTime, now, endTime } = auctionStore;
     const { margins } = chart;
+    const hasNotEnded = now <= beginTime || now < endTime;
 
     return (
       <span>
-        <LabelTarget
-          style={{
-            left: xScale(data[data.length - 1].time) + margins.left,
-            top: yScale(data[data.length - 1].target) + margins.top - 5,
-            border: `1px solid ${borderColor}`
-          }}
-        >
-          CURRENT EFFECTIVE CAP
-        </LabelTarget>
+        {
+          hasNotEnded
+            ? (
+              <LabelTarget
+                style={{
+                  left: xScale(data[data.length - 1].time) + margins.left,
+                  top: yScale(data[data.length - 1].target) + margins.top - 5,
+                  border: `1px solid ${borderColor}`
+                }}
+              >
+                CURRENT EFFECTIVE CAP
+              </LabelTarget>
+            )
+            : null
+        }
         <LabelRaised
           style={{
             left: xScale(data[data.length - 1].time) + margins.left + 5,
@@ -288,7 +296,7 @@ class CustomChart extends Component {
             border: `1px solid ${borderColor}`
           }}
         >
-          CONTRIBUTED SO FAR*
+          {hasNotEnded ? 'CONTRIBUTED SO FAR*' : 'TOTAL CONTRIBUTIONS' }
         </LabelRaised>
       </span>
     );
@@ -421,7 +429,7 @@ class CustomChart extends Component {
 export default class Chart extends Component {
   render () {
     const { chart, loading } = chartStore;
-    const isActive = auctionStore.isActive();
+    const { now, beginTime } = auctionStore;
 
     if (loading) {
       return (
@@ -437,7 +445,7 @@ export default class Chart extends Component {
       );
     }
 
-    if (!isActive) {
+    if (now < beginTime) {
       return (
         <div style={{ textAlign: 'center' }}>
           <Header as='h2'>
