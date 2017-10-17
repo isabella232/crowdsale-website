@@ -1,24 +1,67 @@
 import BigNumber from 'bignumber.js';
 
-import { get, post } from './utils';
+import { get, post, sleep } from './utils';
 
 class Backend {
   constructor (url) {
     this._url = url;
   }
 
+  url (path) {
+    return `${this._url}/api${path}`;
+  }
+
+  async errorHandler (error, attempts, callback) {
+    // Can retry up to 5 times if not client error
+    if ((error.status < 400 || error.status >= 500) && attempts < 4) {
+      const timeout = Math.floor(Math.pow(1.6, attempts) * 1000);
+
+      console.warn(`[${error.status}] ${error.message} - will retry in ${Math.round(timeout / 1000)}s`);
+      await sleep(timeout);
+      return callback();
+    }
+
+    throw error;
+  }
+
+  async get (path, attempts = 0) {
+    try {
+      const result = await get(this.url(path));
+
+      return result;
+    } catch (error) {
+      return this.errorHandler(error, attempts, async () => this.get(path, attempts + 1));
+    }
+  }
+
+  async post (path, params, attempts = 0) {
+    try {
+      const result = await post(this.url(path), params);
+
+      return result;
+    } catch (error) {
+      return this.errorHandler(error, attempts, async () => this.post(path, params, attempts + 1));
+    }
+  }
+
   async balance (address) {
-    const { balance } = await get(this.url(`/accounts/${address}/balance`));
+    const { balance } = await this.get(`/accounts/${address}/balance`);
 
     return new BigNumber(balance);
   }
 
-  blockHash () {
-    return get(this.url('/block/hash'));
+  async blockHash () {
+    return this.get('/block/hash');
   }
 
-  async chartData () {
-    return get(this.url('/auction/chart'));
+  async chartData (since) {
+    return this.get(`/auction/chart${since ? `?since=${since}` : ''}`);
+  }
+
+  async certifierAddress () {
+    const { certifier } = await this.get('/certifier');
+
+    return certifier;
   }
 
   async config () {
@@ -28,7 +71,7 @@ class Backend {
       gasPrice,
       picopsUrl,
       saleWebsite
-    } = await get(this.url('/config'));
+    } = await this.get('/config');
 
     return {
       chainId: parseInt(chainId),
@@ -39,32 +82,32 @@ class Backend {
     };
   }
 
-  async status () {
-    const {
-      block,
-      connected,
-
-      currentBonus,
-      currentPrice,
-      endTime,
-      halted,
-      tokensAvailable,
-      totalAccounted,
-      totalReceived
-    } = await get(this.url('/auction'));
+  async dummyDeal () {
+    const { accounted, refund, price, value } = await this.get('/auction/dummy-deal');
 
     return {
-      block,
-      connected,
+      accounted: new BigNumber(accounted),
+      price: new BigNumber(price),
+      value: new BigNumber(value),
 
-      currentBonus: new BigNumber(currentBonus),
-      currentPrice: new BigNumber(currentPrice),
-      endTime: new Date(endTime),
-      halted,
-      tokensAvailable: new BigNumber(tokensAvailable),
-      totalAccounted: new BigNumber(totalAccounted),
-      totalReceived: new BigNumber(totalReceived)
+      refund
     };
+  }
+
+  async getAddressInfo (address) {
+    const { eth, accounted, certified } = await this.get(`/accounts/${address}`);
+
+    return {
+      eth: new BigNumber(eth),
+      accounted: new BigNumber(accounted),
+      certified
+    };
+  }
+
+  async nonce (address) {
+    const { nonce } = await this.get(`/accounts/${address}/nonce`);
+
+    return nonce;
   }
 
   async sale () {
@@ -85,7 +128,7 @@ class Backend {
       treasury,
 
       contractAddress
-    } = await get(this.url('/auction/constants'));
+    } = await this.get('/auction/constants');
 
     return {
       DUST_LIMIT: new BigNumber(DUST_LIMIT),
@@ -107,52 +150,42 @@ class Backend {
     };
   }
 
-  url (path) {
-    return `${this._url}/api${path}`;
-  }
-
-  async certifierAddress () {
-    const { certifier } = await get(this.url(`/certifier`));
-
-    return certifier;
-  }
-
-  async dummyDeal () {
-    const { accounted, refund, price, value } = await get(this.url(`/auction/dummy-deal`));
-
-    return {
-      accounted: new BigNumber(accounted),
-      price: new BigNumber(price),
-      value: new BigNumber(value),
-
-      refund
-    };
-  }
-
-  async getAddressInfo (address) {
-    const { eth, accounted, certified } = await get(this.url(`/accounts/${address}`));
-
-    return {
-      eth: new BigNumber(eth),
-      accounted: new BigNumber(accounted),
-      certified
-    };
-  }
-
-  async nonce (address) {
-    const { nonce } = await get(this.url(`/accounts/${address}/nonce`));
-
-    return nonce;
-  }
-
   async sendTx (tx) {
-    const { hash, requiredEth } = await post(this.url('/tx'), { tx });
+    const { hash, requiredEth } = await this.post('/tx', { tx });
 
     return { hash, requiredEth };
   }
 
+  async status () {
+    const {
+      block,
+      connected,
+
+      currentBonus,
+      currentPrice,
+      endTime,
+      halted,
+      tokensAvailable,
+      totalAccounted,
+      totalReceived
+    } = await this.get('/auction');
+
+    return {
+      block,
+      connected,
+
+      currentBonus: new BigNumber(currentBonus),
+      currentPrice: new BigNumber(currentPrice),
+      endTime: new Date(endTime),
+      halted,
+      tokensAvailable: new BigNumber(tokensAvailable),
+      totalAccounted: new BigNumber(totalAccounted),
+      totalReceived: new BigNumber(totalReceived)
+    };
+  }
+
   async txStatus (txHash) {
-    return get(this.url(`/auction/tx/${txHash}`));
+    return this.get(`/auction/tx/${txHash}`);
   }
 }
 

@@ -14,7 +14,7 @@ const RATE_LIMITED_ADDRESSES = 20;
 // TTL for an address per IP (in miliseconds)
 const RATE_LIMITER_TTL = 24 * 3600 * 1000;
 
-function error (ctx, code = 400, body = 'Invalid request') {
+function errorHandler (ctx, code = 400, body = 'Invalid request') {
   ctx.status = code;
   ctx.body = body;
 }
@@ -75,7 +75,7 @@ function verifySignature (address, message, signature) {
 }
 
 module.exports = {
-  error,
+  error: errorHandler,
   rateLimiter,
   verifySignature
 };

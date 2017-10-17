@@ -18,13 +18,18 @@ class ChartView extends Component {
 
   componentWillMount () {
     auctionStore.ready(() => {
-      if (!auctionStore.isActive()) {
+      const { now, beginTime } = auctionStore;
+
+      if (now < beginTime) {
         return this.props.history.replace('/');
       }
     });
   }
 
   render () {
+    const { beginTime, now, endTime } = auctionStore;
+    const hasNotEnded = now <= beginTime || now < endTime;
+
     return (
       <AppContainer
         hideStepper
@@ -63,9 +68,15 @@ class ChartView extends Component {
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <Chart />
 
-          <div>
-            * "contributed so far" includes the bonuses
-          </div>
+          {
+            hasNotEnded
+              ? (
+                <div>
+                  * "contributed so far" includes the bonuses
+                </div>
+              )
+              : null
+          }
         </div>
 
         <Text>

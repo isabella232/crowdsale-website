@@ -14,19 +14,29 @@ class ChartStore {
   totalAccounted = new BigNumber(0);
 
   constructor () {
-    auctionStore.ready(() => {
-      this.update();
+    auctionStore.ready(async () => {
+      await this.fetchChartData();
+      await this.computePriceChart();
+
+      this.setLoading(false);
       blockStore.on('block', this.update);
     });
   }
 
   formatChartData (data) {
     const { target, raised, time } = data;
+    const { DIVISOR } = auctionStore;
+    const { initialRaised = new BigNumber(0) } = this;
 
     return {
-      target: fromWei(target).round().toNumber(),
-      raised: raised ? fromWei(raised).toNumber() : raised,
-      time: time.getTime()
+      target: fromWei(target.div(DIVISOR).sub(initialRaised)).toNumber(),
+      raised: raised ? fromWei(raised.sub(initialRaised)).toNumber() : raised,
+      raw: {
+        target: fromWei(target.div(DIVISOR)),
+        raised: raised ? fromWei(raised) : raised
+      },
+      time: time.getTime(),
+      date: time
     };
   }
 
@@ -45,10 +55,6 @@ class ChartStore {
   update = async () => {
     const { totalAccounted } = auctionStore;
 
-    if (!this.priceChart || this.priceChart.length === 0) {
-      this.computePriceChart();
-    }
-
     // Only update the chart when the price updates
     const nextTotalAccounted = new BigNumber(totalAccounted);
     const update = !nextTotalAccounted.eq(this.totalAccounted) || !this.chart;
@@ -57,10 +63,15 @@ class ChartStore {
 
     if (update) {
       await this.updateChartData();
-    }
+    } else {
+      const { now } = auctionStore;
+      const target = auctionStore.getTarget(now, false);
 
-    if (this.loading) {
-      this.setLoading(false);
+      this.addChartData([ {
+        target: target,
+        raised: totalAccounted,
+        time: now
+      } ]);
     }
   }
 
@@ -104,16 +115,63 @@ class ChartStore {
     });
   }
 
+  addChartData (nextData) {
+    const nextChartData = this.chart.data.slice()
+      .concat(nextData.map((datum) => this.formatChartData(datum)))
+      .sort((dA, dB) => dA.time - dB.time);
+
+    this.setChart({ data: nextChartData });
+  }
+
   async updateChartData () {
-    const { beginTime, now } = auctionStore;
     let raisedRawData;
 
     try {
-      raisedRawData = await backend.chartData();
+      raisedRawData = await backend.chartData(this.lastUpdate || null);
     } catch (error) {
       return console.error(error);
     }
 
+    if (raisedRawData.length === 0) {
+      return;
+    }
+
+    this.lastUpdate = raisedRawData.slice(-1)[0].time;
+
+    const data = raisedRawData
+      .map((datum) => {
+        const { time, totalAccounted } = datum;
+        const date = new Date(time);
+        const value = new BigNumber(totalAccounted);
+        const target = auctionStore.getTarget(date);
+
+        return {
+          target: target,
+          raised: value,
+          time: date
+        };
+      });
+
+    this.addChartData(data);
+  }
+
+  async fetchChartData () {
+    const { beginTime, endTime, now: blockNow } = auctionStore;
+    const now = new Date(Math.min(endTime, blockNow));
+
+    let raisedRawData;
+
+    try {
+      raisedRawData = await backend.chartData(this.lastUpdate || null);
+    } catch (error) {
+      return console.error(error);
+    }
+
+    if (raisedRawData.length < 2) {
+      return console.warn('no chart data...');
+    }
+
+    // Order by DESC time
     const raisedData = raisedRawData
       .map((datum) => {
         const { time, totalAccounted } = datum;
@@ -122,6 +180,9 @@ class ChartStore {
         return { value, time: new Date(time) };
       })
       .sort((rA, rB) => rB.time - rA.time);
+
+    this.lastUpdate = raisedData[0].time;
+    this.initialRaised = raisedData.slice(-1)[0].value;
 
     const NUM_TICKS = 200;
     const data = [];
@@ -167,8 +228,8 @@ class ChartStore {
     });
 
     const formattedData = data
-      .sort((ptA, ptB) => ptA.time - ptB.time)
-      .map((datum) => this.formatChartData(datum));
+      .map((datum) => this.formatChartData(datum))
+      .sort((dA, dB) => dA.time - dB.time);
 
     this.setChart({
       data: formattedData

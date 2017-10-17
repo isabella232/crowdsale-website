@@ -75,7 +75,7 @@ class CustomChart extends Component {
     }
 
     const { width } = this.containerRef.getBoundingClientRect();
-    const height = width * 9 / 16;
+    const height = width * 1 / (4 / 3);
 
     this.computeScales({ size: { width, height } });
   };
@@ -94,17 +94,22 @@ class CustomChart extends Component {
     }
 
     const { beginTime, endTime, initialEndTime } = auctionStore;
-    // between the initial end and end + (end - begin) / 2
-    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime() * 1.5 - 0.5 * beginTime.getTime());
+    // between the initial end and end + (end - begin) / 4
+    const domainEnd = Math.min(initialEndTime.getTime(), endTime.getTime() * 1.25 - 0.25 * beginTime.getTime());
 
     const xDomain = [
-      beginTime.getTime(),
+      data[0].time,
       domainEnd
+      // initialEndTime.getTime()
     ];
 
     const yDomain = [
-      Math.round(data[0].target) * 1.25,
-      0
+      // Math.round(data[0].target) * 1.05,
+      Math.max(
+        data.slice(-1)[0].raised * 2.6,
+        data.slice(-1)[0].target * 1.15
+      ),
+      data[0].raised
     ];
 
     const chartWidth = width - margins.left - margins.right;
@@ -115,7 +120,7 @@ class CustomChart extends Component {
       .range([ 0, chartWidth ]);
 
     const yScale = d3.scalePow()
-      .exponent(0.17)
+      .exponent(0.75)
       .domain(yDomain)
       .range([ 0, chartHeight ]);
 
@@ -156,11 +161,11 @@ class CustomChart extends Component {
 
     const { width, height, margins } = chart;
     const { mouse, targetLine, targetFutureLine, raisedLine } = this.state;
-    const { now } = auctionStore;
+    const { endTime } = auctionStore;
     const { priceChart } = chartStore;
 
-    const nowTime = now.getTime();
-    const futurePriceData = priceChart.data.filter((datum) => datum.time >= nowTime);
+    const lastTime = data[data.length - 1].time;
+    const futurePriceData = priceChart.data.filter((datum) => datum.time >= lastTime);
 
     return (
       <div ref={this.setContainerRef} style={{ width: '100%' }}>
@@ -176,6 +181,15 @@ class CustomChart extends Component {
             width={width}
           >
             <g transform={`translate(${margins.left},${margins.top})`}>
+              { /** The line from current point to end price */ }
+              <Line
+                color='lightgray'
+                dashed
+                from={[ data[data.length - 1].time, data[data.length - 1].raised ]}
+                to={[ endTime.getTime(), data[data.length - 1].raised ]}
+                scales={[ xScale, yScale ]}
+                width={2}
+              />
 
               <Line
                 color='lightgray'
@@ -268,19 +282,27 @@ class CustomChart extends Component {
   renderNowLabels () {
     const { data } = this.props;
     const { chart, xScale, yScale } = this.state;
+    const { beginTime, now, endTime } = auctionStore;
     const { margins } = chart;
+    const hasNotEnded = now <= beginTime || now < endTime;
 
     return (
       <span>
-        <LabelTarget
-          style={{
-            left: xScale(data[data.length - 1].time) + margins.left,
-            top: yScale(data[data.length - 1].target) + margins.top - 5,
-            border: `1px solid ${borderColor}`
-          }}
-        >
-          CURRENT EFFECTIVE CAP
-        </LabelTarget>
+        {
+          hasNotEnded
+            ? (
+              <LabelTarget
+                style={{
+                  left: xScale(data[data.length - 1].time) + margins.left,
+                  top: yScale(data[data.length - 1].target) + margins.top - 5,
+                  border: `1px solid ${borderColor}`
+                }}
+              >
+                CURRENT EFFECTIVE CAP
+              </LabelTarget>
+            )
+            : null
+        }
         <LabelRaised
           style={{
             left: xScale(data[data.length - 1].time) + margins.left + 5,
@@ -288,14 +310,14 @@ class CustomChart extends Component {
             border: `1px solid ${borderColor}`
           }}
         >
-          CONTRIBUTED SO FAR*
+          {hasNotEnded ? 'CONTRIBUTED SO FAR*' : 'TOTAL CONTRIBUTIONS' }
         </LabelRaised>
       </span>
     );
   }
 
   renderPointedLabels () {
-    const { chart, mouse, xScale, yScale } = this.state;
+    const { chart, mouse, xScale, yScale, yDomain } = this.state;
 
     if (!mouse) {
       return null;
@@ -304,7 +326,7 @@ class CustomChart extends Component {
     const { beginTime, now } = auctionStore;
     const { data } = this.props;
     const time = xScale.invert(mouse.x);
-    const datum = data.find((datum) => datum.time >= time);
+    const datum = data.find((d) => d.time >= time);
 
     if (!datum || time < beginTime || time > now) {
       return null;
@@ -315,7 +337,7 @@ class CustomChart extends Component {
     return (
       <span>
         <PointedLabelContainer style={{
-          top: yScale(0) + chart.margins.top,
+          top: yScale(yDomain[1]) + chart.margins.top,
           left
         }}>
           <PointedLabel>
@@ -325,22 +347,16 @@ class CustomChart extends Component {
 
         <PointedLabelContainer style={{
           fontSize: '0.85rem',
-          top: yScale(data[0].target) + chart.margins.top,
+          top: yScale(yDomain[0]) + chart.margins.top,
           display: 'flex',
           flexDirection: 'column',
           left
         }}>
           <PointedLabel style={{
-            borderColor: targetColor
-          }}>
-            {this.renderFigure(datum.target)}
-          </PointedLabel>
-
-          <PointedLabel style={{
             borderColor: raisedColor,
             marginTop: '5px'
           }}>
-            {this.renderFigure(datum.raised)}
+            {this.renderFigure(datum.raw.raised)}
           </PointedLabel>
         </PointedLabelContainer>
       </span>
@@ -348,23 +364,10 @@ class CustomChart extends Component {
   }
 
   renderFigure (figure) {
-    let fFigure = Math.round(figure * 100) / 100;
-    let denom = '';
-
-    if (figure >= Math.pow(10, 9)) {
-      fFigure = Math.round(figure / Math.pow(10, 7)) / 100;
-      denom = 'G';
-    } else if (figure >= Math.pow(10, 6)) {
-      fFigure = Math.round(figure / Math.pow(10, 4)) / 100;
-      denom = 'M';
-    } else if (figure >= Math.pow(10, 3)) {
-      fFigure = Math.round(figure / Math.pow(10, 1)) / 100;
-      denom = 'K';
-    }
-
     return (
       <span>
-        <b>{fFigure}</b> <small>{denom}</small>ETH
+        <b>{figure.toFormat(0)}</b>
+        <small style={{ marginLeft: '0.4em' }}>ETH</small>
       </span>
     );
   }
@@ -399,7 +402,7 @@ class CustomChart extends Component {
     //   .zoom()
     //   .scaleExtent([ 1, Infinity ])
     //   .translateExtent([[0, 0], [width, height]])
-    //   .extent([[0, 0], [width, height]]);
+    //   .extent([[0, 0], [width, height]])
     //   .on('zoom', this.zoomed);
 
     this.svgRef = svgRef;
@@ -421,7 +424,7 @@ class CustomChart extends Component {
 export default class Chart extends Component {
   render () {
     const { chart, loading } = chartStore;
-    const isActive = auctionStore.isActive();
+    const { now, beginTime } = auctionStore;
 
     if (loading) {
       return (
@@ -437,7 +440,7 @@ export default class Chart extends Component {
       );
     }
 
-    if (!isActive) {
+    if (now < beginTime) {
       return (
         <div style={{ textAlign: 'center' }}>
           <Header as='h2'>

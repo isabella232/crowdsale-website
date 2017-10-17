@@ -5,6 +5,7 @@
 
 const EventEmitter = require('events');
 
+const logger = require('../logger');
 const { CachingTransport } = require('./transport');
 const { hex2big, hex2date } = require('../utils');
 
@@ -125,7 +126,7 @@ class ParityConnector extends EventEmitter {
           ._transport
           .request('eth_getTransactionReceipt', hash)
           .then((receipt) => {
-            console.log('receipt.blockNumber', receipt.blockNumber);
+            logger.info('receipt.blockNumber', receipt.blockNumber);
 
             if (receipt.blockNumber) {
               return resolve(receipt);
@@ -142,7 +143,7 @@ class ParityConnector extends EventEmitter {
             if (attempts >= 10) {
               reject(err);
             } else {
-              console.error('Error while getting receipt, will retry:', err.message);
+              logger.error('Error while getting receipt, will retry:', err.message);
 
               // Try again next block
               this.once('block', attempt);

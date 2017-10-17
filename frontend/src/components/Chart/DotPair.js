@@ -49,15 +49,15 @@ const DotPair = (props) => {
   const circles = [
     <circle
       cx={xScale(datum.time)}
-      cy={yScale(datum.raised)}
-      r={r}
-      {...raisedProps}
-    />,
-    <circle
-      cx={xScale(datum.time)}
       cy={yScale(datum.target)}
       r={r}
       {...targetProps}
+    />,
+    <circle
+      cx={xScale(datum.time)}
+      cy={yScale(datum.raised)}
+      r={r}
+      {...raisedProps}
     />
   ];
 

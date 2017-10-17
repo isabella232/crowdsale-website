@@ -94,13 +94,13 @@ class AccountStore {
       this.unwatchPayment();
 
       if (this.certified) {
+        await buyStore.purchase(this.address, this.spending, this.privateKey);
         appStore.goto('purchase');
-        return buyStore.purchase(this.address, this.spending, this.privateKey);
       }
 
       if (!this.paid) {
+        await feeStore.sendPayment(this.address, this.privateKey);
         appStore.goto('fee-payment');
-        return feeStore.sendPayment(this.address, this.privateKey);
       }
 
       // If not certified but already paid

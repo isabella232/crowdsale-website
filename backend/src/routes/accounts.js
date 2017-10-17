@@ -13,7 +13,7 @@ function get ({ sale, connector, certifier }) {
     prefix: '/api/accounts'
   });
 
-  router.get('/:address', async (ctx, next) => {
+  router.get('/:address', async (ctx) => {
     const { address } = ctx.params;
 
     if (!isValidAddress(address)) {
@@ -35,7 +35,7 @@ function get ({ sale, connector, certifier }) {
     };
   });
 
-  router.get('/:address/balance', async (ctx, next) => {
+  router.get('/:address/balance', async (ctx) => {
     const { address } = ctx.params;
 
     if (!isValidAddress(address)) {
@@ -51,7 +51,7 @@ function get ({ sale, connector, certifier }) {
     };
   });
 
-  router.get('/:address/nonce', async (ctx, next) => {
+  router.get('/:address/nonce', async (ctx) => {
     const { address } = ctx.params;
 
     if (!isValidAddress(address)) {

@@ -4,12 +4,15 @@
 'use strict';
 
 const BigNumber = require('bignumber.js');
+const config = require('config');
 const { uniq } = require('lodash');
 
 const { SecondPriceAuction } = require('../abis');
 const Contract = require('../api/contract');
-const log = require('../logger');
-const { int2date } = require('../utils');
+const logger = require('../logger');
+const { int2date, int2hex, fromWei } = require('../utils');
+
+const saleMinedBlock = config.get('saleMinedBlock');
 
 const STATICS = [
   'DUST_LIMIT',
@@ -39,7 +42,8 @@ class Sale extends Contract {
   constructor (connector, address) {
     super(connector, address, SecondPriceAuction, STATICS);
 
-    this._chartData = [];
+    this._saleLogs = [];
+    this._chart = [];
     this.init();
   }
 
@@ -52,36 +56,120 @@ class Sale extends Contract {
 
   async init () {
     try {
-      await this.fetchChartLogs();
-      await this.subscribe([ 'Buyin', 'Injected' ], (logs) => this.addChartLogs(logs));
+      await this.fetchLogs();
+
+      // Re-fetch the logs every 15 minutes
+      setInterval(() => this.fetchLogs(), 1000 * 60 * 15);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   }
 
   async update () {
     try {
       await super.update();
-      log.trace(`Price is ${this.values.currentPrice.toFormat()} wei`);
+      // logger.trace(`Price is ${this.values.currentPrice.toFormat()} wei`);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 
-  get chartData () {
-    return this._chartData;
+  get chart () {
+    return this._chart;
   }
 
-  async fetchChartLogs () {
+  get saleLogs () {
+    return this._saleLogs;
+  }
+
+  checkLogs () {
+    if (this.saleLogs.length < 1) {
+      return;
+    }
+
+    const lastLogValue = fromWei(this.saleLogs.slice(-1)[0].totalAccounted);
+    const currentValue = fromWei(this.values.totalAccounted);
+
+    if (!lastLogValue.eq(currentValue)) {
+      logger.warn(`Invalid log values have been found! { last: ${lastLogValue.toFormat(3)}, current: ${currentValue.toFormat(3)} }`);
+    }
+  }
+
+  async fetchLogs () {
+    if (!this.values.beginTime) {
+      await this.update();
+    }
+
+    if (this.subId) {
+      this.unsubscribe(this.subId);
+      this.subId = null;
+    }
+
+    const startTime = Date.now();
     const logs = await this.logs([
       'Buyin',
       'Injected'
-    ]);
+    ], { fromBlock: saleMinedBlock });
 
-    await this.addChartLogs(logs);
+    logger.trace(`took ${(Date.now() - startTime) / 1000}s to fetch ${logs.length} logs`);
+    await this.addLogs(logs, { init: true });
+
+    this.subId = await this.subscribe([ 'Buyin', 'Injected' ], async (sLogs) => {
+      logger.trace(`got ${sLogs.length} new logs!`);
+      await this.addLogs(sLogs);
+    });
   }
 
-  async addChartLogs (logs) {
+  async addLogs (logs, { init = false } = {}) {
+    const fLogs = await this.formatLogs(logs, { init });
+
+    // Sort logs in ASC time
+    const nextLogs = [].concat(this.saleLogs, fLogs);
+
+    // Link to each block the log with the highest amount
+    const logPerBlock = nextLogs
+      .reduce((data, log) => {
+        const key = log.blockNumber;
+
+        // only take the log with the highest value
+        if (!data[key] || data[key].totalAccounted.lt(log.totalAccounted)) {
+          data[key] = log;
+        }
+
+        return data;
+      }, {});
+
+    // Sort logs in ASC time
+    this._saleLogs = Object.values(logPerBlock)
+      .sort((logA, logB) => logA.time - logB.time);
+
+    const beginTime = new Date(this.values.beginTime.mul(1000).toNumber());
+
+    const firstSaleLogIndex = this.saleLogs.findIndex((log) => log.time >= beginTime);
+    // Create a fake log for the beginning of the sale
+    const startSaleLogs = firstSaleLogIndex >= 0
+      ? {
+        time: new Date(beginTime.getTime() - 500),
+        totalAccounted: int2hex(this.saleLogs[firstSaleLogIndex - 1].totalAccounted)
+      }
+      : null;
+
+    const nextChart = this.saleLogs
+      .filter((log) => log.time >= beginTime)
+      .map((log) => ({
+        totalAccounted: int2hex(log.totalAccounted),
+        time: log.time
+      }));
+
+    this._chart = startSaleLogs
+      ? [ startSaleLogs ].concat(nextChart)
+      : nextChart;
+
+    // Check if logs are correct
+    this.checkLogs();
+  }
+
+  async formatLogs (logs, { init = false } = {}) {
     try {
       const blockNumbers = uniq(logs.map((log) => log.blockNumber));
       const blocks = await Promise.all(blockNumbers.map((bn) => this.connector.getBlock(bn)));
@@ -93,12 +181,29 @@ class Sale extends Contract {
         log.timestamp = int2date(block.timestamp);
       });
 
-      let totalAccounted = this._chartData.length > 0
-        ? new BigNumber(this._chartData[this._chartData.length - 1].totalAccounted)
+      // Get the last total accounted value known
+      let totalAccounted = !init && this.saleLogs.length > 0
+        ? new BigNumber(this.saleLogs.slice(-1)[0].totalAccounted)
         : new BigNumber(0);
 
-      const parsedLogs = logs
-        .sort((logA, logB) => logA.timestamp - logB.timestamp)
+      // Sort logs per block, and tx index
+      const sortedLogs = logs
+        .sort((logA, logB) => {
+          const bnA = new BigNumber(logA.blockNumber);
+          const bnB = new BigNumber(logB.blockNumber);
+          const bnDiff = bnA.sub(bnB);
+
+          if (!bnDiff.eq(0)) {
+            return bnDiff.toNumber();
+          }
+
+          const tidxA = new BigNumber(logA.transactionIndex);
+          const tidxB = new BigNumber(logB.transactionIndex);
+
+          return tidxA.sub(tidxB);
+        });
+
+      return sortedLogs
         .map((log) => {
           const { accounted } = log.params;
 
@@ -110,29 +215,9 @@ class Sale extends Contract {
             time: log.timestamp
           };
         });
-
-      const logPerBlock = parsedLogs.reduce((data, log) => {
-        const key = log.blockNumber;
-
-        if (!data[key] || data[key].totalAccounted.lt(log.totalAccounted)) {
-          data[key] = log;
-        }
-
-        return data;
-      }, {});
-
-      const uniqLogs = Object.keys(logPerBlock).map((key) => {
-        const log = logPerBlock[key];
-
-        return {
-          time: log.time,
-          totalAccounted: '0x' + log.totalAccounted.toString(16)
-        };
-      });
-
-      this._chartData = this.chartData.concat(uniqLogs);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
+      return [];
     }
   }
 }

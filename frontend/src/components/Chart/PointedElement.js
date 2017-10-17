@@ -24,7 +24,8 @@ export default class PointedElement extends Component {
 
     const { beginTime, now } = auctionStore;
     const time = xScale.invert(mouse.x);
-    const datum = data.find((datum) => datum.time >= time);
+    const yDomain = yScale.domain();
+    const datum = data.find((d) => d.time >= time);
 
     if (!datum || time < beginTime || time > now) {
       return null;
@@ -35,8 +36,8 @@ export default class PointedElement extends Component {
         <Line
           color='lightgray'
           dashed
-          from={[ datum.time, data[0].target ]}
-          to={[ datum.time, 0 ]}
+          from={[ datum.time, yDomain[1] ]}
+          to={[ datum.time, yDomain[0] ]}
           scales={[ xScale, yScale ]}
           width={2}
         />

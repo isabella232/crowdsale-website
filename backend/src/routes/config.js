@@ -17,7 +17,7 @@ async function get ({ connector }) {
   const picopsUrl = config.get('picopsUrl');
   const saleWebsite = config.get('saleWebsite');
 
-  router.get('/config', async (ctx, next) => {
+  router.get('/config', async (ctx) => {
     ctx.body = {
       chainId,
       etherscan,
