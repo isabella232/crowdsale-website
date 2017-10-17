@@ -12,6 +12,7 @@
   "dependencies": {
     "@parity/ethkey.js": "0.2.2",
     "@parity/wordlist": "1.1.0",
+    "babel-polyfill": "^6.26.0",
     "bignumber.js": "4.0.4",
     "blockies": "0.0.2",
     "copy-to-clipboard": "3.0.8",
@@ -41,7 +42,8 @@
     "semantic-ui-css": "2.2.12",
     "semantic-ui-react": "0.73.1",
     "store": "2.0.12",
-    "styled-components": "2.1.2"
+    "styled-components": "2.1.2",
+    "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
     "babel-core": "6.26.0",
