@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 import auctionStore from '../../stores/auction.store';
+import chartStore from './store';
 
 import DotPair from './DotPair';
 import Line from './Line';
@@ -22,12 +23,14 @@ export default class PointedElement extends Component {
       return null;
     }
 
-    const { beginTime, now } = auctionStore;
+    const { beginTime } = auctionStore;
+    const { priceChart } = chartStore;
     const time = xScale.invert(mouse.x);
     const yDomain = yScale.domain();
-    const datum = data.find((d) => d.time >= time);
+    const datum = data.find((d) => d.time >= time) ||
+      priceChart.data.find((d) => d.time >= time);
 
-    if (!datum || time < beginTime || time > now) {
+    if (!datum || time < beginTime) {
       return null;
     }
 
@@ -47,6 +50,8 @@ export default class PointedElement extends Component {
           r={3}
           xScale={xScale}
           yScale={yScale}
+          raised={!!datum.raised}
+          target={!datum.raised}
         />
       </g>
     );
