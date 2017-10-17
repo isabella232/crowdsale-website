@@ -22,7 +22,7 @@ function get ({ sale, connector, certifier }) {
 
     await rateLimiter(address, ctx.remoteAddress);
 
-    const [ eth, [ accounted ], certified ] = await Promise.all([
+    const [ eth, [ accounted, received ], certified ] = await Promise.all([
       connector.balance(address),
       sale.methods.buyins(address).get(),
       certifier.isCertified(address)
@@ -31,7 +31,8 @@ function get ({ sale, connector, certifier }) {
     ctx.body = {
       certified,
       eth: int2hex(eth),
-      accounted: int2hex(accounted)
+      accounted: int2hex(accounted),
+      received: int2hex(received)
     };
   });
 

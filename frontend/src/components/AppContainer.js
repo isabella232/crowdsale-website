@@ -10,6 +10,7 @@ import BigStepper from './BigStepper.js';
 import Footer from './Footer';
 import MainLogo from '../images/MainLogo.svg';
 import Stepper from './Stepper';
+import Status from './Status';
 
 const baseContentStyle = {
   backgroundColor: 'white',
@@ -49,6 +50,7 @@ export default class AppContainer extends Component {
           <div style={headerStyle}>
             <img src={MainLogo} style={mainLogoStyle} />
           </div>
+          <Status />
           {
             hideStepper
               ? null
