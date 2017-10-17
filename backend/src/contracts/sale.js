@@ -147,7 +147,7 @@ class Sale extends Contract {
 
     const firstSaleLogIndex = this.saleLogs.findIndex((log) => log.time >= beginTime);
     // Create a fake log for the beginning of the sale
-    const startSaleLogs = firstSaleLogIndex >= 0
+    const startSaleLogs = firstSaleLogIndex >= 1
       ? {
         time: new Date(beginTime.getTime() - 500),
         totalAccounted: int2hex(this.saleLogs[firstSaleLogIndex - 1].totalAccounted)
