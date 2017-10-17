@@ -116,7 +116,11 @@ class ChartStore {
   }
 
   addChartData (nextData) {
-    const nextChartData = this.chart.data.slice()
+    const prevData = this.chart && this.chart.data
+      ? this.chart.data.slice()
+      : [];
+
+    const nextChartData = prevData
       .concat(nextData.map((datum) => this.formatChartData(datum)))
       .sort((dA, dB) => dA.time - dB.time);
 
