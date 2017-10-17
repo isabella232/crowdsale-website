@@ -86,26 +86,30 @@ class AccountStore {
   }
 
   async checkPayment () {
-    const { eth: balance, certified } = await backend.getAddressInfo(this.address);
-
-    this.setInfo({ balance, certified });
+    await this.fetchInfo();
 
     if (this.missingWei.eq(0)) {
+      console.log('got enough funds');
       this.unwatchPayment();
 
       if (this.certified) {
+        console.log('certified, sending purchase');
         await buyStore.purchase(this.address, this.spending, this.privateKey);
-        appStore.goto('purchase');
+        return appStore.goto('purchase');
       }
 
       if (!this.paid) {
+        console.log('have not paid, sending fee payment');
         await feeStore.sendPayment(this.address, this.privateKey);
-        appStore.goto('fee-payment');
+        return appStore.goto('fee-payment');
       }
 
       // If not certified but already paid
-      appStore.goto('picops');
-    } else if (appStore.step !== APP_STEPS['payment']) {
+      console.log('paid but not certified, going to picops');
+      return appStore.goto('picops');
+    }
+
+    if (appStore.step !== APP_STEPS['payment']) {
       // Go to payment page if not there already
       appStore.goto('payment');
     }
@@ -117,9 +121,15 @@ class AccountStore {
     }
 
     const { accounted, eth: balance, certified } = await backend.getAddressInfo(this.address);
-    const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
 
-    this.setInfo({ accounted, balance, certified, paid });
+    // No need to fetch paid info again if paid
+    if (!this.paid) {
+      const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
+
+      this.setInfo({ paid });
+    }
+
+    this.setInfo({ accounted, balance, certified });
   }
 
   /**

@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react';
 import React, { Component } from 'react';
-import { Header, Loader } from 'semantic-ui-react';
+import { Button, Header, Loader } from 'semantic-ui-react';
 import QRCode from 'qrcode.react';
 
 import AccountInfo from '../AccountInfo';
 
-// import appStore from '../../stores/app.store';
+import appStore from '../../stores/app.store';
 import accountStore from '../../stores/account.store';
 
 import { fromWei } from '../../utils';
@@ -21,7 +21,7 @@ export default class Payment extends Component {
   }
 
   render () {
-    const { address, missingWei } = accountStore;
+    const { address, missingWei, spending } = accountStore;
     const link = `web+ethereum:${address}?value=${missingWei.toNumber()}&gas=21000`;
     const feeStyle = {
       padding: '0.1em 0.25em',
@@ -35,9 +35,13 @@ export default class Payment extends Component {
           PLEASE ADD <big style={feeStyle}>{fromWei(missingWei).toFormat()} ETH</big> TO THE ADDRESS BELOW
         </Header>
 
+        <Header as='h4'>
+          (CONTRIBUTING <span style={feeStyle}>{fromWei(spending).toFormat()} ETH</span> TO THE AUCTION)
+        </Header>
+
         <div style={{
           fontSize: '1em',
-          margin: '2em 0 0',
+          margin: '1em 0 0',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center'
@@ -63,8 +67,18 @@ export default class Payment extends Component {
             <Loader active inline size='tiny' style={{ marginRight: '0.5em' }} />
             <span>Waiting for transaction...</span>
           </div>
+
+          <div>
+            <Button secondary onClick={this.handleCancel}>
+              Cancel
+            </Button>
+          </div>
         </div>
       </div>
     );
+  }
+
+  handleCancel = () => {
+    appStore.goto('contribute');
   }
 }
