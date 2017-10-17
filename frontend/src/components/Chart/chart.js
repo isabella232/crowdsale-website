@@ -323,12 +323,13 @@ class CustomChart extends Component {
       return null;
     }
 
-    const { beginTime, now } = auctionStore;
+    const { priceChart } = chartStore;
     const { data } = this.props;
     const time = xScale.invert(mouse.x);
-    const datum = data.find((d) => d.time >= time);
+    const datum = data.find((d) => d.time >= time) ||
+      priceChart.data.find((d) => d.time >= time);
 
-    if (!datum || time < beginTime || time > now) {
+    if (!datum) {
       return null;
     }
 
@@ -345,20 +346,41 @@ class CustomChart extends Component {
           </PointedLabel>
         </PointedLabelContainer>
 
-        <PointedLabelContainer style={{
-          fontSize: '0.85rem',
-          top: yScale(yDomain[0]) + chart.margins.top,
-          display: 'flex',
-          flexDirection: 'column',
-          left
-        }}>
-          <PointedLabel style={{
-            borderColor: raisedColor,
-            marginTop: '5px'
-          }}>
-            {this.renderFigure(datum.raw.raised)}
-          </PointedLabel>
-        </PointedLabelContainer>
+        {
+          datum.raw.raised
+            ? (
+              <PointedLabelContainer style={{
+                fontSize: '0.85rem',
+                top: yScale(yDomain[0]) + chart.margins.top,
+                display: 'flex',
+                flexDirection: 'column',
+                left
+              }}>
+                <PointedLabel style={{
+                  borderColor: raisedColor,
+                  marginTop: '5px'
+                }}>
+                  {this.renderFigure(datum.raw.raised)}
+                </PointedLabel>
+              </PointedLabelContainer>
+            )
+            : (
+              <PointedLabelContainer style={{
+                fontSize: '0.85rem',
+                top: yScale(yDomain[0]) + chart.margins.top,
+                display: 'flex',
+                flexDirection: 'column',
+                left
+              }}>
+                <PointedLabel style={{
+                  borderColor: targetColor,
+                  marginTop: '5px'
+                }}>
+                  {this.renderFigure(datum.raw.target)}
+                </PointedLabel>
+              </PointedLabelContainer>
+            )
+        }
       </span>
     );
   }

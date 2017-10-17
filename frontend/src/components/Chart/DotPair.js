@@ -30,6 +30,7 @@ const AnimatedCircle = animate
 
 const DotPair = (props) => {
   const { animated, datum, plain, r, xScale, yScale } = props;
+  const { raised = true, target = true } = props;
 
   const defaultProps = plain
     ? {}
@@ -46,20 +47,39 @@ const DotPair = (props) => {
     ? { ...defaultProps, fill: targetColor }
     : { ...defaultProps, stroke: targetColor };
 
-  const circles = [
-    <circle
-      cx={xScale(datum.time)}
-      cy={yScale(datum.target)}
-      r={r}
-      {...targetProps}
-    />,
-    <circle
-      cx={xScale(datum.time)}
-      cy={yScale(datum.raised)}
-      r={r}
-      {...raisedProps}
-    />
-  ];
+  const circles = [];
+
+  if (target) {
+    const cx = xScale(datum.time);
+    const cy = yScale(datum.target);
+
+    if (!Number.isNaN(cx) && !Number.isNaN(cy)) {
+      circles.push((
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          {...targetProps}
+        />
+      ));
+    }
+  }
+
+  if (raised) {
+    const cx = xScale(datum.time);
+    const cy = yScale(datum.raised);
+
+    if (!Number.isNaN(cx) && !Number.isNaN(cy)) {
+      circles.push((
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          {...raisedProps}
+        />
+      ));
+    }
+  }
 
   if (!animated) {
     return (
@@ -85,7 +105,9 @@ DotPair.propTypes = {
   yScale: PropTypes.func.isRequired,
 
   animated: PropTypes.bool,
-  plain: PropTypes.bool
+  plain: PropTypes.bool,
+  raised: PropTypes.bool,
+  target: PropTypes.bool
 };
 
 DotPair.defaultProps = {
