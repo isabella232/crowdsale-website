@@ -6,10 +6,16 @@
 const keccak = require('keccak');
 const BigNumber = require('bignumber.js');
 
+const logger = require('./logger');
+
 function validateHex (hex) {
   if (!isValidHex(hex)) {
     throw new Error('hex must be a `0x` prefixed string');
   }
+}
+
+function fromWei (value) {
+  return new BigNumber(value).div(Math.pow(10, 18));
 }
 
 function isValidHex (hex) {
@@ -74,7 +80,7 @@ function buf2big (buf) {
 const big2hex = int2hex;
 
 function pause (time) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(resolve, time);
   });
 }
@@ -144,7 +150,7 @@ async function waitForConfirmations (connector, tx) {
   // Wait for the transaction to be mined
   await connector.transactionReceipt(tx);
 
-  console.warn('waiting for 12 confirmations for ' + tx);
+  logger.warn('waiting for 12 confirmations for ' + tx);
 
   return new Promise((resolve, reject) => {
     // Clean-up and reject after 10 minutes
@@ -179,7 +185,7 @@ async function waitForConfirmations (connector, tx) {
             clean();
             reject(error);
           } else {
-            console.error(error);
+            logger.error(error);
           }
         });
     };
@@ -194,6 +200,7 @@ module.exports = {
   buf2big,
   buf2hex,
   ejs2val,
+  fromWei,
   hex2bool,
   hex2date,
   hex2int,

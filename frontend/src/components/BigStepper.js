@@ -30,17 +30,17 @@ export default class BigStepper extends Component {
       { name: 'Contribute to the Auction' }
     ];
 
-    const elements = steps.reduce((elements, step, index) => {
+    const elements = steps.reduce((elts, step, index) => {
       const last = index === steps.length - 1;
       const done = index <= current;
 
-      elements.push(this.renderStep(step, index, done, last));
+      elts.push(this.renderStep(step, index, done, last));
 
       if (!last) {
-        elements.push(this.renderArrow(index));
+        elts.push(this.renderArrow(index));
       }
 
-      return elements;
+      return elts;
     }, []);
 
     return (

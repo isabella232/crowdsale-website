@@ -4,6 +4,7 @@
 'use strict';
 
 const Router = require('koa-router');
+const querystring = require('querystring');
 
 const { error: errorHandler } = require('./utils');
 const { int2hex, int2date, isValidHex } = require('../utils');
@@ -13,7 +14,7 @@ function get ({ sale, connector }) {
     prefix: '/api'
   });
 
-  router.get('/auction/tx/:hash', async (ctx, next) => {
+  router.get('/auction/tx/:hash', async (ctx) => {
     const { hash } = ctx.params;
 
     if (!isValidHex(hash)) {
@@ -64,11 +65,26 @@ function get ({ sale, connector }) {
     };
   });
 
-  router.get('/auction/chart', async (ctx, next) => {
-    ctx.body = sale.chartData;
+  router.get('/auction/chart', async (ctx) => {
+    const { since } = querystring.parse(ctx.querystring);
+    const data = sale.chart;
+
+    if (!since) {
+      ctx.body = data;
+      return;
+    }
+
+    const time = parseInt(since);
+    const date = new Date(Number.isNaN(time) || time.toString() !== since ? since : time);
+
+    if (isNaN(date.getTime())) {
+      return errorHandler(ctx, 400, 'Invalid date');
+    }
+
+    ctx.body = data.filter((datum) => datum.time > date);
   });
 
-  router.get('/auction/dummy-deal', async (ctx, next) => {
+  router.get('/auction/dummy-deal', async (ctx) => {
     const { accounted, refund, price, value } = await sale.dummyDeal();
 
     ctx.body = {

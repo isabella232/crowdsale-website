@@ -9,21 +9,19 @@ const Router = require('koa-router');
 const { buf2hex, buf2big } = require('../utils');
 const { rateLimiter, error } = require('./utils');
 
-async function get ({ sale, connector, certifier }) {
+async function get ({ connector, certifier }) {
   const router = new Router({
     prefix: '/api'
   });
 
   // Wait for a new block to be fetched
-  await new Promise((resolve) => {
-    connector.once('block', resolve);
-  });
+  if (!connector.block) {
+    await new Promise((resolve) => {
+      connector.once('block', resolve);
+    });
+  }
 
   router.get('/block/hash', (ctx) => {
-    if (!connector.block) {
-      throw new Error('Could not fetch latest block');
-    }
-
     ctx.body = { hash: connector.block.hash };
   });
 
@@ -35,7 +33,7 @@ async function get ({ sale, connector, certifier }) {
     ctx.body = { date: new Date(connector.block.timestamp) };
   });
 
-  router.post('/tx', async (ctx, next) => {
+  router.post('/tx', async (ctx) => {
     const { tx } = ctx.request.body;
 
     const txBuf = Buffer.from(tx.substring(2), 'hex');
@@ -75,7 +73,7 @@ async function get ({ sale, connector, certifier }) {
     ctx.body = { hash };
   });
 
-  router.get('/certifier', async (ctx, next) => {
+  router.get('/certifier', async (ctx) => {
     const { address } = certifier;
 
     ctx.body = { certifier: address };

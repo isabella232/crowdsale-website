@@ -74,6 +74,7 @@ class FeeStore {
       this.setTransaction(hash);
     } catch (error) {
       appStore.addError(error);
+      appStore.goto('contribute');
     }
   }
 

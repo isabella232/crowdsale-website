@@ -6,6 +6,7 @@
 const BigNumber = require('bignumber.js');
 const EthereumAbi = require('ethereumjs-abi');
 
+const logger = require('../logger');
 const { buf2hex, ejs2val, hex2buf } = require('../utils');
 
 class Event {
@@ -247,9 +248,11 @@ class Contract {
           return;
         }
 
-        callback(this.parse(logs));
+        const filteredLogs = logs.filter((log) => log.address === this.address);
+
+        callback(this.parse(filteredLogs));
       } catch (error) {
-        console.error(error);
+        logger.error(error);
       }
     });
   }
@@ -267,7 +270,7 @@ class Contract {
       const event = this._events.get(topic);
 
       if (!event) {
-        console.warn('could not find an event for this log', log.topics);
+        logger.warn('could not find an event for this log', log.topics);
         return log;
       }
 
@@ -300,7 +303,8 @@ class Contract {
     return filterId;
   }
 
-  unsubscribe (filterId) {
+  async unsubscribe (filterId) {
+    await this.transport.request('eth_uninstallFilter', filterId);
     this.filters = this.filters.filter((f) => f.id !== filterId);
   }
 
@@ -379,8 +383,8 @@ class Contract {
         data,
         gasPrice: '0x0'
       })
-      .then((data) => {
-        return method.decode(data);
+      .then((result) => {
+        return method.decode(result);
       });
   }
 
@@ -396,7 +400,7 @@ class Contract {
       .then((logs) => this.parse(logs));
   }
 
-  _post (method, args = [], options = {}) {
+  _post () {
     throw new Error('Not Implemented');
   }
 }

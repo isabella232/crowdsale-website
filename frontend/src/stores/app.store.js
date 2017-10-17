@@ -60,12 +60,12 @@ class AppStore extends EventEmitter {
     super();
     this.load();
 
-    history.listen((location, action) => {
-      if (action === 'REPLACE') {
+    history.listen((location, haction) => {
+      if (haction === 'REPLACE') {
         return;
       }
 
-      // console.warn('history event', location, action);
+      // console.warn('history event', location, haction);
 
       if (location.state && location.state.goto && !this.halted) {
         this.goto(location.state.goto);
@@ -180,7 +180,12 @@ class AppStore extends EventEmitter {
 
   addError (error) {
     if (!error) {
-      return console.error('no error given....', error);
+      return;
+    }
+
+    // If it's not a client error, don't show it
+    if (error.status && (error.status < 400 || error.status >= 500)) {
+      return console.error(error);
     }
 
     console.error(error);

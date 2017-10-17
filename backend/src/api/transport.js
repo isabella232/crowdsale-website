@@ -5,6 +5,7 @@
 
 const WebSocket = require('ws');
 
+const logger = require('../logger');
 const { hex2int, pause, keccak256 } = require('../utils');
 
 class Subscription {
@@ -150,18 +151,18 @@ class RpcTransport {
    */
   connect () {
     this._ws = new Promise((resolve, reject) => {
-      console.log('Connecting to the Parity node...');
+      logger.info('Connecting to the Parity node...');
 
       const ws = new WebSocket(this._url, {
         perMessageDeflate: false
       });
 
       ws.on('error', (e) => {
-        console.error('WebSocket error:', e.code);
+        logger.error('WebSocket error:', e.code);
       });
 
       ws.on('open', () => {
-        console.log('Connected to the Parity node!');
+        logger.info('Connected to the Parity node!');
 
         this._connected = true;
 
@@ -173,7 +174,7 @@ class RpcTransport {
       ws.on('close', async () => {
         this._connected = false;
 
-        console.error('Disconnected from the Parity node!');
+        logger.error('Disconnected from the Parity node!');
 
         await pause(1000);
 
@@ -197,14 +198,14 @@ class RpcTransport {
     const requests = this._requests;
 
     if (message.jsonrpc !== '2.0') {
-      console.error('Invalid JSON');
+      logger.error('Invalid JSON');
     }
 
     if (typeof message.id === 'number' && (message.result !== undefined || message.error !== undefined)) {
       const { id, result, error } = message;
 
       if (!requests.has(id)) {
-        console.error(`Invalid JSON-RPC response id: ${id}`);
+        logger.error(`Invalid JSON-RPC response id: ${id}`);
 
         return;
       }
@@ -224,7 +225,7 @@ class RpcTransport {
       const subscription = this._subscriptions.get(subId);
 
       if (error) {
-        console.error(`Subscription error on ${subscription.method}:`, error);
+        logger.error(`Subscription error on ${subscription.method}:`, error);
 
         return;
       }
