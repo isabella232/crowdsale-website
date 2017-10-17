@@ -95,11 +95,12 @@ class Backend {
   }
 
   async getAddressInfo (address) {
-    const { eth, accounted, certified } = await this.get(`/accounts/${address}`);
+    const { eth, accounted, certified, received } = await this.get(`/accounts/${address}`);
 
     return {
       eth: new BigNumber(eth),
       accounted: new BigNumber(accounted),
+      received: new BigNumber(received),
       certified
     };
   }

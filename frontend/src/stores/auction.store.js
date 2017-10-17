@@ -29,6 +29,7 @@ class AuctionStore {
   @observable currentPrice = new BigNumber(0);
   @observable endTime = new Date();
   @observable halted = false;
+  @observable loaded = false;
   @observable tokensAvailable = new BigNumber(0);
   @observable totalAccounted = new BigNumber(0);
   @observable totalReceived = new BigNumber(0);
@@ -78,7 +79,7 @@ class AuctionStore {
     }
 
     this._readyCallbacks.forEach((cb) => cb());
-    this.loaded = true;
+    this.setLoaded(true);
   }
 
   ready (cb) {
@@ -249,6 +250,10 @@ class AuctionStore {
     }
 
     return new Date(this.block.timestamp);
+  }
+
+  @action setLoaded (loaded) {
+    this.loaded = loaded;
   }
 
   async refresh () {

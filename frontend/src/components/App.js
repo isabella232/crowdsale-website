@@ -25,7 +25,6 @@ import ChartView from './ChartView';
 import InactiveAuction from './InactiveAuction';
 import DotsQuery from './DotsQuery';
 import Messages from './Messages';
-import Status from './Status';
 import Warning from './Warning';
 
 import appStore, { STEPS } from '../stores/app.store';
@@ -82,7 +81,6 @@ class MainApp extends Component {
 
     return (
       <div>
-        <Status />
         <Warning />
         {this.renderStep(step)}
       </div>

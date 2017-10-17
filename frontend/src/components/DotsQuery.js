@@ -38,6 +38,7 @@ export default class DotsQuery extends Component {
         </Header>
         <AddressInput
           onChange={this.handleWhoChange}
+          onEnter={this.handleQuery}
           value={who}
         />
         {this.renderResult()}
@@ -57,7 +58,8 @@ export default class DotsQuery extends Component {
       return null;
     }
 
-    const { accounted } = results;
+    const { accounted, received } = results;
+    const bonus = accounted.mul(100).div(received).sub(100);
     const dots = auctionStore.weiToDot(accounted);
     const { currentPrice, DIVISOR } = auctionStore;
 
@@ -71,9 +73,20 @@ export default class DotsQuery extends Component {
         </p>
         <div>
           <Statistic size='huge' style={{ marginRight: '4em' }}>
-            <Statistic.Value>{fromWei(accounted).toFormat()}</Statistic.Value>
-            <Statistic.Label>ETH</Statistic.Label>
+            <Statistic.Value>{fromWei(received).toFormat()}</Statistic.Value>
+            <Statistic.Label>CONTRIBUTION (ETH)</Statistic.Label>
           </Statistic>
+
+          {
+            bonus.gt(0)
+              ? (
+                <Statistic size='large' style={{ marginRight: '3em' }}>
+                  <Statistic.Value>{bonus.toFormat(2)}</Statistic.Value>
+                  <Statistic.Label>BONUS (%)</Statistic.Label>
+                </Statistic>
+              )
+              : null
+          }
 
           <Statistic size='huge'>
             <Statistic.Value>{dots.toFormat()}</Statistic.Value>
@@ -83,7 +96,7 @@ export default class DotsQuery extends Component {
 
         <div style={{ marginTop: '1em' }}>
           <Statistic size='small' color='grey'>
-            <Statistic.Value>{fromWei(currentPrice.mul(DIVISOR)).toFormat(5)}</Statistic.Value>
+            <Statistic.Value>{fromWei(currentPrice.mul(DIVISOR)).toFormat(3)}</Statistic.Value>
             <Statistic.Label>ETH / DOT</Statistic.Label>
           </Statistic>
         </div>
@@ -93,21 +106,25 @@ export default class DotsQuery extends Component {
 
   async fetchInfo (who) {
     try {
-      const { accounted } = await backend.getAddressInfo(who);
+      const { accounted, received } = await backend.getAddressInfo(who);
 
-      this.setState({ results: { accounted } });
+      return { results: { accounted, received } };
     } catch (error) {
       console.error(error);
     }
+    return {};
   }
 
-  handleQuery = () => {
+  handleQuery = async () => {
     const { who } = this.state;
 
     if (isValidAddress(who)) {
-      this.setState({ loading: true });
-      this.fetchInfo(who);
-      this.setState({ loading: false });
+      this.setState({ loading: true, results: null});
+      const info = await this.fetchInfo(who);
+
+      setTimeout(() => {
+        this.setState(Object.assign({ loading: false }, info));
+      }, 250);
     }
   };
 

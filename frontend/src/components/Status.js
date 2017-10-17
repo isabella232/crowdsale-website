@@ -20,6 +20,10 @@ export default class Status extends Component {
   }
 
   render () {
+    if (!auctionStore.loaded) {
+      return null;
+    }
+
     return (
       <Portal open>
         <div style={{
@@ -36,6 +40,7 @@ export default class Status extends Component {
               </a>
             )}
             content={this.renderContent()}
+            hoverable
           />
         </div>
       </Portal>
