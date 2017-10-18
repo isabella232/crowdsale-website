@@ -3,6 +3,9 @@ import store from 'store';
 
 import appStore, { CURRENT_STEP_LS_KEY, STEPS } from './app.store';
 import accountStore from './account.store';
+import Logger from '../logger';
+
+const logger = Logger('stepper-store');
 
 const TITLES = {
   generate: 'GENERATE WALLET',
@@ -70,7 +73,7 @@ class StepperStore {
         return accountStore.unlock()
           .then(() => appStore.goto(savedStep))
           .catch((error) => {
-            console.error(error);
+            logger.error(error);
             return appStore.goto('important-notice');
           });
       }
@@ -165,7 +168,7 @@ class StepperStore {
     }
 
     if (step) {
-      console.warn('UNKOWN STEP FOR STEPPER', step);
+      logger.warn('UNKOWN STEP FOR STEPPER', step);
     }
 
     return { invalid: true };

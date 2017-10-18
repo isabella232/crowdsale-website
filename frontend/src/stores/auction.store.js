@@ -5,8 +5,11 @@ import backend from '../backend';
 import appStore from './app.store';
 import blockStore from './block.store';
 import { ascii2hex, sha3 } from '../utils';
+import Logger from '../logger';
 
 import rawTerms from '!raw-loader!../terms.md'; // eslint-disable-line import/no-webpack-loader-syntax
+
+const logger = Logger('auction-store');
 
 function toUTF8 (x) {
   return unescape(encodeURIComponent(x));
@@ -74,7 +77,7 @@ class AuctionStore {
     this.checkDummyDeal();
 
     if (STATEMENT_HASH !== TSCS_HASH) {
-      console.warn(`> In contract: ${STATEMENT_HASH} // Computed: ${TSCS_HASH} ...`);
+      logger.warn(`> In contract: ${STATEMENT_HASH} // Computed: ${TSCS_HASH} ...`);
       appStore.addError(new Error(`Unexpected statement hash in the Sale contract.`));
     }
 
@@ -100,31 +103,31 @@ class AuctionStore {
 
     if (!deal.accounted.eq(accounted)) {
       error = true;
-      console.warn(`mismatch in accounted value: ${deal.accounted.toFormat()} vs. ${accounted.toFormat()}`);
+      logger.warn(`mismatch in accounted value: ${deal.accounted.toFormat()} vs. ${accounted.toFormat()}`);
     }
 
     if (deal.refund !== refund) {
       error = true;
-      console.warn(`mismatch in refund value: ${deal.refund} vs. ${refund}`);
+      logger.warn(`mismatch in refund value: ${deal.refund} vs. ${refund}`);
     }
 
     if (!deal.price.eq(price)) {
       error = true;
-      console.warn(`mismatch in price value: ${deal.price.toFormat()} vs. ${price.toFormat()}`);
+      logger.warn(`mismatch in price value: ${deal.price.toFormat()} vs. ${price.toFormat()}`);
     }
 
     if (!deal.price.eq(expectedPrice)) {
       error = true;
-      console.warn(`mismatch in computed price value: ${deal.price.toFormat()} vs. ${expectedPrice.toFormat()}`);
+      logger.warn(`mismatch in computed price value: ${deal.price.toFormat()} vs. ${expectedPrice.toFormat()}`);
     }
 
     if (Math.abs(expectedTime.getTime() - this.now.getTime()) > 1500) {
       error = true;
-      console.warn(`mismatch in computed time value: ${this.now} vs. ${expectedTime}`);
+      logger.warn(`mismatch in computed time value: ${this.now} vs. ${expectedTime}`);
     }
 
     if (!error) {
-      console.warn('everything looks good!');
+      logger.info('everything looks good!');
     }
   }
 
@@ -262,7 +265,7 @@ class AuctionStore {
 
       this.update(status);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   }
 

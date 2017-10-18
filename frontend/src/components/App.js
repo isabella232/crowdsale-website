@@ -24,6 +24,7 @@ import Terms from './steps/Terms';
 import ChartView from './ChartView';
 import InactiveAuction from './InactiveAuction';
 import DotsQuery from './DotsQuery';
+import Logs from './Logs';
 import Messages from './Messages';
 import Warning from './Warning';
 
@@ -38,6 +39,7 @@ export default class App extends Component {
         <div>
           <Route exact path='/dots' component={DotsQuery} />
           <Route exact path='/chart' component={ChartView} />
+          <Route exact path='/logs' component={Logs} />
           <Route exact path='/' component={MainApp} />
           <Messages />
         </div>

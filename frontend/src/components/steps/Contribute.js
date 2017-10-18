@@ -12,6 +12,9 @@ import feeStore from '../../stores/fee.store';
 import appStore from '../../stores/app.store';
 import AccountInfo from '../AccountInfo';
 import Step from '../Step';
+import Logger from '../../logger';
+
+const logger = Logger('Contribute');
 
 @observer
 export default class AccountLoader extends Component {
@@ -132,7 +135,7 @@ export default class AccountLoader extends Component {
     const { fee } = feeStore;
 
     if (!fee) {
-      console.warn('no total fee set...');
+      logger.warn('no total fee set...');
       return;
     }
 

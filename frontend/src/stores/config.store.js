@@ -2,6 +2,9 @@ import EventEmitter from 'eventemitter3';
 import { action, observable } from 'mobx';
 
 import backend from '../backend';
+import Logger from '../logger';
+
+const logger = Logger('config-store');
 
 /**
  * Configuration stores.
@@ -16,7 +19,7 @@ class Config extends EventEmitter {
     super();
 
     this.load().catch((error) => {
-      console.error(error);
+      logger.error(error);
     });
   }
 
@@ -32,7 +35,7 @@ class Config extends EventEmitter {
       this.loaded = true;
       this.emit('loaded');
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       setTimeout(() => this.load(), 1000);
     }
 

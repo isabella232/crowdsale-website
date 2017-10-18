@@ -5,6 +5,9 @@ import backend from '../backend';
 import picopsBackend from '../picops-backend';
 import config from './config.store';
 import { int2hex, isValidAddress } from '../utils';
+import Logger from '../logger';
+
+const logger = Logger('transaction-store');
 
 class Transaction {
   constructor (secret, { picops = false } = {}) {
@@ -37,7 +40,7 @@ class Transaction {
       to
     };
 
-    console.warn('sending tx', txParams);
+    logger.warn('sending tx', txParams);
     const tx = new EthereumTx(txParams);
 
     tx.sign(this.privateKey);

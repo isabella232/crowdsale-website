@@ -3,6 +3,9 @@ import React, { Component } from 'react';
 import IFrame from '../ui/IFrame';
 import picopsBackend from '../../picops-backend';
 import accountStore from '../../stores/account.store';
+import Logger from '../../logger';
+
+const logger = Logger('Picops');
 
 export default class Picops extends Component {
   render () {
@@ -18,7 +21,7 @@ export default class Picops extends Component {
 
   handleMessage = (event, message) => {
     if (message.action === 'request-signature') {
-      console.warn('requesting to sign', message.data);
+      logger.warn('requesting to sign', message.data);
       this.handleSignMessage(message.data, event.source, event.origin);
     }
 
@@ -30,7 +33,7 @@ export default class Picops extends Component {
   handleSignMessage = (message, source, origin) => {
     const signature = accountStore.signMessage(message);
 
-    console.warn('sending signature', message, signature);
+    logger.warn('sending signature', message, signature);
     source.postMessage(JSON.stringify({
       action: 'signature',
       signature

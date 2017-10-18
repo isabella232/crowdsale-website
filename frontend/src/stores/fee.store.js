@@ -8,6 +8,9 @@ import Transaction from './transaction';
 
 import picopsBackend from '../picops-backend';
 import { isValidAddress } from '../utils';
+import Logger from '../logger';
+
+const logger = Logger('fee-store');
 
 // Gas Limit of 200k gas
 const FEE_REGISTRAR_GAS_LIMIT = new BigNumber('0x30d40');
@@ -32,7 +35,7 @@ class FeeStore {
   }
 
   load = async () => {
-    console.warn('loading fee store...');
+    logger.warn('loading fee store...');
 
     try {
       // Retrieve the fee
@@ -70,11 +73,12 @@ class FeeStore {
         value: this.fee
       });
 
-      console.warn('sent FeeRegistrar tx', hash);
+      logger.warn('sent FeeRegistrar tx', hash);
       this.setTransaction(hash);
+      return appStore.goto('fee-payment');
     } catch (error) {
       appStore.addError(error);
-      appStore.goto('contribute');
+      return appStore.goto('contribute');
     }
   }
 

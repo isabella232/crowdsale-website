@@ -7,6 +7,9 @@ import store from 'store';
 import backend from '../backend';
 import config from './config.store';
 import history from './history';
+import Logger from '../logger';
+
+const logger = Logger('app-store');
 
 export const CITIZENSHIP_LS_KEY = '_parity-crowdsale::citizenship';
 export const TERMS_LS_KEY = '_parity-crowdsale::agreed-terms::v1';
@@ -58,6 +61,8 @@ class AppStore extends EventEmitter {
 
   constructor () {
     super();
+
+    logger.info('loading the store');
     this.load();
 
     history.listen((location, haction) => {
@@ -65,7 +70,7 @@ class AppStore extends EventEmitter {
         return;
       }
 
-      // console.warn('history event', location, haction);
+      // logger.warn('history event', location, haction);
 
       if (location.state && location.state.goto && !this.halted) {
         this.goto(location.state.goto);
@@ -94,7 +99,7 @@ class AppStore extends EventEmitter {
 
   async goto (name) {
     if (!STEPS[name]) {
-      console.error(new Error(`unknown step ${name}`));
+      logger.error(new Error(`unknown step ${name}`));
       return this.goto('important-notice');
     }
 
@@ -142,7 +147,7 @@ class AppStore extends EventEmitter {
     this.blacklistedCountries = blCountries
       .filter((countryKey) => {
         if (!countries[countryKey]) {
-          console.error(new Error('unknown country key: ' + countryKey));
+          logger.error(new Error('unknown country key: ' + countryKey));
           return false;
         }
 
@@ -185,10 +190,10 @@ class AppStore extends EventEmitter {
 
     // If it's not a client error, don't show it
     if (error.status && (error.status < 400 || error.status >= 500)) {
-      return console.error(error);
+      return logger.error(error);
     }
 
-    console.error(error);
+    logger.error(error);
     return this.addMessage({ content: error.message, type: 'error', title: 'An error occured' });
   }
 

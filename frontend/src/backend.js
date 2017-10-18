@@ -1,6 +1,9 @@
 import BigNumber from 'bignumber.js';
 
 import { get, post, sleep } from './utils';
+import Logger from './logger';
+
+const logger = Logger('backend');
 
 class Backend {
   constructor (url) {
@@ -16,7 +19,7 @@ class Backend {
     if ((error.status < 400 || error.status >= 500) && attempts < 4) {
       const timeout = Math.floor(Math.pow(1.6, attempts) * 1000);
 
-      console.warn(`[${error.status}] ${error.message} - will retry in ${Math.round(timeout / 1000)}s`);
+      logger.warn(`[${error.status}] ${error.message} - will retry in ${Math.round(timeout / 1000)}s`);
       await sleep(timeout);
       return callback();
     }

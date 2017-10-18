@@ -6,9 +6,12 @@ import { Button, Input } from 'semantic-ui-react';
 
 import accountStore from '../../../stores/account.store';
 import appStore from '../../../stores/app.store';
+import Logger from '../../../logger';
 
 import AccountInfo from '../../AccountInfo';
 import Step from '../../Step';
+
+const logger = Logger('AccountLoader/Unlock');
 
 @observer
 export default class Unlock extends Component {
@@ -143,7 +146,7 @@ export default class Unlock extends Component {
           appStore.addError(error);
         }
       } catch (error) {
-        console.error(error);
+        logger.error(error);
         this.errorId = appStore.addError(new Error('Failed to unlock your wallet. The password might be wrong.'));
         this.setState({ loading: false });
       }
