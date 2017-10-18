@@ -10,6 +10,9 @@ import config from './config.store';
 import storage from './storage';
 import Transaction from './transaction';
 import { hex2buf, hex2bn, buildABIData } from '../utils';
+import Logger from '../logger';
+
+const logger = Logger('buy-store');
 
 const BUYIN_SIG = '0xd0280037';
 const GAS_LIMIT = new BigNumber(200000);
@@ -74,20 +77,20 @@ class BuyStore {
 
       appStore.goto('summary');
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   }
 
   async purchase (address, spending, privateKey) {
-    console.warn('buying tokens for', spending.toFormat());
+    logger.warn('buying tokens for', spending.toFormat());
 
     const { contractAddress } = auctionStore;
 
-    if (!address || !privateKey) {
-      throw new Error('no address or no private key');
-    }
-
     try {
+      if (!address || !privateKey) {
+        throw new Error('no address or no private key');
+      }
+
       const privateKeyBuf = Buffer.from(privateKey.slice(2), 'hex');
       const { v, r, s } = ecsign(hex2buf(TSCS_HASH), privateKeyBuf);
       const data = buildABIData(BUYIN_SIG, v, r, s);
@@ -100,11 +103,12 @@ class BuyStore {
         data
       });
 
-      console.warn('sent purchase', hash);
+      logger.warn('sent purchase', hash);
       this.setTransaction(hash);
+      return appStore.goto('purchase');
     } catch (error) {
       appStore.addError(error);
-      appStore.goto('contribute');
+      return appStore.goto('contribute');
     }
   }
 

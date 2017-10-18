@@ -2,6 +2,9 @@ import { action, observable } from 'mobx';
 import EventEmitter from 'eventemitter3';
 
 import backend from '../backend';
+import Logger from '../logger';
+
+const logger = Logger('block-store');
 
 const REFRESH_DELAY = 4000;
 
@@ -32,7 +35,7 @@ class BlockStore extends EventEmitter {
           this.update(hash);
         }
       } catch (error) {
-        console.error(error);
+        logger.error(error);
       }
     }
 

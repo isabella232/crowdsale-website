@@ -119,7 +119,7 @@ export default class DotsQuery extends Component {
     const { who } = this.state;
 
     if (isValidAddress(who)) {
-      this.setState({ loading: true, results: null});
+      this.setState({ loading: true, results: null });
       const info = await this.fetchInfo(who);
 
       setTimeout(() => {

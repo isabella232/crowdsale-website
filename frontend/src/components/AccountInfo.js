@@ -5,8 +5,11 @@ import { Segment } from 'semantic-ui-react';
 import backend from '../backend';
 import blockStore from '../stores/block.store';
 import { fromWei, toChecksumAddress } from '../utils';
+import Logger from '../logger';
 
 import AccountIcon from './AccountIcon.js';
+
+const logger = Logger('AccountInfo');
 
 export default class AccountInfo extends Component {
   static propTypes = {
@@ -61,7 +64,7 @@ export default class AccountInfo extends Component {
 
       this.setState(nextState);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   }
 

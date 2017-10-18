@@ -11,6 +11,9 @@ import blockStore from './block.store';
 import buyStore from './buy.store';
 import feeStore from './fee.store';
 import storage from './storage';
+import Logger from '../logger';
+
+const logger = Logger('account-store');
 
 class AccountStore {
   @observable accounted = new BigNumber(0);
@@ -59,7 +62,7 @@ class AccountStore {
       missingWei = new BigNumber(0);
     }
 
-    // console.warn(JSON.stringify({ balance, missingWei, paid, spending, totalFee }, null, 2));
+    // logger.warn(JSON.stringify({ balance, missingWei, paid, spending, totalFee }, null, 2));
     return missingWei;
   }
 
@@ -76,12 +79,11 @@ class AccountStore {
   }
 
   async checkFeePayment () {
-    const { paid } = await picopsBackend.getAccountFeeInfo(this.address);
+    await this.fetchInfo();
 
-    if (paid) {
-      this.setInfo({ paid });
+    if (this.paid) {
       this.unwatchFeePayment();
-      appStore.goto('picops');
+      return this.checkPayment();
     }
   }
 
@@ -89,23 +91,21 @@ class AccountStore {
     await this.fetchInfo();
 
     if (this.missingWei.eq(0)) {
-      console.log('got enough funds');
+      logger.log('got enough funds');
       this.unwatchPayment();
 
       if (this.certified) {
-        console.log('certified, sending purchase');
-        await buyStore.purchase(this.address, this.spending, this.privateKey);
-        return appStore.goto('purchase');
+        logger.log('certified, sending purchase');
+        return buyStore.purchase(this.address, this.spending, this.privateKey);
       }
 
       if (!this.paid) {
-        console.log('have not paid, sending fee payment');
-        await feeStore.sendPayment(this.address, this.privateKey);
-        return appStore.goto('fee-payment');
+        logger.log('have not paid, sending fee payment');
+        return feeStore.sendPayment(this.address, this.privateKey);
       }
 
       // If not certified but already paid
-      console.log('paid but not certified, going to picops');
+      logger.log('paid but not certified, going to picops');
       return appStore.goto('picops');
     }
 
@@ -249,6 +249,7 @@ class AccountStore {
 
   /** Poll on new block if `this.address` paid the fee */
   async watchFeePayment () {
+    logger.log('watching fee payment');
     blockStore.on('block', this.checkFeePayment, this);
     return this.checkFeePayment();
   }
@@ -266,6 +267,7 @@ class AccountStore {
 
   /** Stop polling */
   unwatchFeePayment () {
+    logger.log('unwatching fee payment');
     blockStore.removeListener('block', this.checkFeePayment, this);
   }
 
