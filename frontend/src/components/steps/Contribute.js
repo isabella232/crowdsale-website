@@ -19,7 +19,8 @@ const logger = Logger('Contribute');
 @observer
 export default class AccountLoader extends Component {
   state = {
-    dots: new BigNumber(0)
+    dots: new BigNumber(0),
+    loading: false
   };
 
   render () {
@@ -116,10 +117,11 @@ export default class AccountLoader extends Component {
   renderAction () {
     const { DUST_LIMIT } = auctionStore;
     const { certified, missingWei, spending } = accountStore;
+    const { loading } = this.state;
 
     return (
       <div style={{ textAlign: 'right', marginTop: '1.5em' }}>
-        <Button primary onClick={this.handleContinue} disabled={!spending || spending.eq(0) || spending.lt(DUST_LIMIT)}>
+        <Button primary loading={loading} onClick={this.handleContinue} disabled={!spending || spending.eq(0) || spending.lt(DUST_LIMIT)}>
           {
             missingWei.eq(0)
               ? (certified ? 'Contribute' : 'Certify your identity')
@@ -184,11 +186,15 @@ export default class AccountLoader extends Component {
       return;
     }
 
+    this.setState({ loading: true });
+
     try {
       await accountStore.checkPayment();
     } catch (error) {
       appStore.addError(error);
     }
+
+    this.setState({ loading: false });
   };
 
   handleSpendChange = async (_, { value }) => {
