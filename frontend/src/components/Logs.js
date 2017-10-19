@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Button, Header } from 'semantic-ui-react';
 
 import AppContainer from './AppContainer';
-import { clearLogs, getLogs } from '../logger';
+import { logger } from '../logger';
 
 const logStyle = {
   display: 'flex',
@@ -37,9 +37,7 @@ export default class Logs extends Component {
 
   componentWillMount () {
     this.update();
-    this.timeoutId = setTimeout(() => {
-      this.update();
-    }, 1500);
+    logger.on('log', this.update);
   }
 
   componentWillUnmount () {
@@ -104,14 +102,14 @@ export default class Logs extends Component {
     );
   }
 
-  update () {
-    const logs = getLogs().sort((lA, lB) => lB.date - lA.date);
+  update = () => {
+    const logs = logger.getLogs().sort((lA, lB) => lB.date - lA.date);
 
     this.setState({ logs });
-  }
+  };
 
   handleClear = () => {
-    clearLogs();
+    logger.clearLogs();
     this.update();
   };
 
