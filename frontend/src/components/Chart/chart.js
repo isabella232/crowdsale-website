@@ -106,7 +106,7 @@ class CustomChart extends Component {
     const yDomain = [
       // Math.round(data[0].target) * 1.05,
       Math.max(
-        data.slice(-1)[0].raised * 2.6,
+        (data.slice(-1)[0].raised - data[0].raised) * 4 + data[0].raised,
         data.slice(-1)[0].target * 1.15
       ),
       data[0].raised

@@ -72,7 +72,7 @@ class ChartView extends Component {
             hasNotEnded
               ? (
                 <div>
-                  * "contributed so far" includes the bonuses
+                  * "contributed so far" does not include the bonuses
                 </div>
               )
               : null

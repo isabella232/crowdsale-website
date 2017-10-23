@@ -24,16 +24,18 @@ class ChartStore {
   }
 
   formatChartData (data) {
+    const bonus = auctionStore.totalAccounted.sub(auctionStore.totalReceived);
     const { target, raised, time } = data;
     const { DIVISOR } = auctionStore;
     const { initialRaised = new BigNumber(0) } = this;
+    const substract = initialRaised.add(bonus);
 
     return {
-      target: fromWei(target.div(DIVISOR).sub(initialRaised)).toNumber(),
-      raised: raised ? fromWei(raised.sub(initialRaised)).toNumber() : raised,
+      target: fromWei(target.div(DIVISOR).sub(substract)).toNumber(),
+      raised: raised ? fromWei(raised.sub(substract)).toNumber() : raised,
       raw: {
-        target: fromWei(target.div(DIVISOR)),
-        raised: raised ? fromWei(raised) : raised
+        target: fromWei(target.div(DIVISOR).sub(bonus)),
+        raised: raised ? fromWei(raised.sub(bonus)) : raised
       },
       time: time.getTime(),
       date: time
