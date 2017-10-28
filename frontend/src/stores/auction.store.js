@@ -196,13 +196,14 @@ class AuctionStore {
   }
 
   weiToDot (weiValue) {
-    const deal = this.theDeal(weiValue);
+    // const deal = this.theDeal(weiValue);
+    const price = this.currentPrice;
 
-    if (deal.price.eq(0)) {
+    if (price.eq(0)) {
       return new BigNumber(0);
     }
 
-    const dots = deal.accounted.div(deal.price).floor();
+    const dots = weiValue.div(price).floor();
 
     return dots.div(this.DIVISOR);
   }

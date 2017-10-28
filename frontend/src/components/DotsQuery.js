@@ -66,11 +66,8 @@ export default class DotsQuery extends Component {
     return (
       <div style={{ textAlign: 'center' }}>
         <Header as='h4'>
-          Your current contribution and resulting DOT allocation
+          Your contribution and resulting DOT allocation
         </Header>
-        <p>
-          Please note, your DOT allocation is not final until the auction concludes.
-        </p>
         <div>
           <Statistic size='huge' style={{ marginRight: '4em' }}>
             <Statistic.Value>{fromWei(received).toFormat()}</Statistic.Value>
