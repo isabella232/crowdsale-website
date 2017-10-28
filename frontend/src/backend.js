@@ -47,6 +47,18 @@ class Backend {
     }
   }
 
+  async allocation (address) {
+    const { dots, bonus, accounted, received, price } = await this.get(`/accounts/${address}/allocation`);
+
+    return {
+      dots: new BigNumber(dots),
+      bonus: new BigNumber(bonus * 100),
+      accounted: new BigNumber(accounted),
+      received: new BigNumber(received),
+      price: new BigNumber(price)
+    };
+  }
+
   async balance (address) {
     const { balance } = await this.get(`/accounts/${address}/balance`);
 

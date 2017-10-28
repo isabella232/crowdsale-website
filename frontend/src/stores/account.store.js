@@ -16,7 +16,6 @@ import Logger from '../logger';
 const logger = Logger('account-store');
 
 class AccountStore {
-  @observable accounted = new BigNumber(0);
   @observable address = '';
   @observable balance = new BigNumber(0);
   @observable certified = null;
@@ -120,7 +119,7 @@ class AccountStore {
       throw new Error('no address set in the account store');
     }
 
-    const { accounted, eth: balance, certified } = await backend.getAddressInfo(this.address);
+    const { eth: balance, certified } = await backend.getAddressInfo(this.address);
 
     // No need to fetch paid info again if paid
     if (!this.paid) {
@@ -129,7 +128,7 @@ class AccountStore {
       this.setInfo({ paid });
     }
 
-    this.setInfo({ accounted, balance, certified });
+    this.setInfo({ balance, certified });
   }
 
   /**
@@ -188,11 +187,7 @@ class AccountStore {
     await this.fetchInfo();
   }
 
-  @action setInfo ({ accounted, balance, certified, paid }) {
-    if (accounted !== undefined) {
-      this.accounted = accounted;
-    }
-
+  @action setInfo ({ balance, certified, paid }) {
     if (balance !== undefined) {
       this.balance = balance;
     }

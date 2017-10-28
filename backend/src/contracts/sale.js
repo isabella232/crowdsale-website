@@ -7,7 +7,7 @@ const BigNumber = require('bignumber.js');
 const config = require('config');
 const { uniq } = require('lodash');
 
-const { SecondPriceAuction } = require('../abis');
+const { FrozenToken, SecondPriceAuction } = require('../abis');
 const Contract = require('../api/contract');
 const logger = require('../logger');
 const { int2date, int2hex, fromWei } = require('../utils');
@@ -45,6 +45,8 @@ class Sale extends Contract {
     this._saleLogs = [];
     this._chart = [];
     this.init();
+
+    this._minedBlock = saleMinedBlock;
   }
 
   async dummyDeal () {
@@ -57,9 +59,15 @@ class Sale extends Contract {
   async init () {
     try {
       await this.fetchLogs();
+      await this.update();
 
       // Re-fetch the logs every 15 minutes
       setInterval(() => this.fetchLogs(), 1000 * 60 * 15);
+
+      const { tokenContract } = this.values;
+      const frozenTokenContract = new Contract(this.connector, tokenContract, FrozenToken);
+
+      this._frozenToken = frozenTokenContract;
     } catch (error) {
       logger.error(error);
     }
@@ -78,8 +86,16 @@ class Sale extends Contract {
     return this._chart;
   }
 
+  get frozenToken () {
+    return this._frozenToken;
+  }
+
   get saleLogs () {
     return this._saleLogs;
+  }
+
+  get minedBlock () {
+    return this._minedBlock;
   }
 
   checkLogs () {
