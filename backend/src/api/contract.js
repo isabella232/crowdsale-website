@@ -315,7 +315,8 @@ class Contract {
    * @param  {Object}    options     - The options to pass the eth_getLogs
    * @return {Promise<Array>}
    */
-  async logs (eventNames, options) {
+  async logs (eventNames, _options) {
+    const options = Object.assign({}, _options);
     const events = eventNames.map((eventName) => {
       if (!this._events.has(eventName)) {
         throw new Error(`Unknown event ${eventName}`);
@@ -324,7 +325,12 @@ class Contract {
       return this._events.get(eventName);
     });
 
-    const topics = [ events.map((event) => event.topic) ];
+    let topics = [ events.map((event) => event.topic) ];
+
+    if (options.topics && options.topics.length > 0) {
+      topics = topics.concat(options.topics);
+      delete options.topics;
+    }
 
     return this._logs(topics, options);
   }

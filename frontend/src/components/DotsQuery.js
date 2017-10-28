@@ -58,19 +58,14 @@ export default class DotsQuery extends Component {
       return null;
     }
 
-    const { accounted, received } = results;
-    const bonus = accounted.mul(100).div(received).sub(100);
-    const dots = auctionStore.weiToDot(accounted);
-    const { currentPrice, DIVISOR } = auctionStore;
+    const { dots, bonus, received, price } = results;
+    const { DIVISOR } = auctionStore;
 
     return (
       <div style={{ textAlign: 'center' }}>
         <Header as='h4'>
-          Your current contribution and resulting DOT allocation
+          Your contribution and resulting DOT allocation
         </Header>
-        <p>
-          Please note, your DOT allocation is not final until the auction concludes.
-        </p>
         <div>
           <Statistic size='huge' style={{ marginRight: '4em' }}>
             <Statistic.Value>{fromWei(received).toFormat()}</Statistic.Value>
@@ -89,14 +84,14 @@ export default class DotsQuery extends Component {
           }
 
           <Statistic size='huge'>
-            <Statistic.Value>{dots.toFormat()}</Statistic.Value>
+            <Statistic.Value>{dots.div(DIVISOR).toFormat()}</Statistic.Value>
             <Statistic.Label>DOTS</Statistic.Label>
           </Statistic>
         </div>
 
         <div style={{ marginTop: '1em' }}>
           <Statistic size='small' color='grey'>
-            <Statistic.Value>{fromWei(currentPrice.mul(DIVISOR)).toFormat(3)}</Statistic.Value>
+            <Statistic.Value>{fromWei(price.mul(DIVISOR)).toFormat(3)}</Statistic.Value>
             <Statistic.Label>ETH / DOT</Statistic.Label>
           </Statistic>
         </div>
@@ -106,9 +101,9 @@ export default class DotsQuery extends Component {
 
   async fetchInfo (who) {
     try {
-      const { accounted, received } = await backend.getAddressInfo(who);
+      const { accounted, received, dots, bonus, price } = await backend.allocation(who);
 
-      return { results: { accounted, received } };
+      return { results: { accounted, received, dots, bonus, price } };
     } catch (error) {
       console.error(error);
     }

@@ -124,11 +124,7 @@ export default class Status extends Component {
     return (
       <div>
         <div>
-          The auction will end <Moment fromNow title={endTime.toLocaleString()}>{endTime}</Moment> if no more
-          contributions are submitted.
-        </div>
-        <div>
-          There are still {formattedTA.toFormat()} DOTs available to buy.
+          The auction has ended.
         </div>
       </div>
     );
