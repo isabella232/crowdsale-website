@@ -52,7 +52,7 @@ class Backend {
 
     return {
       dots: new BigNumber(dots),
-      bonus: new BigNumber(bonus * 100),
+      bonus: new BigNumber(Math.round(bonus * 10000)).div(100),
       accounted: new BigNumber(accounted),
       received: new BigNumber(received),
       price: new BigNumber(price)
