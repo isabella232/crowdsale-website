@@ -1,16 +1,9 @@
-import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Container, Header, Segment } from 'semantic-ui-react';
+import { Container, Segment } from 'semantic-ui-react';
 
-import appStore, { STEPS } from '../stores/app.store';
-import stepperStore from '../stores/stepper.store';
-
-import BigStepper from './BigStepper.js';
 import Footer from './Footer';
 import MainLogo from '../images/MainLogo.svg';
-import Stepper from './Stepper';
-import Status from './Status';
 
 const baseContentStyle = {
   backgroundColor: 'white',
@@ -25,15 +18,13 @@ const mainLogoStyle = {
   height: '3em'
 };
 
-@observer
 export default class AppContainer extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
 
     footer: PropTypes.node,
     header: PropTypes.node,
-    style: PropTypes.object,
-    hideStepper: PropTypes.bool
+    style: PropTypes.object
   };
 
   static defaultProps = {
@@ -42,24 +33,12 @@ export default class AppContainer extends Component {
   };
 
   render () {
-    const { hideStepper } = this.props;
-
     return (
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div style={{ paddingBottom: '4em', flex: '1 1 auto' }}>
           <div style={headerStyle}>
             <img src={MainLogo} style={mainLogoStyle} />
           </div>
-          <Status />
-          {
-            hideStepper
-              ? null
-              : (
-                <div style={{ paddingTop: '0em' }}>
-                  <BigStepper />
-                </div>
-              )
-          }
           {this.renderContent()}
         </div>
         <div style={{ flex: '0 0 auto' }}>
@@ -70,45 +49,24 @@ export default class AppContainer extends Component {
   }
 
   renderContent () {
-    const { hideStepper, children, header, footer } = this.props;
-    const noPadding = appStore.step === STEPS['picops'];
+    const { children, header, footer } = this.props;
 
     const style = {
       textAlign: 'left'
     };
 
-    const { title } = stepperStore;
     const contentStyle = Object.assign({}, baseContentStyle, this.props.style);
-    const titleNode = title
-      ? <Header as='h4' style={{ marginTop: '2em' }}>{title}</Header>
-      : <div style={{ marginTop: hideStepper ? '1em' : '4em' }} />;
 
     return (
       <div>
         <Container style={style}>
-          {titleNode}
+          <div style={{ marginTop: '1em' }} />
           {header || null}
-          {
-            hideStepper
-              ? null
-              : (<Stepper />)
-          }
-          {
-            noPadding
-              ? null
-              : (
-                <Segment basic style={contentStyle}>
-                  {children}
-                </Segment>
-              )
-          }
+          <Segment basic style={contentStyle}>
+            {children}
+          </Segment>
           {footer || null}
         </Container>
-        {
-          noPadding
-            ? children
-            : null
-        }
       </div>
     );
   }

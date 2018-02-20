@@ -1,4 +1,3 @@
-import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Button, Header, Statistic } from 'semantic-ui-react';
 
@@ -6,10 +5,8 @@ import AppContainer from './AppContainer';
 import AddressInput from './AddressInput';
 
 import auctionStore from '../stores/auction.store';
-import backend from '../backend';
 import { fromWei, isValidAddress } from '../utils';
 
-@observer
 export default class DotsQuery extends Component {
   state = {
     loading: false,
@@ -58,7 +55,7 @@ export default class DotsQuery extends Component {
       return null;
     }
 
-    const { dots, bonus, received, price } = results;
+    const { dots, bonus, received } = results;
     const { DIVISOR } = auctionStore;
 
     return (
@@ -91,7 +88,7 @@ export default class DotsQuery extends Component {
 
         <div style={{ marginTop: '1em' }}>
           <Statistic size='small' color='grey'>
-            <Statistic.Value>{fromWei(price.mul(DIVISOR)).toFormat(3)}</Statistic.Value>
+            <Statistic.Value>0.109</Statistic.Value>
             <Statistic.Label>ETH / DOT</Statistic.Label>
           </Statistic>
         </div>
@@ -100,13 +97,15 @@ export default class DotsQuery extends Component {
   }
 
   async fetchInfo (who) {
-    try {
-      const { accounted, received, dots, bonus, price } = await backend.allocation(who);
+    console.log(who);
 
-      return { results: { accounted, received, dots, bonus, price } };
-    } catch (error) {
-      console.error(error);
-    }
+    // try {
+    //   const { accounted, received, dots, bonus, price } = await backend.allocation(who);
+
+    //   return { results: { accounted, received, dots, bonus, price } };
+    // } catch (error) {
+    //   console.error(error);
+    // }
     return {};
   }
 
