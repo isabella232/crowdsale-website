@@ -104,7 +104,9 @@ export default class DotsQuery extends Component {
     );
   }
 
-  async fetchInfo (who) {
+  async fetchInfo (address) {
+    const who = address.toLowerCase();
+
     if (who in DISTRIBUTION) {
       const [received, dots] = DISTRIBUTION[who];
 
