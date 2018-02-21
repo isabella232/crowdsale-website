@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { Button, Header, Statistic } from 'semantic-ui-react';
+import BigNumber from 'bignumber.js';
 
 import AppContainer from './AppContainer';
 import AddressInput from './AddressInput';
 
-import auctionStore from '../stores/auction.store';
-import { fromWei, isValidAddress } from '../utils';
+import { isValidAddress } from '../utils';
+
+import DISTRIBUTION from '../distribution.json';
 
 export default class DotsQuery extends Component {
   state = {
@@ -49,14 +51,11 @@ export default class DotsQuery extends Component {
   }
 
   renderResult () {
-    const { results } = this.state;
-
-    if (!results) {
+    if (!this.state.dots) {
       return null;
     }
 
-    const { dots, bonus, received } = results;
-    const { DIVISOR } = auctionStore;
+    const dots = new BigNumber(this.state.dots);
 
     return (
       <div style={{ textAlign: 'center' }}>
@@ -64,32 +63,9 @@ export default class DotsQuery extends Component {
           Your contribution and resulting DOT allocation
         </Header>
         <div>
-          <Statistic size='huge' style={{ marginRight: '4em' }}>
-            <Statistic.Value>{fromWei(received).toFormat()}</Statistic.Value>
-            <Statistic.Label>CONTRIBUTION (ETH)</Statistic.Label>
-          </Statistic>
-
-          {
-            bonus.gt(0)
-              ? (
-                <Statistic size='large' style={{ marginRight: '3em' }}>
-                  <Statistic.Value>{bonus.toFormat(2)}</Statistic.Value>
-                  <Statistic.Label>BONUS (%)</Statistic.Label>
-                </Statistic>
-              )
-              : null
-          }
-
           <Statistic size='huge'>
-            <Statistic.Value>{dots.div(DIVISOR).toFormat()}</Statistic.Value>
+            <Statistic.Value>{dots.div(1000).toFormat()}</Statistic.Value>
             <Statistic.Label>DOTS</Statistic.Label>
-          </Statistic>
-        </div>
-
-        <div style={{ marginTop: '1em' }}>
-          <Statistic size='small' color='grey'>
-            <Statistic.Value>0.109</Statistic.Value>
-            <Statistic.Label>ETH / DOT</Statistic.Label>
           </Statistic>
         </div>
       </div>
@@ -97,16 +73,11 @@ export default class DotsQuery extends Component {
   }
 
   async fetchInfo (who) {
-    console.log(who);
+    if (who in DISTRIBUTION) {
+      return { dots: DISTRIBUTION[who] };
+    }
 
-    // try {
-    //   const { accounted, received, dots, bonus, price } = await backend.allocation(who);
-
-    //   return { results: { accounted, received, dots, bonus, price } };
-    // } catch (error) {
-    //   console.error(error);
-    // }
-    return {};
+    return { dots: 0 };
   }
 
   handleQuery = async () => {
