@@ -5,9 +5,11 @@ import BigNumber from 'bignumber.js';
 import AppContainer from './AppContainer';
 import AddressInput from './AddressInput';
 
-import { isValidAddress } from '../utils';
+import { fromWei, isValidAddress } from '../utils';
 
 import DISTRIBUTION from '../distribution.json';
+
+const DIVISOR = 1000;
 
 export default class DotsQuery extends Component {
   state = {
@@ -51,11 +53,18 @@ export default class DotsQuery extends Component {
   }
 
   renderResult () {
-    if (!this.state.dots) {
+    const { results } = this.state;
+
+    if (!results) {
       return null;
     }
 
-    const dots = new BigNumber(this.state.dots);
+    // Magic number
+    const price = new BigNumber(108977891125062);
+
+    const dots = new BigNumber(results.dots);
+    const received = new BigNumber(results.received);
+    const bonus = dots.div(received.div(price)).sub(1).mul(100);
 
     return (
       <div style={{ textAlign: 'center' }}>
@@ -63,9 +72,32 @@ export default class DotsQuery extends Component {
           Your contribution and resulting DOT allocation
         </Header>
         <div>
+          <Statistic size='huge' style={{ marginRight: '4em' }}>
+            <Statistic.Value>{fromWei(received).toFormat()}</Statistic.Value>
+            <Statistic.Label>CONTRIBUTION (ETH)</Statistic.Label>
+          </Statistic>
+
+          {
+            bonus.gt(0)
+              ? (
+                <Statistic size='large' style={{ marginRight: '3em' }}>
+                  <Statistic.Value>{bonus.toFormat(2)}</Statistic.Value>
+                  <Statistic.Label>BONUS (%)</Statistic.Label>
+                </Statistic>
+              )
+              : null
+          }
+
           <Statistic size='huge'>
-            <Statistic.Value>{dots.div(1000).toFormat()}</Statistic.Value>
+            <Statistic.Value>{dots.div(DIVISOR).toFormat()}</Statistic.Value>
             <Statistic.Label>DOTS</Statistic.Label>
+          </Statistic>
+        </div>
+
+        <div style={{ marginTop: '1em' }}>
+          <Statistic size='small' color='grey'>
+            <Statistic.Value>{fromWei(price.mul(DIVISOR)).toFormat(3)}</Statistic.Value>
+            <Statistic.Label>ETH / DOT</Statistic.Label>
           </Statistic>
         </div>
       </div>
@@ -74,10 +106,12 @@ export default class DotsQuery extends Component {
 
   async fetchInfo (who) {
     if (who in DISTRIBUTION) {
-      return { dots: DISTRIBUTION[who] };
+      const [received, dots] = DISTRIBUTION[who];
+
+      return { dots, received };
     }
 
-    return { dots: 0 };
+    return { dots: 0, received: 0 };
   }
 
   handleQuery = async () => {
@@ -85,10 +119,10 @@ export default class DotsQuery extends Component {
 
     if (isValidAddress(who)) {
       this.setState({ loading: true, results: null });
-      const info = await this.fetchInfo(who);
+      const results = await this.fetchInfo(who);
 
       setTimeout(() => {
-        this.setState(Object.assign({ loading: false }, info));
+        this.setState(Object.assign({ loading: false }, { results }));
       }, 250);
     }
   };
