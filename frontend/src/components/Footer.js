@@ -1,9 +1,6 @@
-import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Container } from 'semantic-ui-react';
-
-import config from '../stores/config.store';
 
 import MainLogo from '../images/MainLogo.svg';
 
@@ -43,7 +40,6 @@ const Link = styled.a`
   margin-bottom: 0.35em;
 `;
 
-@observer
 export default class Footer extends Component {
   render () {
     return (
@@ -55,11 +51,8 @@ export default class Footer extends Component {
             <Grid>
               <Column>
                 <Title>FAQs</Title>
-                <Link target='_blank' href={`${config.saleWebsite}faq`}>
+                <Link target='_blank' href='https://polkadot.network/faq'>
                   Polkadot FAQ
-                </Link>
-                <Link target='_blank' href={`${config.picopsUrl}/#/faq`}>
-                  PICOPS FAQ
                 </Link>
               </Column>
 
@@ -75,13 +68,13 @@ export default class Footer extends Component {
 
               <Column>
                 <Title>Legal</Title>
-                <Link target='_blank' href={`${config.saleWebsite}impressum`}>
+                <Link target='_blank' href='https://polkadot.network/impressum'>
                   Polkadot Impressum
                 </Link>
-                <Link target='_blank' href={`${config.saleWebsite}privacy`}>
+                <Link target='_blank' href='https://polkadot.network/privacy'>
                   Polkadot Privacy Policy
                 </Link>
-                <Link target='_blank' href={`${config.saleWebsite}memorandum`}>
+                <Link target='_blank' href='https://polkadot.network/memorandum'>
                   Polkadot Memorandum
                 </Link>
               </Column>

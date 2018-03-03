@@ -1,15 +1,16 @@
-import { observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { Button, Header, Statistic } from 'semantic-ui-react';
+import BigNumber from 'bignumber.js';
 
 import AppContainer from './AppContainer';
 import AddressInput from './AddressInput';
 
-import auctionStore from '../stores/auction.store';
-import backend from '../backend';
 import { fromWei, isValidAddress } from '../utils';
 
-@observer
+import DISTRIBUTION from '../distribution.json';
+
+const DIVISOR = 1000;
+
 export default class DotsQuery extends Component {
   state = {
     loading: false,
@@ -58,8 +59,12 @@ export default class DotsQuery extends Component {
       return null;
     }
 
-    const { dots, bonus, received, price } = results;
-    const { DIVISOR } = auctionStore;
+    // Magic number
+    const price = new BigNumber(108977891125062);
+
+    const dots = new BigNumber(results.dots);
+    const received = new BigNumber(results.received);
+    const bonus = dots.div(received.div(price)).sub(1).mul(100);
 
     return (
       <div style={{ textAlign: 'center' }}>
@@ -99,15 +104,16 @@ export default class DotsQuery extends Component {
     );
   }
 
-  async fetchInfo (who) {
-    try {
-      const { accounted, received, dots, bonus, price } = await backend.allocation(who);
+  async fetchInfo (address) {
+    const who = address.toLowerCase();
 
-      return { results: { accounted, received, dots, bonus, price } };
-    } catch (error) {
-      console.error(error);
+    if (who in DISTRIBUTION) {
+      const [received, dots] = DISTRIBUTION[who];
+
+      return { dots, received };
     }
-    return {};
+
+    return { dots: 0, received: 0 };
   }
 
   handleQuery = async () => {
@@ -115,10 +121,10 @@ export default class DotsQuery extends Component {
 
     if (isValidAddress(who)) {
       this.setState({ loading: true, results: null });
-      const info = await this.fetchInfo(who);
+      const results = await this.fetchInfo(who);
 
       setTimeout(() => {
-        this.setState(Object.assign({ loading: false }, info));
+        this.setState(Object.assign({ loading: false }, { results }));
       }, 250);
     }
   };

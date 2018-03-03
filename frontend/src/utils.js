@@ -93,6 +93,8 @@ function checkStatus (response) {
 }
 
 export async function get (url) {
+  debugger;
+
   let response = await fetch(url);
 
   checkStatus(response);
